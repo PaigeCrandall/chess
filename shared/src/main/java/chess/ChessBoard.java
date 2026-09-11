@@ -11,8 +11,8 @@ public class ChessBoard {
 
     public void printBoard() {
         System.out.println("    a   b   c   d   e   f   g   h");
-        for (int i = 0; i<8; i++) {
-            System.out.printf("%s  ", 8-i);
+        for (int i = 1; i<=8; i++) {
+            System.out.printf("%s  ", 9-i);
             for (int n = 0; n<8; n++) {
                 System.out.print("|");
                 if (board[i][n] == null) {
@@ -60,10 +60,10 @@ public class ChessBoard {
     }
 
     public void resetBoard() {
-        board = new ChessPiece[8][8];
+        board = new ChessPiece[9][9];
 
         // add pawns
-        for (int i=0; i<8; i++) {
+        for (int i=1; i<=8; i++) {
             setPiece(1, i, ChessPiece.PieceType.PAWN, ChessGame.TeamColor.WHITE);
             setPiece(6, i, ChessPiece.PieceType.PAWN, ChessGame.TeamColor.BLACK);
         }
