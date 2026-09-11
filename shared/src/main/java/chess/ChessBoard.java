@@ -6,10 +6,11 @@ public class ChessBoard {
     private ChessPiece[][] board;
     
     public ChessBoard() {
-        board = new ChessPiece[8][8];
+        resetBoard();
     }
 
     public void printBoard() {
+        System.out.println("    a   b   c   d   e   f   g   h");
         for (int i = 0; i<8; i++) {
             System.out.printf("%s  ", 8-i);
             for (int n = 0; n<8; n++) {
@@ -52,19 +53,6 @@ public class ChessBoard {
      * Sets the board to the default starting board
      * (How the game of chess normally starts)
      */
-
-    public void setPawns() {
-        for (int i=0; i<8; i++) {
-            ChessPosition whitePosition = new ChessPosition(1, i);
-            ChessPiece whitePawn = new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.PAWN);
-            addPiece(whitePosition, whitePawn);
-
-            ChessPosition blackPosition = new ChessPosition(6, i);
-            ChessPiece blackPawn = new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.PAWN);
-            addPiece(blackPosition, blackPawn);
-        }
-    }
-
     public void setPiece(int row, int column, ChessPiece.PieceType type, ChessGame.TeamColor color) {
         ChessPosition position = new ChessPosition(row, column);
         ChessPiece piece = new ChessPiece(color, type);
@@ -75,7 +63,10 @@ public class ChessBoard {
         board = new ChessPiece[8][8];
 
         // add pawns
-        setPawns();
+        for (int i=0; i<8; i++) {
+            setPiece(1, i, ChessPiece.PieceType.PAWN, ChessGame.TeamColor.WHITE);
+            setPiece(6, i, ChessPiece.PieceType.PAWN, ChessGame.TeamColor.BLACK);
+        }
 
         // add Rooks
         setPiece(0, 0, ChessPiece.PieceType.ROOK, ChessGame.TeamColor.BLACK);
@@ -108,7 +99,6 @@ public class ChessBoard {
     // For Testing
     public static void main(String[] args) {
         ChessBoard gameboard = new ChessBoard();
-        gameboard.resetBoard();
         gameboard.printBoard();
     }
 }
