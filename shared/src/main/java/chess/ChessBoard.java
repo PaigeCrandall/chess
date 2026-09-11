@@ -6,7 +6,24 @@ public class ChessBoard {
     private ChessPiece[][] board;
     
     public ChessBoard() {
-        board = new ChessPiece[9][9];
+        board = new ChessPiece[8][8];
+    }
+
+    public void printBoard() {
+        for (int i = 0; i<8; i++) {
+            System.out.printf("%s  ", i+1);
+            for (int n = 0; n<8; n++) {
+                System.out.print("|");
+                if (board[i][n] == null) {
+                    System.out.print(" ");
+                }
+                else {
+                    System.out.printf(board[i][n].toString());
+                }
+                System.out.print("| ");
+            }
+            System.out.print("\n");
+        }
     }
 
     /**
@@ -17,7 +34,7 @@ public class ChessBoard {
     */
 
     public void addPiece(ChessPosition position, ChessPiece piece) {
-        board[position.getRow()-1][position.getColumn()-1] = piece;
+        board[position.getRow()][position.getColumn()] = piece;
     }
 
     /**
@@ -39,14 +56,20 @@ public class ChessBoard {
         board = new ChessPiece[8][8];
 
         // add pawns
-        for (int i=1; i<=9; i++) {
-            ChessPosition whitePosition = new ChessPosition(1, i);
+        for (int i=0; i<8; i++) {
+            ChessPosition whitePosition = new ChessPosition(0, i);
             ChessPiece whitePawn = new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.PAWN);
             addPiece(whitePosition, whitePawn);
 
-            ChessPosition blackPosition = new ChessPosition(9, i);
+            ChessPosition blackPosition = new ChessPosition(7, i);
             ChessPiece blackPawn = new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.PAWN);
             addPiece(blackPosition, blackPawn);
         }
     }
-}
+
+//    public static void main(String[] args) {
+//        ChessBoard gameboard = new ChessBoard();
+//        gameboard.resetBoard();
+//        gameboard.printBoard();
+//    }
+//}

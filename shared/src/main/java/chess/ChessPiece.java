@@ -9,10 +9,21 @@ import java.util.Collection;
  * signature of the existing methods.
  */
 public class ChessPiece {
-
+    ChessGame.TeamColor color;
+    ChessPiece.PieceType type;
 
     public ChessPiece(ChessGame.TeamColor pieceColor, ChessPiece.PieceType type) {
+        this.color = pieceColor;
+        this.type = type;
+    }
 
+    public String toString() {
+        if (type==ChessPiece.PieceType.KNIGHT) {
+            return "N";
+        }
+        else {
+            return String.valueOf(type.name().charAt(0));
+        }
     }
 
     /**
@@ -31,14 +42,14 @@ public class ChessPiece {
      * @return Which team this chess piece belongs to
      */
     public ChessGame.TeamColor getTeamColor() {
-        throw new RuntimeException("Not implemented");
+        return color;
     }
 
     /**
      * @return which type of chess piece this piece is
      */
     public PieceType getPieceType() {
-        throw new RuntimeException("Not implemented");
+        return type;
     }
 
     /**
