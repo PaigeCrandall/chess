@@ -1,15 +1,12 @@
 package chess;
 
-/**
- * A chessboard that can hold and rearrange chess pieces.
- * <p>
- * Note: You can add to this class, but you may not alter
- * signature of the existing methods.
- */
-public class ChessBoard {
+// A chessboard that can hold and rearrange chess pieces.
 
+public class ChessBoard {
+    private ChessPiece[][] board;
+    
     public ChessBoard() {
-        
+        board = new ChessPiece[9][9];
     }
 
     /**
@@ -17,9 +14,10 @@ public class ChessBoard {
      *
      * @param position where to add the piece to
      * @param piece    the piece to add
-     */
+    */
+
     public void addPiece(ChessPosition position, ChessPiece piece) {
-        throw new RuntimeException("Not implemented");
+        board[position.getRow()-1][position.getColumn()-1] = piece;
     }
 
     /**
@@ -30,7 +28,7 @@ public class ChessBoard {
      * position
      */
     public ChessPiece getPiece(ChessPosition position) {
-        throw new RuntimeException("Not implemented");
+        return board[position.getRow()][position.getColumn()];
     }
 
     /**
@@ -38,6 +36,17 @@ public class ChessBoard {
      * (How the game of chess normally starts)
      */
     public void resetBoard() {
-        throw new RuntimeException("Not implemented");
+        board = new ChessPiece[8][8];
+
+        // add pawns
+        for (int i=1; i<=9; i++) {
+            ChessPosition whitePosition = new ChessPosition(1, i);
+            ChessPiece whitePawn = new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.PAWN);
+            addPiece(whitePosition, whitePawn);
+
+            ChessPosition blackPosition = new ChessPosition(9, i);
+            ChessPiece blackPawn = new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.PAWN);
+            addPiece(blackPosition, blackPawn);
+        }
     }
 }
