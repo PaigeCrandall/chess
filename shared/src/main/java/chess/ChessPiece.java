@@ -3,6 +3,7 @@ package chess;
 import java.util.Collection;
 import java.util.ArrayList;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * Represents a single chess piece
@@ -30,6 +31,21 @@ public class ChessPiece {
 //            PieceType.KING, new RookMoveStrategy()
 //    );
 
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        ChessPiece that = (ChessPiece) o;
+        return color == that.color && type == that.type && Objects.equals(strategy, that.strategy);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(color, type, strategy);
+    }
+
     public String getLetter() {
         if (type==ChessPiece.PieceType.KNIGHT) {
             return "N";
@@ -56,6 +72,13 @@ public class ChessPiece {
         return type;
     }
 
+    public void printMoves(ChessBoard board, ChessPosition myPosition) {
+        Collection<ChessMove> moves = pieceMoves(board, myPosition);
+        for (ChessMove move : moves) {
+            System.out.printf("%s, ", move.toString());
+        }
+    }
+
     /**
      * Calculates all the positions a chess piece can move to
      * Does not take into account moves that are illegal due to leaving the king in
@@ -75,28 +98,25 @@ public class ChessPiece {
         @Override
         public Collection<ChessMove> calculateMoves(ChessBoard board, ChessPosition startPosition) {
             Collection<ChessMove> moves = new ArrayList<>();
-            // vertical
-            // they can both go either way, but we need to check the bounds
-            // current vertical position == position.getRow();
-            // out of bounds is anything outside 0 < y <=8
-            for (int y = startPosition.getRow(); y <= 8; y++) {
-                ChessPosition newPosition = new ChessPosition(startPosition.getColumn(), y);
-                ChessMove move = new ChessMove(startPosition, newPosition);
-                moves.add(move);
-            }
-            for (int y = startPosition.getRow(); y > 0; y--) {
-                ChessPosition newPosition = new ChessPosition(startPosition.getColumn(), y);
-                ChessMove move = new ChessMove(startPosition, newPosition);
-                moves.add(move);
-            }
             // horizontal
-            for (int x = startPosition.getColumn(); x <= 8; x++) {
-                ChessPosition newPosition = new ChessPosition(startPosition.getColumn(), x);
+            for (int x = startPosition.getColumn()+1; x <= 8; x++) {
+                ChessPosition newPosition = new ChessPosition(startPosition.getRow(), x);
                 ChessMove move = new ChessMove(startPosition, newPosition);
                 moves.add(move);
             }
-            for (int x = startPosition.getRow(); x > 0; x--) {
-                ChessPosition newPosition = new ChessPosition(startPosition.getColumn(), x);
+            for (int x = startPosition.getColumn()-1; x > 0; x--) {
+                ChessPosition newPosition = new ChessPosition(startPosition.getRow(), x);
+                ChessMove move = new ChessMove(startPosition, newPosition);
+                moves.add(move);
+            }
+            // vertical
+            for (int y = startPosition.getRow()-1; y > 0; y--) {
+                ChessPosition newPosition = new ChessPosition(y, startPosition.getColumn());
+                ChessMove move = new ChessMove(startPosition, newPosition);
+                moves.add(move);
+            }
+            for (int y = startPosition.getRow()+1; y <= 8; y++) {
+                ChessPosition newPosition = new ChessPosition(y, startPosition.getColumn());
                 ChessMove move = new ChessMove(startPosition, newPosition);
                 moves.add(move);
             }

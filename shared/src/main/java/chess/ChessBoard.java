@@ -21,9 +21,8 @@ public class ChessBoard {
                 else {
                     System.out.printf(board[i][n].getLetter());
                 }
-                System.out.print("| ");
             }
-            System.out.print("\n");
+            System.out.print("|\n");
         }
     }
 
@@ -98,9 +97,12 @@ public class ChessBoard {
     }
 
     // For Testing
-    public static void main(String[] args) {
-        ChessBoard gameboard = new ChessBoard();
-        gameboard.setPiece(1, 1, ChessPiece.PieceType.ROOK, ChessGame.TeamColor.WHITE);
-        gameboard.printBoard();
-    }
+//    public static void main(String[] args) {
+//        ChessBoard gameboard = new ChessBoard();
+//        gameboard.setPiece(2, 3, ChessPiece.PieceType.ROOK, ChessGame.TeamColor.WHITE);
+//        gameboard.printBoard();
+//        ChessPosition position = new ChessPosition(2,3);
+//        ChessPiece piece = gameboard.getPiece(position);
+//        piece.printMoves(gameboard, position);
+//    }
 }
