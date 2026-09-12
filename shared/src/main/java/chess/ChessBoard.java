@@ -6,14 +6,14 @@ public class ChessBoard {
     private ChessPiece[][] board;
     
     public ChessBoard() {
-        resetBoard();
+        board = new ChessPiece[9][9];
     }
 
     public void printBoard() {
         System.out.println("    a   b   c   d   e   f   g   h");
         for (int i = 1; i<=8; i++) {
             System.out.printf("%s  ", 9-i);
-            for (int n = 0; n<8; n++) {
+            for (int n = 1; n<=8; n++) {
                 System.out.print("|");
                 if (board[i][n] == null) {
                     System.out.print(" ");
@@ -64,35 +64,35 @@ public class ChessBoard {
 
         // add pawns
         for (int i=1; i<=8; i++) {
-            setPiece(1, i, ChessPiece.PieceType.PAWN, ChessGame.TeamColor.WHITE);
-            setPiece(6, i, ChessPiece.PieceType.PAWN, ChessGame.TeamColor.BLACK);
+            setPiece(2, i, ChessPiece.PieceType.PAWN, ChessGame.TeamColor.BLACK);
+            setPiece(7, i, ChessPiece.PieceType.PAWN, ChessGame.TeamColor.WHITE);
         }
 
         // add Rooks
-        setPiece(0, 0, ChessPiece.PieceType.ROOK, ChessGame.TeamColor.BLACK);
-        setPiece(0, 7, ChessPiece.PieceType.ROOK, ChessGame.TeamColor.BLACK);
-        setPiece(7, 0, ChessPiece.PieceType.ROOK, ChessGame.TeamColor.WHITE);
-        setPiece(7, 7, ChessPiece.PieceType.ROOK, ChessGame.TeamColor.WHITE);
+        setPiece(1, 1, ChessPiece.PieceType.ROOK, ChessGame.TeamColor.BLACK);
+        setPiece(1, 8, ChessPiece.PieceType.ROOK, ChessGame.TeamColor.BLACK);
+        setPiece(8, 1, ChessPiece.PieceType.ROOK, ChessGame.TeamColor.WHITE);
+        setPiece(8, 8, ChessPiece.PieceType.ROOK, ChessGame.TeamColor.WHITE);
 
         // add Knights
-        setPiece(0, 1, ChessPiece.PieceType.KNIGHT, ChessGame.TeamColor.BLACK);
-        setPiece(0, 6, ChessPiece.PieceType.KNIGHT, ChessGame.TeamColor.BLACK);
-        setPiece(7, 1, ChessPiece.PieceType.KNIGHT, ChessGame.TeamColor.WHITE);
-        setPiece(7, 6, ChessPiece.PieceType.KNIGHT, ChessGame.TeamColor.WHITE);
+        setPiece(1, 2, ChessPiece.PieceType.KNIGHT, ChessGame.TeamColor.BLACK);
+        setPiece(1, 7, ChessPiece.PieceType.KNIGHT, ChessGame.TeamColor.BLACK);
+        setPiece(8, 2, ChessPiece.PieceType.KNIGHT, ChessGame.TeamColor.WHITE);
+        setPiece(8, 7, ChessPiece.PieceType.KNIGHT, ChessGame.TeamColor.WHITE);
 
         // add Bishops
-        setPiece(0, 2, ChessPiece.PieceType.BISHOP, ChessGame.TeamColor.BLACK);
-        setPiece(0, 5, ChessPiece.PieceType.BISHOP, ChessGame.TeamColor.BLACK);
-        setPiece(7, 2, ChessPiece.PieceType.BISHOP, ChessGame.TeamColor.WHITE);
-        setPiece(7, 5, ChessPiece.PieceType.BISHOP, ChessGame.TeamColor.WHITE);
+        setPiece(1, 3, ChessPiece.PieceType.BISHOP, ChessGame.TeamColor.BLACK);
+        setPiece(1, 6, ChessPiece.PieceType.BISHOP, ChessGame.TeamColor.BLACK);
+        setPiece(8, 3, ChessPiece.PieceType.BISHOP, ChessGame.TeamColor.WHITE);
+        setPiece(8, 6, ChessPiece.PieceType.BISHOP, ChessGame.TeamColor.WHITE);
 
         // add Queens
-        setPiece(0, 3, ChessPiece.PieceType.QUEEN, ChessGame.TeamColor.BLACK);
-        setPiece(7, 3, ChessPiece.PieceType.QUEEN, ChessGame.TeamColor.WHITE);
+        setPiece(1, 4, ChessPiece.PieceType.QUEEN, ChessGame.TeamColor.BLACK);
+        setPiece(8, 4, ChessPiece.PieceType.QUEEN, ChessGame.TeamColor.WHITE);
 
         // add Kings
-        setPiece(0, 4, ChessPiece.PieceType.KING, ChessGame.TeamColor.BLACK);
-        setPiece(7, 4, ChessPiece.PieceType.KING, ChessGame.TeamColor.WHITE);
+        setPiece(1, 5, ChessPiece.PieceType.KING, ChessGame.TeamColor.BLACK);
+        setPiece(8, 5, ChessPiece.PieceType.KING, ChessGame.TeamColor.WHITE);
 
     }
 
