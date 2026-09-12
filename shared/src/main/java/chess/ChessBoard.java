@@ -11,15 +11,15 @@ public class ChessBoard {
 
     public void printBoard() {
         System.out.println("    a   b   c   d   e   f   g   h");
-        for (int i = 1; i<=8; i++) {
-            System.out.printf("%s  ", 9-i);
+        for (int i = 8; i>=1; i--) {
+            System.out.printf("%s  ", i);
             for (int n = 1; n<=8; n++) {
                 System.out.print("|");
                 if (board[i][n] == null) {
                     System.out.print(" ");
                 }
                 else {
-                    System.out.printf(board[i][n].toString());
+                    System.out.printf(board[i][n].getLetter());
                 }
                 System.out.print("| ");
             }
@@ -37,6 +37,7 @@ public class ChessBoard {
     public void addPiece(ChessPosition position, ChessPiece piece) {
         board[position.getRow()][position.getColumn()] = piece;
     }
+
 
     /**
      * Gets a chess piece on the chessboard
@@ -64,31 +65,31 @@ public class ChessBoard {
 
         // add pawns
         for (int i=1; i<=8; i++) {
-            setPiece(2, i, ChessPiece.PieceType.PAWN, ChessGame.TeamColor.BLACK);
-            setPiece(7, i, ChessPiece.PieceType.PAWN, ChessGame.TeamColor.WHITE);
+            setPiece(2, i, ChessPiece.PieceType.PAWN, ChessGame.TeamColor.WHITE);
+            setPiece(7, i, ChessPiece.PieceType.PAWN, ChessGame.TeamColor.BLACK);
         }
 
         // add Rooks
-        setPiece(1, 1, ChessPiece.PieceType.ROOK, ChessGame.TeamColor.BLACK);
-        setPiece(1, 8, ChessPiece.PieceType.ROOK, ChessGame.TeamColor.BLACK);
-        setPiece(8, 1, ChessPiece.PieceType.ROOK, ChessGame.TeamColor.WHITE);
-        setPiece(8, 8, ChessPiece.PieceType.ROOK, ChessGame.TeamColor.WHITE);
+        setPiece(1, 1, ChessPiece.PieceType.ROOK, ChessGame.TeamColor.WHITE);
+        setPiece(1, 8, ChessPiece.PieceType.ROOK, ChessGame.TeamColor.WHITE);
+        setPiece(8, 1, ChessPiece.PieceType.ROOK, ChessGame.TeamColor.BLACK);
+        setPiece(8, 8, ChessPiece.PieceType.ROOK, ChessGame.TeamColor.BLACK);
 
         // add Knights
-        setPiece(1, 2, ChessPiece.PieceType.KNIGHT, ChessGame.TeamColor.BLACK);
-        setPiece(1, 7, ChessPiece.PieceType.KNIGHT, ChessGame.TeamColor.BLACK);
-        setPiece(8, 2, ChessPiece.PieceType.KNIGHT, ChessGame.TeamColor.WHITE);
-        setPiece(8, 7, ChessPiece.PieceType.KNIGHT, ChessGame.TeamColor.WHITE);
+        setPiece(1, 2, ChessPiece.PieceType.KNIGHT, ChessGame.TeamColor.WHITE);
+        setPiece(1, 7, ChessPiece.PieceType.KNIGHT, ChessGame.TeamColor.WHITE);
+        setPiece(8, 2, ChessPiece.PieceType.KNIGHT, ChessGame.TeamColor.BLACK);
+        setPiece(8, 7, ChessPiece.PieceType.KNIGHT, ChessGame.TeamColor.BLACK);
 
         // add Bishops
-        setPiece(1, 3, ChessPiece.PieceType.BISHOP, ChessGame.TeamColor.BLACK);
-        setPiece(1, 6, ChessPiece.PieceType.BISHOP, ChessGame.TeamColor.BLACK);
-        setPiece(8, 3, ChessPiece.PieceType.BISHOP, ChessGame.TeamColor.WHITE);
-        setPiece(8, 6, ChessPiece.PieceType.BISHOP, ChessGame.TeamColor.WHITE);
+        setPiece(1, 3, ChessPiece.PieceType.BISHOP, ChessGame.TeamColor.WHITE);
+        setPiece(1, 6, ChessPiece.PieceType.BISHOP, ChessGame.TeamColor.WHITE);
+        setPiece(8, 3, ChessPiece.PieceType.BISHOP, ChessGame.TeamColor.BLACK);
+        setPiece(8, 6, ChessPiece.PieceType.BISHOP, ChessGame.TeamColor.BLACK);
 
         // add Queens
-        setPiece(1, 4, ChessPiece.PieceType.QUEEN, ChessGame.TeamColor.BLACK);
-        setPiece(8, 4, ChessPiece.PieceType.QUEEN, ChessGame.TeamColor.WHITE);
+        setPiece(1, 4, ChessPiece.PieceType.QUEEN, ChessGame.TeamColor.WHITE);
+        setPiece(8, 4, ChessPiece.PieceType.QUEEN, ChessGame.TeamColor.BLACK);
 
         // add Kings
         setPiece(1, 5, ChessPiece.PieceType.KING, ChessGame.TeamColor.BLACK);
@@ -99,6 +100,7 @@ public class ChessBoard {
     // For Testing
     public static void main(String[] args) {
         ChessBoard gameboard = new ChessBoard();
+        gameboard.setPiece(1, 1, ChessPiece.PieceType.ROOK, ChessGame.TeamColor.WHITE);
         gameboard.printBoard();
     }
 }
