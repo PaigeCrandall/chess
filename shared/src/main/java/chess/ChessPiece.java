@@ -9,6 +9,7 @@ import chess.piecemoves.RookMovesStrategy;
 import chess.piecemoves.BishopMovesStrategy;
 import chess.piecemoves.QueenMovesStrategy;
 import chess.piecemoves.KnightMovesStrategy;
+import chess.piecemoves.KingMovesStrategy;
 
 /**
  * Represents a single chess piece
@@ -32,8 +33,8 @@ public class ChessPiece {
             PieceType.ROOK, new chess.piecemoves.RookMovesStrategy(),
             PieceType.KNIGHT, new KnightMovesStrategy(),
             PieceType.BISHOP, new chess.piecemoves.BishopMovesStrategy(),
-            PieceType.QUEEN, new chess.piecemoves.QueenMovesStrategy()
-//            PieceType.KING, new KingMovesStrategy()
+            PieceType.QUEEN, new chess.piecemoves.QueenMovesStrategy(),
+            PieceType.KING, new KingMovesStrategy()
     );
 
     @Override

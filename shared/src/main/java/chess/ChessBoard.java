@@ -99,10 +99,10 @@ public class ChessBoard {
     // For Testing
 //    public static void main(String[] args) {
 //        ChessBoard gameboard = new ChessBoard();
-//        gameboard.setPiece(3, 3, ChessPiece.PieceType.KNIGHT, ChessGame.TeamColor.WHITE);
+//        gameboard.setPiece(3, 3, ChessPiece.PieceType.KING, ChessGame.TeamColor.WHITE);
 //        gameboard.printBoard();
 //        ChessPosition position = new ChessPosition(3,3);
 //        ChessPiece piece = gameboard.getPiece(position);
 //        piece.printMoves(gameboard, position);
 //    }
-//}
+}
