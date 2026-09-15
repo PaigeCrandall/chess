@@ -8,6 +8,7 @@ import java.util.Objects;
 import chess.piecemoves.RookMovesStrategy;
 import chess.piecemoves.BishopMovesStrategy;
 import chess.piecemoves.QueenMovesStrategy;
+import chess.piecemoves.KnightMovesStrategy;
 
 /**
  * Represents a single chess piece
@@ -29,7 +30,7 @@ public class ChessPiece {
     public static final Map<PieceType, MoveStrategy> Strategies = Map.of(
 //            PieceType.PAWN, new PawnMovesStrategy(),
             PieceType.ROOK, new chess.piecemoves.RookMovesStrategy(),
-//            PieceType.KNIGHT, new KnightMovesStrategy(),
+            PieceType.KNIGHT, new KnightMovesStrategy(),
             PieceType.BISHOP, new chess.piecemoves.BishopMovesStrategy(),
             PieceType.QUEEN, new chess.piecemoves.QueenMovesStrategy()
 //            PieceType.KING, new KingMovesStrategy()
@@ -89,6 +90,7 @@ public class ChessPiece {
      * @return Collection of valid moves
      */
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
+
         return strategy.calculateMoves(board, myPosition);
     }
 
