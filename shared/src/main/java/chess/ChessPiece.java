@@ -54,9 +54,19 @@ public class ChessPiece {
 
     public String getLetter() {
         if (type == ChessPiece.PieceType.KNIGHT) {
-            return "N";
+            if (color == ChessGame.TeamColor.BLACK) {
+                return "n";
+            }
+            else {
+                return "N";
+            }
         } else {
-            return String.valueOf(type.name().charAt(0));
+            if (color == ChessGame.TeamColor.BLACK) {
+                return String.valueOf(type.name().charAt(0)).toLowerCase();
+            }
+            else {
+                return String.valueOf(type.name().charAt(0));
+            }
         }
     }
 

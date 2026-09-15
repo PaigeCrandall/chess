@@ -30,7 +30,6 @@ public class PawnMovesStrategy implements ChessPiece.MoveStrategy {
 
             // if it's the first move
             if (startPosition.getRow() == 2) {
-                System.out.print("jump!");
                 ChessPosition jumpPosition = new ChessPosition(startPosition.getRow() + 2, startPosition.getColumn());
                 if ((board.getPiece(jumpPosition)==null)&&(board.getPiece(stepPosition)==null)) {
                     moves.add(new ChessMove(startPosition, jumpPosition));

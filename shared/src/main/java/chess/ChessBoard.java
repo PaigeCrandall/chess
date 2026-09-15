@@ -2,6 +2,9 @@ package chess;
 
 // A chessboard that can hold and rearrange chess pieces.
 
+import java.util.Arrays;
+import java.util.Objects;
+
 public class ChessBoard {
     private ChessPiece[][] board;
     
@@ -24,6 +27,21 @@ public class ChessBoard {
             }
             System.out.print("|\n");
         }
+    }
+
+    // equals and hashcode
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        ChessBoard that = (ChessBoard) o;
+        return Objects.deepEquals(board, that.board);
+    }
+
+    @Override
+    public int hashCode() {
+        return Arrays.deepHashCode(board);
     }
 
     /**
@@ -91,18 +109,19 @@ public class ChessBoard {
         setPiece(8, 4, ChessPiece.PieceType.QUEEN, ChessGame.TeamColor.BLACK);
 
         // add Kings
-        setPiece(1, 5, ChessPiece.PieceType.KING, ChessGame.TeamColor.BLACK);
-        setPiece(8, 5, ChessPiece.PieceType.KING, ChessGame.TeamColor.WHITE);
+        setPiece(1, 5, ChessPiece.PieceType.KING, ChessGame.TeamColor.WHITE);
+        setPiece(8, 5, ChessPiece.PieceType.KING, ChessGame.TeamColor.BLACK);
 
     }
 
     // For Testing
-//    public static void main(String[] args) {
-//        ChessBoard gameboard = new ChessBoard();
+    public static void main(String[] args) {
+        ChessBoard gameboard = new ChessBoard();
 //        gameboard.setPiece(3, 3, ChessPiece.PieceType.KING, ChessGame.TeamColor.WHITE);
-//        gameboard.printBoard();
+        gameboard.resetBoard();
+        gameboard.printBoard();
 //        ChessPosition position = new ChessPosition(3,3);
 //        ChessPiece piece = gameboard.getPiece(position);
 //        piece.printMoves(gameboard, position);
-//    }
+    }
 }
