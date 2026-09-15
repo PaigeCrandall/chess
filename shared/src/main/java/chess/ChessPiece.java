@@ -10,6 +10,7 @@ import chess.piecemoves.BishopMovesStrategy;
 import chess.piecemoves.QueenMovesStrategy;
 import chess.piecemoves.KnightMovesStrategy;
 import chess.piecemoves.KingMovesStrategy;
+import chess.piecemoves.PawnMovesStrategy;
 
 /**
  * Represents a single chess piece
@@ -29,7 +30,7 @@ public class ChessPiece {
     }
 
     public static final Map<PieceType, MoveStrategy> Strategies = Map.of(
-//            PieceType.PAWN, new PawnMovesStrategy(),
+            PieceType.PAWN, new PawnMovesStrategy(),
             PieceType.ROOK, new chess.piecemoves.RookMovesStrategy(),
             PieceType.KNIGHT, new KnightMovesStrategy(),
             PieceType.BISHOP, new chess.piecemoves.BishopMovesStrategy(),
