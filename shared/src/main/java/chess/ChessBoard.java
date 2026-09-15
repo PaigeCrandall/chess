@@ -10,7 +10,7 @@ public class ChessBoard {
     }
 
     public void printBoard() {
-        System.out.println("    a   b   c   d   e   f   g   h");
+        System.out.println("    1 2 3 4 5 6 7 8");
         for (int i = 8; i>=1; i--) {
             System.out.printf("%s  ", i);
             for (int n = 1; n<=8; n++) {
@@ -99,7 +99,7 @@ public class ChessBoard {
     // For Testing
 //    public static void main(String[] args) {
 //        ChessBoard gameboard = new ChessBoard();
-//        gameboard.setPiece(2, 3, ChessPiece.PieceType.ROOK, ChessGame.TeamColor.WHITE);
+//        gameboard.setPiece(2, 3, ChessPiece.PieceType.BISHOP, ChessGame.TeamColor.WHITE);
 //        gameboard.printBoard();
 //        ChessPosition position = new ChessPosition(2,3);
 //        ChessPiece piece = gameboard.getPiece(position);

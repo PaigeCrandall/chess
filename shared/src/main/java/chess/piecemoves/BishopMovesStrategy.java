@@ -30,8 +30,27 @@ public class BishopMovesStrategy implements ChessPiece.MoveStrategy {
     public Collection<ChessMove> calculateMoves(ChessBoard board, ChessPosition startPosition) {
         Collection<ChessMove> moves = new ArrayList<>();
         //Right diagonal
-
+        for (int x = startPosition.getColumn()+1, y = startPosition.getRow()+1; (x <= 8) && (y <= 8); x++, y++) {
+            ChessPosition newPosition = new ChessPosition(y, x);
+            int can_continue = addMove(board, startPosition, newPosition, moves);
+            if (can_continue!=1) { break; }
+        }
+        for (int x = startPosition.getColumn()-1, y = startPosition.getRow()-1; (x > 0) && (y > 0); x--, y--) {
+            ChessPosition newPosition = new ChessPosition(y, x);
+            int can_continue = addMove(board, startPosition, newPosition, moves);
+            if (can_continue!=1) { break; }
+        }
         // Left diagonal
+        for (int x = startPosition.getColumn()-1, y = startPosition.getRow()+1; (x > 0) && (y <= 8); x--, y++) {
+            ChessPosition newPosition = new ChessPosition(y, x);
+            int can_continue = addMove(board, startPosition, newPosition, moves);
+            if (can_continue!=1) { break; }
+        }
+        for (int x = startPosition.getColumn()+1, y = startPosition.getRow()-1; (x <= 8) && (y > 0); x++, y--) {
+            ChessPosition newPosition = new ChessPosition(y, x);
+            int can_continue = addMove(board, startPosition, newPosition, moves);
+            if (can_continue!=1) { break; }
+        }
         return moves;
     }
 }

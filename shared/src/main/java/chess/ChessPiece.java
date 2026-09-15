@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.Objects;
 
 import chess.piecemoves.RookMovesStrategy;
+import chess.piecemoves.BishopMovesStrategy;
 
 /**
  * Represents a single chess piece
@@ -21,17 +22,17 @@ public class ChessPiece {
     public ChessPiece(ChessGame.TeamColor pieceColor, ChessPiece.PieceType type) {
         this.color = pieceColor;
         this.type = type;
-        this.strategy = new RookMovesStrategy();
+        this.strategy = Strategies.get(type);
     }
 
-//    public static final Map<PieceType, MoveStrategy> Strategies = Map.of(
+    public static final Map<PieceType, MoveStrategy> Strategies = Map.of(
 //            PieceType.PAWN, new PawnMoveStrategy(),
-//            PieceType.ROOK, new RookMoveStrategy(),
+            PieceType.ROOK, new chess.piecemoves.RookMovesStrategy(),
 //            PieceType.KNIGHT, new RookMoveStrategy(),
-//            PieceType.BISHOP, new RookMoveStrategy(),
+            PieceType.BISHOP, new chess.piecemoves.BishopMovesStrategy()
 //            PieceType.QUEEN, new RookMoveStrategy(),
 //            PieceType.KING, new RookMoveStrategy()
-//    );
+    );
 
     @Override
     public boolean equals(Object o) {
