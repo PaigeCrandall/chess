@@ -5,12 +5,7 @@ import java.util.ArrayList;
 import java.util.Map;
 import java.util.Objects;
 
-import chess.piecemoves.RookMovesStrategy;
-import chess.piecemoves.BishopMovesStrategy;
-import chess.piecemoves.QueenMovesStrategy;
-import chess.piecemoves.KnightMovesStrategy;
-import chess.piecemoves.KingMovesStrategy;
-import chess.piecemoves.PawnMovesStrategy;
+import chess.piecemoves.*;
 
 /**
  * Represents a single chess piece

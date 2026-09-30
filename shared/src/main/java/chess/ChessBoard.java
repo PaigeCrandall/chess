@@ -12,6 +12,7 @@ public class ChessBoard {
         board = new ChessPiece[9][9];
     }
 
+    // print for testing
     public void printBoard() {
         System.out.println("    1 2 3 4 5 6 7 8");
         for (int i = 8; i>=1; i--) {
@@ -55,6 +56,10 @@ public class ChessBoard {
         board[position.getRow()][position.getColumn()] = piece;
     }
 
+    public void removePiece(ChessPosition position) {
+        board[position.getRow()][position.getColumn()] = null;
+    }
+
 
     /**
      * Gets a chess piece on the chessboard
@@ -65,6 +70,19 @@ public class ChessBoard {
      */
     public ChessPiece getPiece(ChessPosition position) {
         return board[position.getRow()][position.getColumn()];
+    }
+
+    public ChessPosition findPiecePosition(ChessPiece.PieceType type, ChessGame.TeamColor color) {
+        for (int x=1; x<9; x++) {
+            for (int y=1; y<9;y++) {
+                if(getPiece(new ChessPosition(y,x))!=null) {
+                    if ((getPiece(new ChessPosition(y,x)).getPieceType()==type)&&((getPiece(new ChessPosition(y,x)).getTeamColor()==color)) {
+                        return (new ChessPosition(y,x));
+                    }
+                }
+            }
+        }
+        return null;
     }
 
     /**
@@ -114,14 +132,4 @@ public class ChessBoard {
 
     }
 
-    // For Testing
-    public static void main(String[] args) {
-        ChessBoard gameboard = new ChessBoard();
-//        gameboard.setPiece(3, 3, ChessPiece.PieceType.KING, ChessGame.TeamColor.WHITE);
-        gameboard.resetBoard();
-        gameboard.printBoard();
-//        ChessPosition position = new ChessPosition(3,3);
-//        ChessPiece piece = gameboard.getPiece(position);
-//        piece.printMoves(gameboard, position);
-    }
 }
