@@ -10,11 +10,16 @@ import java.util.Objects;
  * signature of the existing methods.
  */
 public class ChessGame {
-    ChessBoard board = new ChessBoard();
+    ChessBoard board;
     TeamColor team;
 
     public ChessGame() {
         this.board = new ChessBoard();
+        this.team = TeamColor.WHITE;
+    }
+
+    public ChessGame(ChessBoard board) {
+        this.board = board;
         this.team = TeamColor.WHITE;
     }
 
@@ -66,42 +71,55 @@ public class ChessGame {
     public Collection<ChessMove> validMoves(ChessPosition startPosition) {
         if (board.getPiece(startPosition)!=null) {
             ChessPiece piece = board.getPiece(startPosition);
-//            System.out.println(piece.getPieceType());
-//            piece.printMoves(board, startPosition);
             Collection<ChessMove> moves = piece.pieceMoves(board, startPosition);
-            // To Do: make sure your team is not in danger of check!!!
+
+
+
             return moves;
         }
         return null;
     }
 
-    public void checkForValidity(ChessMove move) throws InvalidMoveException {
+    public void checkMoveValidity(ChessMove move) throws InvalidMoveException {
         ChessPosition start = move.getStartPosition();
 
-        // if there is no piece to move
+        // case 0: there is no piece to move
         if (board.getPiece(start) == null) {
-            throw new InvalidMoveException("there is no piece at " + start.toString() + " to move");
+            throw new InvalidMoveException("there is no piece at " + start + " to move");
         }
 
-        // if the piece I'm trying to move is not the right color
+        // case 1: it is not this team's turn
         if (board.getPiece(start).getTeamColor()!=team) {
             throw new InvalidMoveException("it is not this player's turn. " + team + " must make the next move.");
         }
 
-        // check it's in the list of valid moves
+        // case 3: it is not in the list of valid moves
         Collection<ChessMove> validityCheck = validMoves(start);
         boolean valid = false;
-        for (ChessMove check : validityCheck) {
-//            System.out.println("check: " + move.toString() + " " + check.toString());
-            if (move.equals(check)) {
+        for (ChessMove validMove : validityCheck) {
+            if (move.equals(validMove)) {
                 valid = true;
                 break;
             }
         }
-
         if (!valid) {
-            throw new InvalidMoveException(move.toString() + " is not a valid move");
+            throw new InvalidMoveException(move + " is not a valid move");
         }
+    }
+
+    public void movePiece(ChessMove move) {
+        // check if the piece is just moving or if it's getting promoted
+        ChessPiece pieceToMove;
+        if (move.getPromotionPiece()!=null) {
+            pieceToMove = new ChessPiece(team, move.getPromotionPiece());
+        }
+        else {
+            pieceToMove = board.getPiece(move.getStartPosition());
+        }
+
+        // remove the piece from the old spot and add it to the new spot
+        board.removePiece(move.getStartPosition());
+        board.addPiece(move.getEndPosition(), pieceToMove);
     }
 
     /**
@@ -111,35 +129,22 @@ public class ChessGame {
      * @throws InvalidMoveException if move is invalid
      */
     public void makeMove(ChessMove move) throws InvalidMoveException {
-
-        ChessPosition start = move.getStartPosition();
-        ChessPosition end = move.getEndPosition();
-
+        // 1. check if the move is valid
         try {
-            checkForValidity(move);
-
-            // getting the piece to move to the new spot
-            ChessPiece pieceToMove;
-            if (move.getPromotionPiece()!=null) {
-                pieceToMove = new ChessPiece(team, move.getPromotionPiece());
-            }
-            else {
-                pieceToMove = board.getPiece(start);
-            }
-
-            // remove the piece from the old spot and add it to the new spot
-            board.removePiece(start);
-            board.addPiece(end, pieceToMove);
-
-            // after the move, it is the next player's turn
-            if (team==TeamColor.WHITE) {
-                this.setTeamTurn(TeamColor.BLACK);
-            } else {
-                this.setTeamTurn(TeamColor.WHITE);
-            }
+            checkMoveValidity(move);
         }
         catch(InvalidMoveException e) {
             throw e;
+        }
+
+        // 2. move the piece
+        movePiece(move);
+
+        // 3. change which team's turn it is
+        if (team==TeamColor.WHITE) {
+            this.setTeamTurn(TeamColor.BLACK);
+        } else {
+            this.setTeamTurn(TeamColor.WHITE);
         }
     }
 
@@ -157,10 +162,24 @@ public class ChessGame {
             return true;
         }
 
-        // go through the whole board
-        // if the piece color is not teamColor
-        // check their moveslist
-        // if one of the moves ends on kingPosition, return true
+
+        for (int row=1; row<=8; row++) {
+            for (int col=1; col<=8; col++) {
+                ChessPosition position = new ChessPosition(row, col);
+                if (board.getPiece(position)!=null) {
+                    if (board.getPiece(position).getTeamColor()!=teamColor) {
+                        ChessPiece enemyPiece = board.getPiece(position);
+                        Collection<ChessMove> enemyMoves = enemyPiece.pieceMoves(board, position);
+                        for (ChessMove move : enemyMoves) {
+                            ChessPosition destination = move.getEndPosition();
+                            if (destination.equals(kingPosition)) {
+                                return true;
+                            }
+                        }
+                    }
+                }
+            }
+        }
         return false;
     }
 
@@ -207,10 +226,17 @@ public class ChessGame {
     // Main For Testing
     public static void main(String[] args) {
         ChessBoard gameboard = new ChessBoard();
-        gameboard.resetBoard();
-        ChessGame game = new ChessGame();
-        game.setBoard(gameboard);
+        gameboard.addPiece((new ChessPosition(1,1)), (new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.KING)));
+        gameboard.addPiece((new ChessPosition(5,1)), (new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.ROOK)));
+        ChessGame game = new ChessGame(gameboard);
+
         gameboard.printBoard();
-        game.validMoves(new ChessPosition(2,2));
+
+//        ChessMove move = new ChessMove((new ChessPosition(1,1)), (new ChessPosition(1,2)));
+//        game.maveMove(move);
+//        gameboard.printBoard();
+
+        System.out.println(game.isInCheck(TeamColor.WHITE));
+
     }
 }

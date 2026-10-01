@@ -16,4 +16,9 @@ public record ChessPosition(int row, int column) {
     public int getColumn() {
         return column;
     }
+
+    @Override
+    public String toString() {
+        return "{" + row + ", " + column + "}";
+    }
 }

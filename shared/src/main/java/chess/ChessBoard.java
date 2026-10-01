@@ -45,6 +45,19 @@ public class ChessBoard {
         return Arrays.deepHashCode(board);
     }
 
+
+    public ChessBoard copy() {
+        ChessBoard clonedBoard = new ChessBoard();
+        for (int row=1; row<=8; row++) {
+            for (int col=1; col<=8; col++) {
+                if (this.getPiece(new ChessPosition(row, col))!=null) {
+                    clonedBoard.addPiece(new ChessPosition(row, col), this.getPiece(new ChessPosition(row, col)));
+                }
+            }
+        }
+        return clonedBoard;
+    }
+
     /**
      * Adds a chess piece to the chessboard
      *
@@ -76,7 +89,7 @@ public class ChessBoard {
         for (int x=1; x<9; x++) {
             for (int y=1; y<9;y++) {
                 if(getPiece(new ChessPosition(y,x))!=null) {
-                    if ((getPiece(new ChessPosition(y,x)).getPieceType()==type)&&((getPiece(new ChessPosition(y,x)).getTeamColor()==color)) {
+                    if ((getPiece(new ChessPosition(y,x)).getPieceType()==type)&&((getPiece(new ChessPosition(y,x)).getTeamColor()==color))) {
                         return (new ChessPosition(y,x));
                     }
                 }
