@@ -15,12 +15,13 @@ public class ChessGame {
 
     public ChessGame() {
         this.board = new ChessBoard();
-        this.team = TeamColor.BLACK;
+        board.resetBoard();
+        this.team = TeamColor.WHITE;
     }
 
     public ChessGame(ChessBoard board) {
         this.board = board;
-        this.team = TeamColor.BLACK;
+        this.team = TeamColor.WHITE;
     }
 
     @Override
