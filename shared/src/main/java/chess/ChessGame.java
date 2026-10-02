@@ -103,6 +103,18 @@ public class ChessGame {
         return null;
     }
 
+    public boolean isInValidMovesList(ChessMove move) {
+        Collection<ChessMove> validityCheck = validMoves(move.getStartPosition());
+        boolean valid = false;
+        for (ChessMove validMove : validityCheck) {
+            if (move.equals(validMove)) {
+                valid = true;
+                break;
+            }
+        }
+        return valid;
+    }
+
     public void checkMoveValidity(ChessMove move) throws InvalidMoveException {
         ChessPosition start = move.getStartPosition();
 
@@ -117,15 +129,7 @@ public class ChessGame {
         }
 
         // case 3: it is not in the list of valid moves
-        Collection<ChessMove> validityCheck = validMoves(start);
-        boolean valid = false;
-        for (ChessMove validMove : validityCheck) {
-            if (move.equals(validMove)) {
-                valid = true;
-                break;
-            }
-        }
-        if (!valid) {
+        if (!isInValidMovesList(move)) {
             throw new InvalidMoveException(move + " is not a valid move");
         }
     }
@@ -154,7 +158,9 @@ public class ChessGame {
     public void makeMove(ChessMove move) throws InvalidMoveException {
         try {
             checkMoveValidity(move);
+
             movePiece(move);
+
             switchTeamTurn(team);
         }
         catch(InvalidMoveException e) {
@@ -176,7 +182,6 @@ public class ChessGame {
             return true;
         }
 
-        // go through the whole board, looking for enemy pieces and seeing if they can take the king
         for (int row=1; row<=8; row++) {
             for (int col=1; col<=8; col++) {
                 ChessPosition position = new ChessPosition(row, col);
@@ -204,16 +209,7 @@ public class ChessGame {
                 if (board.getPiece(square)!=null) {
                     if (board.getPiece(square).getTeamColor()==teamColor) {
 
-                        // test print
-                        System.out.println("checking " + board.getPiece(square).getLetter() + " at " + square + "to see if it can move.");
-
-
                         Collection<ChessMove> possibleMoves = validMoves(square);
-
-                        // test print
-                        for (ChessMove move : possibleMoves) {
-                            System.out.println(move);
-                        }
 
                         if (!possibleMoves.isEmpty()) {
                             return false;
