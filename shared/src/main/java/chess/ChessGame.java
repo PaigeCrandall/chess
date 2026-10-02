@@ -45,14 +45,6 @@ public class ChessGame {
         return team;
     }
 
-    public TeamColor getOpponentColor() {
-        if (team==TeamColor.WHITE) {
-            return TeamColor.BLACK;
-        } else {
-            return TeamColor.WHITE;
-        }
-    }
-
     /**
      * Sets which teams turn it is
      *
@@ -63,7 +55,11 @@ public class ChessGame {
     }
 
     public void switchTeamTurn(TeamColor team) {
-        setTeamTurn(getOpponentColor());
+        if (team==TeamColor.WHITE) {
+            setTeamTurn(TeamColor.BLACK);
+        } else {
+            setTeamTurn(TeamColor.WHITE);
+        }
     }
 
     /**
@@ -72,6 +68,17 @@ public class ChessGame {
     public enum TeamColor {
         WHITE,
         BLACK
+    }
+
+    public boolean moveCausesCheck(ChessMove possibleMove) {
+        // for each move, imagine if the piece moved there
+        ChessBoard imaginaryBoard = board.copy();
+        ChessGame imaginaryGame = new ChessGame(imaginaryBoard);
+        imaginaryGame.movePiece(possibleMove);
+
+        // check if your king is in check in the new arrangement
+        TeamColor color = board.getPiece(possibleMove.getStartPosition()).getTeamColor();
+        return imaginaryGame.isInCheck(color);
     }
 
     /**
@@ -88,21 +95,8 @@ public class ChessGame {
             Collection<ChessMove> moves = piece.pieceMoves(board, startPosition);
 
             // check for check :)
-            Collection<ChessMove> movesListIterator = piece.pieceMoves(board, startPosition);
-            for (ChessMove possibleMove : movesListIterator) {
-                System.out.println(possibleMove);
-
-                // for each move, imagine if the piece moved there
-                ChessBoard imaginaryBoard = board.copy();
-                ChessGame imaginaryGame = new ChessGame(imaginaryBoard);
-                imaginaryGame.movePiece(possibleMove);
-
-                // check if your king is in check in the new arrangement
-                if (imaginaryGame.isInCheck(piece.getTeamColor())) {
-                    System.out.println("removing " + possibleMove);
-                    moves.remove(possibleMove);
-                }
-
+            for (ChessMove possibleMove : piece.pieceMoves(board, startPosition)) {
+                if (moveCausesCheck(possibleMove)) { moves.remove(possibleMove); }
             }
             return moves;
         }
