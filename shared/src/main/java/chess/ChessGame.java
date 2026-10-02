@@ -45,6 +45,14 @@ public class ChessGame {
         return team;
     }
 
+    public TeamColor getOpponentColor() {
+        if (team==TeamColor.WHITE) {
+            return TeamColor.BLACK;
+        } else {
+            return TeamColor.WHITE;
+        }
+    }
+
     /**
      * Sets which teams turn it is
      *
@@ -55,11 +63,7 @@ public class ChessGame {
     }
 
     public void switchTeamTurn(TeamColor team) {
-        if (team==TeamColor.WHITE) {
-            this.setTeamTurn(TeamColor.BLACK);
-        } else {
-            this.setTeamTurn(TeamColor.WHITE);
-        }
+        setTeamTurn(getOpponentColor());
     }
 
     /**
@@ -204,8 +208,7 @@ public class ChessGame {
      * @return True if the specified team is in checkmate
      */
     public boolean isInCheckmate(TeamColor teamColor) {
-        System.out.println("Calling isInCheckmate");
-        return false;
+        return isInCheck(teamColor) && isInStalemate(teamColor);
     }
 
     /**
@@ -226,7 +229,6 @@ public class ChessGame {
                         if (!possibleMoves.isEmpty()) {
                             return false;
                         }
-
                     }
                 }
             }
@@ -265,7 +267,7 @@ public class ChessGame {
 
         gameboard.printBoard();
 
-        Collection<ChessMove> moves = game.validMoves(new ChessPosition(4,4));
+//        Collection<ChessMove> moves = game.validMoves(new ChessPosition(4,4));
 //        for (ChessMove move : moves) {
 //            System.out.println(move);
 //        }
