@@ -54,6 +54,14 @@ public class ChessGame {
         this.team = team;
     }
 
+    public void switchTeamTurn(TeamColor team) {
+        if (team==TeamColor.WHITE) {
+            this.setTeamTurn(TeamColor.BLACK);
+        } else {
+            this.setTeamTurn(TeamColor.WHITE);
+        }
+    }
+
     /**
      * Enum identifying the 2 possible teams in a chess game
      */
@@ -71,19 +79,21 @@ public class ChessGame {
      */
     public Collection<ChessMove> validMoves(ChessPosition startPosition) {
         if (board.getPiece(startPosition)!=null) {
+
             ChessPiece piece = board.getPiece(startPosition);
             Collection<ChessMove> moves = piece.pieceMoves(board, startPosition);
 
             // check for check :)
             Collection<ChessMove> movesListIterator = piece.pieceMoves(board, startPosition);
             for (ChessMove possibleMove : movesListIterator) {
+
                 // for each move, imagine if the piece moved there
                 ChessBoard imaginaryBoard = board.copy();
                 ChessGame imaginaryGame = new ChessGame(imaginaryBoard);
                 imaginaryGame.movePiece(possibleMove);
+
                 // check if your king is in check in the new arrangement
-                if (imaginaryGame.isInCheck(team)) {
-//                    System.out.println("can't move to " + possibleMove + "!");
+                if (imaginaryGame.isInCheck(piece.getTeamColor())) {
                     moves.remove(possibleMove);
                 }
 
@@ -143,18 +153,9 @@ public class ChessGame {
      */
     public void makeMove(ChessMove move) throws InvalidMoveException {
         try {
-            // 1. check if the move is valid
             checkMoveValidity(move);
-
-            // 2. move the piece
             movePiece(move);
-
-            // 3. change which team's turn it is
-            if (team==TeamColor.WHITE) {
-                this.setTeamTurn(TeamColor.BLACK);
-            } else {
-                this.setTeamTurn(TeamColor.WHITE);
-            }
+            switchTeamTurn(team);
         }
         catch(InvalidMoveException e) {
             throw e;
@@ -203,7 +204,8 @@ public class ChessGame {
      * @return True if the specified team is in checkmate
      */
     public boolean isInCheckmate(TeamColor teamColor) {
-        throw new RuntimeException("Not implemented");
+        System.out.println("Calling isInCheckmate");
+        return false;
     }
 
     /**
@@ -214,7 +216,22 @@ public class ChessGame {
      * @return True if the specified team is in stalemate, otherwise false
      */
     public boolean isInStalemate(TeamColor teamColor) {
-        throw new RuntimeException("Not implemented");
+        for (int row=1; row<=8; row++) {
+            for (int col=1; col<=8; col++) {
+                ChessPosition square = new ChessPosition(row, col);
+                if (board.getPiece(square)!=null) {
+                    ChessPiece piece = board.getPiece(square);
+                    if (piece.getTeamColor()==teamColor) {
+                        Collection<ChessMove> possibleMoves = validMoves(square);
+                        if (!possibleMoves.isEmpty()) {
+                            return false;
+                        }
+
+                    }
+                }
+            }
+        }
+        return true;
     }
 
     /**
@@ -248,10 +265,10 @@ public class ChessGame {
 
         gameboard.printBoard();
 
-        Collection<ChessMove> vmoves = game.validMoves(new ChessPosition(4,4));
-        for (ChessMove move : vmoves) {
-            System.out.println(move);
-        }
+        Collection<ChessMove> moves = game.validMoves(new ChessPosition(4,4));
+//        for (ChessMove move : moves) {
+//            System.out.println(move);
+//        }
 
 //        ChessMove move = new ChessMove((new ChessPosition(2,1)), (new ChessPosition(3,4)));
 //        try {
