@@ -21,10 +21,10 @@ public class ChessPiece {
     public ChessPiece(ChessGame.TeamColor pieceColor, ChessPiece.PieceType type) {
         this.color = pieceColor;
         this.type = type;
-        this.strategy = strategies.get(type);
+        this.strategy = STRATEGIES.get(type);
     }
 
-    public static final Map<PieceType, MoveStrategy> strategies = Map.of(
+    public static final Map<PieceType, MoveStrategy> STRATEGIES = Map.of(
             PieceType.PAWN, new PawnMovesStrategy(),
             PieceType.ROOK, new chess.piecemoves.RookMovesStrategy(),
             PieceType.KNIGHT, new KnightMovesStrategy(),
@@ -47,23 +47,6 @@ public class ChessPiece {
         return Objects.hash(color, type, strategy);
     }
 
-    public String getLetter() {
-        if (type == ChessPiece.PieceType.KNIGHT) {
-            if (color == ChessGame.TeamColor.BLACK) {
-                return "n";
-            }
-            else {
-                return "N";
-            }
-        } else {
-            if (color == ChessGame.TeamColor.BLACK) {
-                return String.valueOf(type.name().charAt(0)).toLowerCase();
-            }
-            else {
-                return String.valueOf(type.name().charAt(0));
-            }
-        }
-    }
 
     public enum PieceType {
         KING,
@@ -80,13 +63,6 @@ public class ChessPiece {
 
     public PieceType getPieceType() {
         return type;
-    }
-
-    public void printMoves(ChessBoard board, ChessPosition myPosition) {
-        Collection<ChessMove> moves = pieceMoves(board, myPosition);
-        for (ChessMove move : moves) {
-            System.out.printf("%s, ", move.toString());
-        }
     }
 
     /**

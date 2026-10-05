@@ -20,6 +20,24 @@ In ChessPiece
         }
     }
 
+        public String getLetter() {
+        if (type == ChessPiece.PieceType.KNIGHT) {
+            if (color == ChessGame.TeamColor.BLACK) {
+                return "n";
+            }
+            else {
+                return "N";
+            }
+        } else {
+            if (color == ChessGame.TeamColor.BLACK) {
+                return String.valueOf(type.name().charAt(0)).toLowerCase();
+            }
+            else {
+                return String.valueOf(type.name().charAt(0));
+            }
+        }
+    }
+
 
 In ChessBoard
 
