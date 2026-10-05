@@ -12,24 +12,6 @@ public class ChessBoard {
         board = new ChessPiece[9][9];
     }
 
-    // print for testing
-    public void printBoard() {
-        System.out.println("    1 2 3 4 5 6 7 8");
-        for (int i = 8; i>=1; i--) {
-            System.out.printf("%s  ", i);
-            for (int n = 1; n<=8; n++) {
-                System.out.print("|");
-                if (board[i][n] == null) {
-                    System.out.print(" ");
-                }
-                else {
-                    System.out.printf(board[i][n].getLetter());
-                }
-            }
-            System.out.print("|\n");
-        }
-    }
-
     // equals and hashcode
     @Override
     public boolean equals(Object o) {

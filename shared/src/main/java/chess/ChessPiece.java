@@ -21,10 +21,10 @@ public class ChessPiece {
     public ChessPiece(ChessGame.TeamColor pieceColor, ChessPiece.PieceType type) {
         this.color = pieceColor;
         this.type = type;
-        this.strategy = Strategies.get(type);
+        this.strategy = strategies.get(type);
     }
 
-    public static final Map<PieceType, MoveStrategy> Strategies = Map.of(
+    public static final Map<PieceType, MoveStrategy> strategies = Map.of(
             PieceType.PAWN, new PawnMovesStrategy(),
             PieceType.ROOK, new chess.piecemoves.RookMovesStrategy(),
             PieceType.KNIGHT, new KnightMovesStrategy(),

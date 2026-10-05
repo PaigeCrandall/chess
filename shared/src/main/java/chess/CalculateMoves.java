@@ -16,12 +16,12 @@ public abstract class CalculateMoves implements MoveStrategy {
 
     // returns 1 if the piece was not stopped
     // returns 0 if the piece was stopped
-    public int addMove(ChessBoard board, Collection<ChessMove> moves, ChessPosition startPosition, int new_x, int new_y) {
-        if ((new_x>8) || (new_x<1) || (new_y>8) || (new_y<1)) {
+    public int addMove(ChessBoard board, Collection<ChessMove> moves, ChessPosition startPosition, int x, int y) {
+        if ((x>8) || (x<1) || (y>8) || (y<1)) {
             // out of bounds
             return 0;
         }
-        ChessPosition newPosition = new ChessPosition(new_y, new_x);
+        ChessPosition newPosition = new ChessPosition(y, x);
         if (board.getPiece(newPosition)==null) {
             // there is not a chess piece there
             ChessMove newMove = new ChessMove(startPosition, newPosition);

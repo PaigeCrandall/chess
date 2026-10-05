@@ -11,14 +11,14 @@ public class QueenMovesStrategy extends chess.CalculateMoves {
     public Collection<ChessMove> calculateMoves(ChessBoard board, ChessPosition startPosition) {
         Collection<ChessMove> moves = new ArrayList<>();
 
-        RookMovesStrategy RookStrat = new RookMovesStrategy();
-        BishopMovesStrategy BishopStrat = new BishopMovesStrategy();
+        RookMovesStrategy rookStrat = new RookMovesStrategy();
+        BishopMovesStrategy bishopStrat = new BishopMovesStrategy();
 
-        Collection<ChessMove> RookMoves = RookStrat.calculateMoves(board, startPosition);
-        Collection<ChessMove> BishopMoves = BishopStrat.calculateMoves(board, startPosition);
+        Collection<ChessMove> rookMoves = rookStrat.calculateMoves(board, startPosition);
+        Collection<ChessMove> bishopMoves = bishopStrat.calculateMoves(board, startPosition);
 
-        moves.addAll(RookMoves);
-        moves.addAll(BishopMoves);
+        moves.addAll(rookMoves);
+        moves.addAll(bishopMoves);
 
         return moves;
     }
