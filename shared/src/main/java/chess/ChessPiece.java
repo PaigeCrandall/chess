@@ -1,7 +1,6 @@
 package chess;
 
 import java.util.Collection;
-import java.util.ArrayList;
 import java.util.Map;
 import java.util.Objects;
 
