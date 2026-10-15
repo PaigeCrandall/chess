@@ -15,14 +15,16 @@ public class Server {
         javalin = Javalin.create(config -> config.staticFiles.add("web"));
 
         // Endpoints
+        // clear
         javalin.delete("/db", Server::clearDatabase);
 
     }
 
     private static void clearDatabase(@NotNull Context ctx) {
+
         var r = Map.of();
-        var json = new Gson();
-        ctx.json(json.toJson(r));
+        var serializer = new Gson();
+        ctx.json(serializer.toJson(r));
     }
 
     public int run(int desiredPort) {
