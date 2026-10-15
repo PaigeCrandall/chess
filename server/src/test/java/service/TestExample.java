@@ -27,7 +27,7 @@ public class TestExample {
     @Test
     void register() {
         var dataAccess = new MemoryDataAccess();
-        AdminService service = new AdminService(dataAccess);
+        AdminService service = new AdminService();
 
         UserData user = new UserData("paige", "LadyPhilclagen@gmail.com", "password1234:)");
         dataAccess.register(user, null); // AuthData is null right now

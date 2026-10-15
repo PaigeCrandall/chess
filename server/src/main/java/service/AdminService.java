@@ -1,15 +1,16 @@
 package service;
 
 import dataaccess.DataAccess;
+import dataaccess.MemoryDataAccess;
 
 public class AdminService {
-    DataAccess data;
+    DataAccess database;
 
-    AdminService(DataAccess implementation) {
-        this.data = implementation;
+    public AdminService() {
+        this.database = new MemoryDataAccess();
     }
 
     public void clear() {
-        data.clear();
+        database.clear();
     }
 }
