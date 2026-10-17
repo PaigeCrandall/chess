@@ -7,11 +7,11 @@ import org.junit.jupiter.api.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class TestExample {
-//    private String text;
-
+//    private DataAccess text;
+//
 //    @BeforeAll
 //    static void createDatabase() {
-//
+//        var dataAccess = new MemoryDataAccess();
 //    }
 //    // @BeforeEach
 //
@@ -25,7 +25,7 @@ public class TestExample {
 //    public TestExample(String base) {this.text = base;}
 
     @Test
-    void register() throws AlreadyTakenException {
+    void register() throws Exception {
         var dataAccess = new MemoryDataAccess();
         UserService userService = new UserService();
 
@@ -41,6 +41,10 @@ public class TestExample {
         assertThrows(AlreadyTakenException.class, () -> {
             userService.registerUser(new UserData("vivian", "VarclinPeever@gmail.com", "password2468**"));
         });
+
+        assertThrows(BadRequestException.class, () -> {
+            userService.registerUser(new UserData(null, "VarclinPeever@gmail.com", "password2468**"));
+        });
     }
 
     @Test
@@ -55,7 +59,7 @@ public class TestExample {
         // making sure the user and authtoken are not in the database
         service.clear();
         assertNull(dataAccess.getUser(user.username()));
-        assertNull(dataAccess.getAuthData(auth.token()));
+        assertNull(dataAccess.getAuthData(auth.authToken()));
     }
 
 }

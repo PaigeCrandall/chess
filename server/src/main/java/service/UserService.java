@@ -17,7 +17,10 @@ public class UserService {
     }
 
 
-    public AuthData registerUser(UserData registerRequest) throws AlreadyTakenException {
+    public AuthData registerUser(UserData registerRequest) throws Exception {
+        if ((registerRequest.username()==null)||(registerRequest.password()==null)||registerRequest.email()==null) {
+            throw new BadRequestException("bad request");
+        }
         if (database.getUser(registerRequest.username()) == null) {
             AuthData authToken = new AuthData(registerRequest.username(), createAuthToken());
             database.addAuthData(authToken);

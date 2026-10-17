@@ -29,7 +29,7 @@ public class MemoryDataAccess implements DataAccess {
 
     @Override
     public void addAuthData(AuthData auth) {
-        MemoryDatabase.authorization.put(auth.token(), auth);
+        MemoryDatabase.authorization.put(auth.authToken(), auth);
     }
 
     public AuthData getAuthData(String authToken) {

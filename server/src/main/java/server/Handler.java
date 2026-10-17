@@ -6,6 +6,7 @@ import model.*;
 import org.jetbrains.annotations.NotNull;
 import service.AdminService;
 import service.AlreadyTakenException;
+import service.BadRequestException;
 import service.UserService;
 
 import java.util.Map;
@@ -17,24 +18,38 @@ public class Handler {
         adminService.clear();
         var r = Map.of();
         var serializer = new Gson();
-        ctx.json(serializer.toJson(r));
+        ctx.result(serializer.toJson(r));
+        ctx.contentType("application/json");
     }
 
     public static void registerUser(@NotNull Context ctx) {
         var serializer = new Gson();
         try {
-            UserData request = ctx.bodyAsClass(UserData.class);
+            String jsonBody = ctx.body();
+            UserData request = serializer.fromJson(jsonBody, UserData.class);
             UserService userService = new UserService();
             AuthData registerResult = userService.registerUser(request);
-            serializer.toJson(registerResult);
-
             ctx.status(200);
-            ctx.json(serializer.toJson(registerResult));
+            ctx.result(serializer.toJson(registerResult));
+            ctx.contentType("application/json");
         }
         catch(AlreadyTakenException e) {
             Map<String,String> r = Map.of("message", e.getMessage());
             ctx.status(403);
-            ctx.json(serializer.toJson(r));
+            ctx.result(serializer.toJson(r));
+            ctx.contentType("application/json");
+        }
+        catch(BadRequestException e) {
+            Map<String,String> r = Map.of("message", e.getMessage());
+            ctx.status(400);
+            ctx.result(serializer.toJson(r));
+            ctx.contentType("application/json");
+        }
+        catch(Exception e) {
+            Map<String,String> r = Map.of("message", e.getMessage());
+            ctx.status(500);
+            ctx.result(serializer.toJson(r));
+            ctx.contentType("application/json");
         }
     }
 
