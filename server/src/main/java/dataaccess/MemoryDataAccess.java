@@ -25,7 +25,7 @@ public class MemoryDataAccess implements DataAccess {
 
     @Override
     public UserData getUser(String username) {
-        return MemoryDatabase.users.get(username);
+        return MemoryDatabase.users.getOrDefault(username, null);
     }
 
     @Override

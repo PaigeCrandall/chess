@@ -5,6 +5,7 @@ import model.UserData;
 
 public interface DataAccess {
     public void clear();
+    public void printUsers();
 
     public void createUser(UserData user, AuthData auth);
     public void addAuthData(AuthData auth);

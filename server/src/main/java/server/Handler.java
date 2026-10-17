@@ -73,6 +73,28 @@ public class Handler {
 
     public static void loginUser(@NotNull Context ctx) {
         var serializer = new Gson();
+        try {
+            String jsonBody = ctx.body();
+            LoginRequest request = serializer.fromJson(jsonBody, LoginRequest.class);
+            UserService userService = new UserService();
+            LoginResult result = userService.login(request);
+
+            ctx.status(200);
+            ctx.result(serializer.toJson(result));
+            ctx.contentType("application/json");
+        }
+        catch(BadRequestException e) {
+            Map<String,String> r = Map.of("message", e.getMessage());
+            ctx.status(400);
+            ctx.result(serializer.toJson(r));
+            ctx.contentType("application/json");
+        }
+        catch(UnauthorizedException e) {
+            Map<String,String> r = Map.of("message", e.getMessage());
+            ctx.status(401);
+            ctx.result(serializer.toJson(r));
+            ctx.contentType("application/json");
+        }
     }
 
 }

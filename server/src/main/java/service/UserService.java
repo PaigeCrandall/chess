@@ -17,7 +17,7 @@ public class UserService {
     }
 
 
-    public AuthData registerUser(UserData registerRequest) throws Exception {
+    public AuthData registerUser(UserData registerRequest) throws AlreadyTakenException, BadRequestException {
         if ((registerRequest.username()==null)||(registerRequest.password()==null)||registerRequest.email()==null) {
             throw new BadRequestException("bad request");
         }
@@ -39,5 +39,21 @@ public class UserService {
         else {
             dataAccess.deleteAuthToken(auth);
         }
+    }
+
+    public LoginResult login(LoginRequest loginRequest) throws BadRequestException, UnauthorizedException {
+        // 1. check for loginRequest.username()
+        if (loginRequest.username()==null||loginRequest.password()==null) {
+            throw new BadRequestException("bad request");
+        }
+        if ((dataAccess.getUser(loginRequest.username())==null)) {
+            throw new UnauthorizedException("username does not exist");
+        }
+        if (!loginRequest.password().equals(dataAccess.getUser(loginRequest.username()).password())) {
+            throw new UnauthorizedException("unauthorized");
+        }
+        String authToken = createAuthToken();
+        dataAccess.addAuthData(new AuthData(loginRequest.username(), authToken));
+        return new LoginResult(loginRequest.username(), authToken);
     }
 }
