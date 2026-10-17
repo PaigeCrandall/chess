@@ -18,7 +18,7 @@ public class MemoryDataAccess implements DataAccess {
     }
 
     @Override
-    public void register(UserData user, AuthData token) {
+    public void createUser(UserData user, AuthData auth) {
         MemoryDatabase.users.put(user.username(), user);
     }
 
@@ -26,4 +26,14 @@ public class MemoryDataAccess implements DataAccess {
     public UserData getUser(String username) {
         return MemoryDatabase.users.get(username);
     }
+
+    @Override
+    public void addAuthData(AuthData auth) {
+        MemoryDatabase.authorization.put(auth.token(), auth);
+    }
+
+    public AuthData getAuthData(String authToken) {
+        return MemoryDatabase.authorization.get(authToken);
+    }
+
 }

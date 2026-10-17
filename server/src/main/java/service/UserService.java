@@ -2,18 +2,30 @@ package service;
 
 import dataaccess.DataAccess;
 import dataaccess.MemoryDataAccess;
-import model.AuthData;
-import model.UserData;
+import model.*;
+
+import java.util.UUID;
 
 public class UserService {
     DataAccess database;
     public UserService() {
         this.database = new MemoryDataAccess();
     }
-    public void registerUser(UserData registerRequest) {
-        // check if user already exists later
-        // UserData newUser = database.getUser(registerRequest.username());
 
-        database.register(registerRequest, null); // AuthToken is null right now
+    public String createAuthToken() {
+        return UUID.randomUUID().toString();
+    }
+
+
+    public AuthData registerUser(UserData registerRequest) throws AlreadyTakenException {
+        if (database.getUser(registerRequest.username()) == null) {
+            AuthData authToken = new AuthData(registerRequest.username(), createAuthToken());
+            database.addAuthData(authToken);
+            database.createUser(registerRequest, authToken);
+            return authToken;
+        }
+        else {
+            throw new AlreadyTakenException(String.format("%s is not available", registerRequest.username()));
+        }
     }
 }

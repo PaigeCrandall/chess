@@ -2,9 +2,11 @@ package server;
 
 import com.google.gson.Gson;
 import io.javalin.http.Context;
-import model.UserData;
+import model.*;
 import org.jetbrains.annotations.NotNull;
 import service.AdminService;
+import service.AlreadyTakenException;
+import service.UserService;
 
 import java.util.Map;
 
@@ -19,12 +21,21 @@ public class Handler {
     }
 
     public static void registerUser(@NotNull Context ctx) {
-        String information = ctx.body();
-        UserData registerRequest = ctx.bodyAsClass(UserData.class);
-
-        var r = Map.of();
         var serializer = new Gson();
-        ctx.json(serializer.toJson(r));
+        try {
+            UserData request = ctx.bodyAsClass(UserData.class);
+            UserService userService = new UserService();
+            AuthData registerResult = userService.registerUser(request);
+            serializer.toJson(registerResult);
+
+            ctx.status(200);
+            ctx.json(serializer.toJson(registerResult));
+        }
+        catch(AlreadyTakenException e) {
+            Map<String,String> r = Map.of("message", e.getMessage());
+            ctx.status(403);
+            ctx.json(serializer.toJson(r));
+        }
     }
 
 
