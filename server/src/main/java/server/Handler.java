@@ -4,10 +4,7 @@ import com.google.gson.Gson;
 import io.javalin.http.Context;
 import model.*;
 import org.jetbrains.annotations.NotNull;
-import service.AdminService;
-import service.AlreadyTakenException;
-import service.BadRequestException;
-import service.UserService;
+import service.*;
 
 import java.util.Map;
 
@@ -53,5 +50,29 @@ public class Handler {
         }
     }
 
+
+    public static void logoutUser(@NotNull Context ctx) {
+        var serializer = new Gson();
+        try {
+            String token = ctx.header("authorization");
+            UserService userService = new UserService();
+            userService.logout(token);
+
+            ctx.status(200);
+            var r = Map.of();
+            ctx.result(serializer.toJson(r));
+            ctx.contentType("application/json");
+        }
+        catch(UnauthorizedException e) {
+            ctx.status(401);
+            Map<String,String> r = Map.of("message", e.getMessage());
+            ctx.result(serializer.toJson(r));
+            ctx.contentType("application/json");
+        }
+    }
+
+    public static void loginUser(@NotNull Context ctx) {
+        var serializer = new Gson();
+    }
 
 }

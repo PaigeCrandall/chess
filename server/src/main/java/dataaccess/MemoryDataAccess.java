@@ -15,6 +15,7 @@ public class MemoryDataAccess implements DataAccess {
     @Override
     public void clear() {
         MemoryDatabase.users.clear();
+        MemoryDatabase.authorization.clear();
     }
 
     @Override
@@ -33,7 +34,11 @@ public class MemoryDataAccess implements DataAccess {
     }
 
     public AuthData getAuthData(String authToken) {
-        return MemoryDatabase.authorization.get(authToken);
+        return MemoryDatabase.authorization.getOrDefault(authToken, null);
+    }
+
+    public void deleteAuthToken(String authToken) {
+        MemoryDatabase.authorization.remove(authToken);
     }
 
 }

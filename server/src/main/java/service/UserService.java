@@ -7,9 +7,9 @@ import model.*;
 import java.util.UUID;
 
 public class UserService {
-    DataAccess database;
+    DataAccess dataAccess;
     public UserService() {
-        this.database = new MemoryDataAccess();
+        this.dataAccess = new MemoryDataAccess();
     }
 
     public String createAuthToken() {
@@ -21,14 +21,23 @@ public class UserService {
         if ((registerRequest.username()==null)||(registerRequest.password()==null)||registerRequest.email()==null) {
             throw new BadRequestException("bad request");
         }
-        if (database.getUser(registerRequest.username()) == null) {
+        if (dataAccess.getUser(registerRequest.username()) == null) {
             AuthData authToken = new AuthData(registerRequest.username(), createAuthToken());
-            database.addAuthData(authToken);
-            database.createUser(registerRequest, authToken);
+            dataAccess.addAuthData(authToken);
+            dataAccess.createUser(registerRequest, authToken);
             return authToken;
         }
         else {
             throw new AlreadyTakenException(String.format("%s is not available", registerRequest.username()));
+        }
+    }
+
+    public void logout(String auth) throws UnauthorizedException {
+        if (dataAccess.getAuthData(auth)==null) {
+            throw new UnauthorizedException("unauthorized");
+        }
+        else {
+            dataAccess.deleteAuthToken(auth);
         }
     }
 }

@@ -8,7 +8,9 @@ public interface DataAccess {
 
     public void createUser(UserData user, AuthData auth);
     public void addAuthData(AuthData auth);
-    public AuthData getAuthData(String authToken);
 
+    public AuthData getAuthData(String authToken);
     public UserData getUser(String username);
+
+    public void deleteAuthToken(String authToken);
 }

@@ -16,15 +16,10 @@ public class Server {
 
         // Endpoints
         javalin.delete("/db", Handler::clearDatabase); // clear
-        javalin.post("/user", Handler::registerUser); // clear
+        javalin.post("/user", Handler::registerUser); // register
+        javalin.delete("/session", Handler::logoutUser); // logout
+        javalin.post("/session", Handler::loginUser); // login
     }
-
-//    private static void clearDatabase(@NotNull Context ctx) {
-//
-//        var r = Map.of();
-//        var serializer = new Gson();
-//        ctx.json(serializer.toJson(r));
-//    }
 
     public int run(int desiredPort) {
         javalin.start(desiredPort);
