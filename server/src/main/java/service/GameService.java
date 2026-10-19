@@ -5,8 +5,10 @@ import dataaccess.DataAccess;
 import dataaccess.MemoryDataAccess;
 import model.*;
 import model.requests.CreateGameRequest;
+import model.requests.JoinGameRequest;
 import model.results.CreateGameResult;
 import model.results.ListGamesResult;
+import service.exceptions.AlreadyTakenException;
 import service.exceptions.BadRequestException;
 import service.exceptions.UnauthorizedException;
 
@@ -44,6 +46,39 @@ public class GameService {
         Collection<GameData> games = dataAccess.getAllGames();
 
         return new ListGamesResult(games);
+    }
+
+    public void joinGame(String auth, JoinGameRequest joinRequest) throws UnauthorizedException, BadRequestException, AlreadyTakenException {
+        // check auth
+        if (dataAccess.getAuthData(auth)==null) {
+            throw new UnauthorizedException("unauthorized");
+        }
+
+        // check that it's not a bad request
+        if (joinRequest.playerColor()==null||joinRequest.gameID()==null||(!joinRequest.playerColor().equals("BLACK")&&!joinRequest.playerColor().equals("WHITE"))) {
+            throw new BadRequestException("bad request");
+        }
+
+        // check if it's already taken
+        GameData gameToJoin = dataAccess.getGame(joinRequest.gameID());
+
+        if ((joinRequest.playerColor().equals("WHITE")&&!gameToJoin.playerWhite().isEmpty()
+        || (joinRequest.playerColor().equals("BLACK")&&!gameToJoin.playerBlack().isEmpty()))) {
+            throw new AlreadyTakenException(String.format("%s is already taken", joinRequest.playerColor()));
+        }
+
+        // okay, now create a new GameData and replace the old one
+        String username = dataAccess.getAuthData(auth).username();
+        String playerBlack = gameToJoin.playerBlack();
+        String playerWhite = gameToJoin.playerWhite();
+        if (joinRequest.playerColor().equals("WHITE")) {
+            playerWhite = username;
+        }
+        else {
+            playerBlack = username;
+        }
+        GameData updatedGame = new GameData(gameToJoin.gameID(), playerWhite, playerBlack, gameToJoin.name());
+        dataAccess.addGame(updatedGame);
     }
 
 }

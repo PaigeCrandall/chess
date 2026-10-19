@@ -3,10 +3,12 @@ package server;
 import com.google.gson.Gson;
 import io.javalin.http.Context;
 import model.requests.CreateGameRequest;
+import model.requests.JoinGameRequest;
 import model.results.CreateGameResult;
 import model.results.ListGamesResult;
 import org.jetbrains.annotations.NotNull;
 import service.*;
+import service.exceptions.AlreadyTakenException;
 import service.exceptions.BadRequestException;
 import service.exceptions.UnauthorizedException;
 
@@ -63,6 +65,36 @@ public class GameHandler {
     }
 
     public static void joinGame(@NotNull Context ctx) {
+        var serializer = new Gson();
+        try {
+            GameService gameService = new GameService();
 
+            String jsonBody = ctx.body();
+            String authToken = ctx.header("authorization");
+            JoinGameRequest request = serializer.fromJson(jsonBody, JoinGameRequest.class);
+            gameService.joinGame(authToken, request);
+            var r = Map.of();
+            ctx.status(200);
+            ctx.result(serializer.toJson(r));
+            ctx.contentType("application/json");
+        }
+        catch(UnauthorizedException e) {
+            ctx.status(401);
+            Map<String,String> r = Map.of("message", e.getMessage());
+            ctx.result(serializer.toJson(r));
+            ctx.contentType("application/json");
+        }
+        catch(BadRequestException e) {
+            ctx.status(400);
+            Map<String,String> r = Map.of("message", e.getMessage());
+            ctx.result(serializer.toJson(r));
+            ctx.contentType("application/json");
+        }
+        catch(AlreadyTakenException e) {
+            ctx.status(403);
+            Map<String,String> r = Map.of("message", e.getMessage());
+            ctx.result(serializer.toJson(r));
+            ctx.contentType("application/json");
+        }
     }
 }
