@@ -3,9 +3,7 @@ package server;
 import com.google.gson.Gson;
 import io.javalin.http.Context;
 import org.jetbrains.annotations.NotNull;
-import service.exceptions.AlreadyTakenException;
-import service.exceptions.BadRequestException;
-import service.exceptions.UnauthorizedException;
+import service.exceptions.*;
 
 import java.util.Map;
 
@@ -19,8 +17,14 @@ public class Handler {
             case null, default -> ctx.status(500);
         }
         var serializer = new Gson();
-        Map<String,String> r = Map.of("message", (e != null ? e.getMessage() : ""));
+        Map<String,String> r = Map.of("message", (e != null ? e.getMessage() : "Error: server did not execute correctly."));
         ctx.result(serializer.toJson(r));
+        ctx.contentType("application/json");
+    }
+
+    public static void sendGoodResult(@NotNull Context ctx, String jsonResult) {
+        ctx.status(200);
+        ctx.result(jsonResult);
         ctx.contentType("application/json");
     }
 

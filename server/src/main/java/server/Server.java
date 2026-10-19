@@ -15,7 +15,7 @@ public class Server {
         javalin = Javalin.create(config -> config.staticFiles.add("web"));
 
         // Endpoints
-        javalin.delete("/db", UserHandler::clearDatabase); // clear
+        javalin.delete("/db", AdminHandler::clearDatabase); // clear
         javalin.post("/user", UserHandler::registerUser); // register
         javalin.delete("/session", UserHandler::logoutUser); // logout
         javalin.post("/session", UserHandler::loginUser); // login

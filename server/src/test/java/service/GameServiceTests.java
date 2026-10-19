@@ -66,6 +66,8 @@ public class GameServiceTests {
         ListGamesResult result = gameService.listGames(token);
         assertEquals(3, result.games().size());
 
+//        System.out.println(result);
+
         // unauthorized user
         userService.logout(token);
         assertThrows(UnauthorizedException.class, () -> {
