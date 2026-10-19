@@ -5,10 +5,13 @@ import io.javalin.http.Context;
 import model.*;
 import org.jetbrains.annotations.NotNull;
 import service.*;
+import service.exceptions.AlreadyTakenException;
+import service.exceptions.BadRequestException;
+import service.exceptions.UnauthorizedException;
 
 import java.util.Map;
 
-public class Handler {
+public class UserHandler {
 
     public static void clearDatabase(@NotNull Context ctx) {
         AdminService adminService = new AdminService();

@@ -15,10 +15,11 @@ public class Server {
         javalin = Javalin.create(config -> config.staticFiles.add("web"));
 
         // Endpoints
-        javalin.delete("/db", Handler::clearDatabase); // clear
-        javalin.post("/user", Handler::registerUser); // register
-        javalin.delete("/session", Handler::logoutUser); // logout
-        javalin.post("/session", Handler::loginUser); // login
+        javalin.delete("/db", UserHandler::clearDatabase); // clear
+        javalin.post("/user", UserHandler::registerUser); // register
+        javalin.delete("/session", UserHandler::logoutUser); // logout
+        javalin.post("/session", UserHandler::loginUser); // login
+        javalin.post("/game", GameHandler::createGame); // create game
     }
 
     public int run(int desiredPort) {

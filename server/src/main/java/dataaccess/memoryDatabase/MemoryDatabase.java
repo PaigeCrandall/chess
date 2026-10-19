@@ -9,4 +9,6 @@ public class MemoryDatabase {
     public static Map<String, UserData> users = new HashMap<>();
 
     public static Map<String, AuthData> authorization = new HashMap<>();
+
+    public static Map<Integer, GameData> games = new HashMap<>();
 }

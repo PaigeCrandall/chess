@@ -3,6 +3,10 @@ package service;
 import dataaccess.*;
 import model.*;
 import org.junit.jupiter.api.*;
+import service.exceptions.AlreadyTakenException;
+import service.exceptions.BadRequestException;
+import service.exceptions.UnauthorizedException;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 public class UserServiceTests {

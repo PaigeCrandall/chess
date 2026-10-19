@@ -3,11 +3,15 @@ package service;
 import dataaccess.DataAccess;
 import dataaccess.MemoryDataAccess;
 import model.*;
+import service.exceptions.AlreadyTakenException;
+import service.exceptions.BadRequestException;
+import service.exceptions.UnauthorizedException;
 
 import java.util.UUID;
 
 public class UserService {
     DataAccess dataAccess;
+
     public UserService() {
         this.dataAccess = new MemoryDataAccess();
     }
@@ -42,7 +46,6 @@ public class UserService {
     }
 
     public LoginResult login(LoginRequest loginRequest) throws BadRequestException, UnauthorizedException {
-        // 1. check for loginRequest.username()
         if (loginRequest.username()==null||loginRequest.password()==null) {
             throw new BadRequestException("bad request");
         }

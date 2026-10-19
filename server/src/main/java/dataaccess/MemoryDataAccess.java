@@ -12,10 +12,17 @@ public class MemoryDataAccess implements DataAccess {
         });
     }
 
+    public void printGames() {
+        MemoryDatabase.games.forEach((id, game) -> {
+            System.out.println(id + " : " + game.name());
+        });
+    }
+
     @Override
     public void clear() {
         MemoryDatabase.users.clear();
         MemoryDatabase.authorization.clear();
+        MemoryDatabase.games.clear();
     }
 
     @Override
@@ -39,6 +46,14 @@ public class MemoryDataAccess implements DataAccess {
 
     public void deleteAuthToken(String authToken) {
         MemoryDatabase.authorization.remove(authToken);
+    }
+
+    public void addGame(GameData game) {
+        MemoryDatabase.games.put(game.gameID(), game);
+    }
+
+    public GameData getGame(Integer gameId) {
+        return MemoryDatabase.games.getOrDefault(gameId, null);
     }
 
 }
