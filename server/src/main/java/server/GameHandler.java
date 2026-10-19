@@ -2,19 +2,15 @@ package server;
 
 import com.google.gson.Gson;
 import io.javalin.http.Context;
-import model.requests.CreateGameRequest;
-import model.requests.JoinGameRequest;
-import model.results.CreateGameResult;
-import model.results.ListGamesResult;
+import model.requests.*;
+import model.results.*;
 import org.jetbrains.annotations.NotNull;
 import service.*;
-import service.exceptions.AlreadyTakenException;
-import service.exceptions.BadRequestException;
-import service.exceptions.UnauthorizedException;
+import service.exceptions.*;
 
 import java.util.Map;
 
-public class GameHandler {
+public class GameHandler extends Handler {
 
     public static void createGame(@NotNull Context ctx) {
         var serializer = new Gson();
@@ -30,18 +26,7 @@ public class GameHandler {
             ctx.result(serializer.toJson(createGameResult));
             ctx.contentType("application/json");
         }
-        catch(UnauthorizedException e) {
-            ctx.status(401);
-            Map<String,String> r = Map.of("message", e.getMessage());
-            ctx.result(serializer.toJson(r));
-            ctx.contentType("application/json");
-        }
-        catch(BadRequestException e) {
-            ctx.status(400);
-            Map<String,String> r = Map.of("message", e.getMessage());
-            ctx.result(serializer.toJson(r));
-            ctx.contentType("application/json");
-        }
+        catch(Exception e) { errorHandling(ctx, e); }
     }
 
     public static void getAllGames(@NotNull Context ctx) {
@@ -56,12 +41,7 @@ public class GameHandler {
             ctx.result(serializer.toJson(listResult));
             ctx.contentType("application/json");
         }
-        catch(UnauthorizedException e) {
-            ctx.status(401);
-            Map<String,String> r = Map.of("message", e.getMessage());
-            ctx.result(serializer.toJson(r));
-            ctx.contentType("application/json");
-        }
+        catch(Exception e) { errorHandling(ctx, e); }
     }
 
     public static void joinGame(@NotNull Context ctx) {
@@ -78,23 +58,6 @@ public class GameHandler {
             ctx.result(serializer.toJson(r));
             ctx.contentType("application/json");
         }
-        catch(UnauthorizedException e) {
-            ctx.status(401);
-            Map<String,String> r = Map.of("message", e.getMessage());
-            ctx.result(serializer.toJson(r));
-            ctx.contentType("application/json");
-        }
-        catch(BadRequestException e) {
-            ctx.status(400);
-            Map<String,String> r = Map.of("message", e.getMessage());
-            ctx.result(serializer.toJson(r));
-            ctx.contentType("application/json");
-        }
-        catch(AlreadyTakenException e) {
-            ctx.status(403);
-            Map<String,String> r = Map.of("message", e.getMessage());
-            ctx.result(serializer.toJson(r));
-            ctx.contentType("application/json");
-        }
+        catch(Exception e) { errorHandling(ctx, e); }
     }
 }

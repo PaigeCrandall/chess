@@ -7,13 +7,11 @@ import model.requests.LoginRequest;
 import model.results.LoginResult;
 import org.jetbrains.annotations.NotNull;
 import service.*;
-import service.exceptions.AlreadyTakenException;
-import service.exceptions.BadRequestException;
-import service.exceptions.UnauthorizedException;
+import service.exceptions.*;
 
 import java.util.Map;
 
-public class UserHandler {
+public class UserHandler extends Handler {
 
     public static void clearDatabase(@NotNull Context ctx) {
         AdminService adminService = new AdminService();
@@ -35,24 +33,7 @@ public class UserHandler {
             ctx.result(serializer.toJson(registerResult));
             ctx.contentType("application/json");
         }
-        catch(AlreadyTakenException e) {
-            Map<String,String> r = Map.of("message", e.getMessage());
-            ctx.status(403);
-            ctx.result(serializer.toJson(r));
-            ctx.contentType("application/json");
-        }
-        catch(BadRequestException e) {
-            Map<String,String> r = Map.of("message", e.getMessage());
-            ctx.status(400);
-            ctx.result(serializer.toJson(r));
-            ctx.contentType("application/json");
-        }
-        catch(Exception e) {
-            Map<String,String> r = Map.of("message", e.getMessage());
-            ctx.status(500);
-            ctx.result(serializer.toJson(r));
-            ctx.contentType("application/json");
-        }
+        catch(Exception e) { errorHandling(ctx, e); }
     }
 
 
@@ -68,12 +49,7 @@ public class UserHandler {
             ctx.result(serializer.toJson(r));
             ctx.contentType("application/json");
         }
-        catch(UnauthorizedException e) {
-            ctx.status(401);
-            Map<String,String> r = Map.of("message", e.getMessage());
-            ctx.result(serializer.toJson(r));
-            ctx.contentType("application/json");
-        }
+        catch(Exception e) { errorHandling(ctx, e); }
     }
 
     public static void loginUser(@NotNull Context ctx) {
@@ -88,18 +64,7 @@ public class UserHandler {
             ctx.result(serializer.toJson(result));
             ctx.contentType("application/json");
         }
-        catch(BadRequestException e) {
-            Map<String,String> r = Map.of("message", e.getMessage());
-            ctx.status(400);
-            ctx.result(serializer.toJson(r));
-            ctx.contentType("application/json");
-        }
-        catch(UnauthorizedException e) {
-            Map<String,String> r = Map.of("message", e.getMessage());
-            ctx.status(401);
-            ctx.result(serializer.toJson(r));
-            ctx.contentType("application/json");
-        }
+        catch(Exception e) { errorHandling(ctx, e); }
     }
 
 }
