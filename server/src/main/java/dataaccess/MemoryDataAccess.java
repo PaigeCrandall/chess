@@ -3,6 +3,9 @@ package dataaccess;
 import dataaccess.memoryDatabase.MemoryDatabase;
 import model.*;
 
+import java.util.ArrayList;
+import java.util.Collection;
+
 public class MemoryDataAccess implements DataAccess {
     final static MemoryDatabase db = new MemoryDatabase();
 
@@ -55,5 +58,15 @@ public class MemoryDataAccess implements DataAccess {
     public GameData getGame(Integer gameId) {
         return MemoryDatabase.games.getOrDefault(gameId, null);
     }
+
+    public Collection<GameData> getAllGames() {
+        Collection<GameData> games = new ArrayList<GameData>();
+        MemoryDatabase.games.forEach((gameId, game) -> {
+            games.add(game);
+        });
+        return games;
+    }
+
+
 
 }

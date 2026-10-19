@@ -2,6 +2,8 @@ package service;
 
 import dataaccess.*;
 import model.*;
+import model.requests.LoginRequest;
+import model.results.LoginResult;
 import org.junit.jupiter.api.*;
 import service.exceptions.AlreadyTakenException;
 import service.exceptions.BadRequestException;

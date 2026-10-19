@@ -2,7 +2,9 @@ package server;
 
 import com.google.gson.Gson;
 import io.javalin.http.Context;
-import model.*;
+import model.requests.CreateGameRequest;
+import model.results.CreateGameResult;
+import model.results.ListGamesResult;
 import org.jetbrains.annotations.NotNull;
 import service.*;
 import service.exceptions.BadRequestException;
@@ -38,5 +40,29 @@ public class GameHandler {
             ctx.result(serializer.toJson(r));
             ctx.contentType("application/json");
         }
+    }
+
+    public static void getAllGames(@NotNull Context ctx) {
+        var serializer = new Gson();
+        try {
+            GameService gameService = new GameService();
+
+            String authToken = ctx.header("authorization");
+            ListGamesResult listResult = gameService.listGames(authToken);
+
+            ctx.status(200);
+            ctx.result(serializer.toJson(listResult));
+            ctx.contentType("application/json");
+        }
+        catch(UnauthorizedException e) {
+            ctx.status(401);
+            Map<String,String> r = Map.of("message", e.getMessage());
+            ctx.result(serializer.toJson(r));
+            ctx.contentType("application/json");
+        }
+    }
+
+    public static void joinGame(@NotNull Context ctx) {
+
     }
 }

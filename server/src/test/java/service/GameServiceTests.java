@@ -1,8 +1,11 @@
 package service;
 
+import com.google.gson.Gson;
 import dataaccess.DataAccess;
 import dataaccess.MemoryDataAccess;
 import model.*;
+import model.requests.*;
+import model.results.*;
 import org.junit.jupiter.api.Test;
 import service.exceptions.BadRequestException;
 import service.exceptions.UnauthorizedException;
@@ -26,7 +29,7 @@ public class GameServiceTests {
         assertNotNull(dataAccess.getAuthData(token));
 
 
-        // add two valid games
+        // add three valid games
         CreateGameResult response = gameService.createGame(new CreateGameRequest("chess-mania"), token);
         assertNotNull(dataAccess.getGame(response.gameID()));
 
@@ -49,5 +52,35 @@ public class GameServiceTests {
         System.out.println("Games Added:");
         dataAccess.printGames();
 
+    }
+
+    @Test
+    public void listGames() throws Exception  {
+        // set up an authorized user who can add the game
+        UserData user = new UserData("Ali", "awesome@gmail.com", "passcode7:)");
+        String token = userService.createAuthToken();
+        AuthData auth = new AuthData(user.username(), token);
+        dataAccess.createUser(user, auth);
+        dataAccess.addAuthData(auth);
+        assertNotNull(dataAccess.getAuthData(token));
+
+        // add three valid games
+        CreateGameResult response = gameService.createGame(new CreateGameRequest("chess-mania"), token);
+        assertNotNull(dataAccess.getGame(response.gameID()));
+
+        CreateGameResult response2 = gameService.createGame(new CreateGameRequest("chess-aria"), token);
+        assertNotNull(dataAccess.getGame(response2.gameID()));
+        CreateGameResult response3 = gameService.createGame(new CreateGameRequest("chess-capita"), token);
+        assertNotNull(dataAccess.getGame(response3.gameID()));
+
+        ListGamesResult result = gameService.listGames(token);
+        assertEquals(3, result.games().size());
+        System.out.println(result);
+
+        // unauthorized user
+        userService.logout(token);
+        assertThrows(UnauthorizedException.class, () -> {
+            gameService.listGames(token);
+        });
     }
 }

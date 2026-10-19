@@ -3,6 +3,8 @@ package server;
 import com.google.gson.Gson;
 import io.javalin.http.Context;
 import model.*;
+import model.requests.LoginRequest;
+import model.results.LoginResult;
 import org.jetbrains.annotations.NotNull;
 import service.*;
 import service.exceptions.AlreadyTakenException;

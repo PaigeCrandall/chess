@@ -3,6 +3,8 @@ package service;
 import dataaccess.DataAccess;
 import dataaccess.MemoryDataAccess;
 import model.*;
+import model.requests.LoginRequest;
+import model.results.LoginResult;
 import service.exceptions.AlreadyTakenException;
 import service.exceptions.BadRequestException;
 import service.exceptions.UnauthorizedException;

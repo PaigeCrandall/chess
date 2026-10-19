@@ -20,5 +20,5 @@ public interface DataAccess {
     public void addGame(GameData game);
     public GameData getGame(Integer gameId);
 
-//    public Collection<GameData> getAllGames();
+    public Collection<GameData> getAllGames();
 }
