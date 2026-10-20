@@ -2,7 +2,7 @@ package dataaccess;
 
 import model.*;
 
-import java.util.Collection;
+import java.util.ArrayList;
 
 public interface DataAccess {
     public void clear();
@@ -17,8 +17,9 @@ public interface DataAccess {
 
     public void deleteAuthToken(String authToken);
 
-    public void addGame(GameData game);
+    public int createGame(String gameName);
+    public void updateGame(GameData game);
     public GameData getGame(Integer gameId);
 
-    public Collection<GameData> getAllGames();
+    public ArrayList<GameData> getAllGames();
 }

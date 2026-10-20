@@ -6,9 +6,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class MemoryDatabase {
-    public static Map<String, UserData> users = new HashMap<>();
+    public Map<String, UserData> users = new HashMap<>();
 
-    public static Map<String, AuthData> authorization = new HashMap<>();
+    public Map<String, AuthData> authorization = new HashMap<>();
 
-    public static Map<Integer, GameData> games = new HashMap<>();
+    public Map<Integer, GameData> games = new HashMap<>();
 }

@@ -32,6 +32,9 @@ public class GameHandler extends Handler {
             GameService gameService = new GameService();
             String authToken = ctx.header("authorization");
             ListGamesResult listResult = gameService.listGames(authToken);
+            System.out.println("Handler call");
+            System.out.println(serializer.toJson(listResult));
+            System.out.println("length: " + listResult.games().size());
             sendGoodResult(ctx, serializer.toJson(listResult));
         }
         catch(Exception e) { errorHandling(ctx, e); }

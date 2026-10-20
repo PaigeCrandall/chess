@@ -1,28 +1,22 @@
 package service;
 
 import chess.ChessGame;
+import com.google.gson.Gson;
 import dataaccess.DataAccess;
 import dataaccess.MemoryDataAccess;
 import model.*;
-import model.requests.CreateGameRequest;
-import model.requests.JoinGameRequest;
-import model.results.CreateGameResult;
-import model.results.ListGamesResult;
-import service.exceptions.AlreadyTakenException;
-import service.exceptions.BadRequestException;
-import service.exceptions.UnauthorizedException;
+import model.requests.*;
+import model.results.*;
+import service.exceptions.*;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.concurrent.atomic.AtomicInteger;
 
 public class GameService {
     DataAccess dataAccess;
-    private final AtomicInteger gameIDs;
 
     public GameService() {
         this.dataAccess = new MemoryDataAccess();
-        this.gameIDs = new AtomicInteger(1);
     }
 
     public CreateGameResult createGame(CreateGameRequest creationRequest, String auth) throws UnauthorizedException, BadRequestException {
@@ -32,10 +26,8 @@ public class GameService {
         if (dataAccess.getAuthData(auth)==null) {
             throw new UnauthorizedException("unauthorized");
         }
-        int newGameID = gameIDs.getAndIncrement();
-        GameData game = new GameData(newGameID, "", "", creationRequest.gameName());
-        dataAccess.addGame(game);
-        return new CreateGameResult(newGameID);
+        int gameID = dataAccess.createGame(creationRequest.gameName());
+        return new CreateGameResult(gameID);
     }
 
     public ListGamesResult listGames(String auth) throws UnauthorizedException {
@@ -43,7 +35,12 @@ public class GameService {
         if (dataAccess.getAuthData(auth)==null) {
             throw new UnauthorizedException("unauthorized");
         }
-        Collection<GameData> games = dataAccess.getAllGames();
+        ArrayList<GameData> games = dataAccess.getAllGames();
+        ListGamesResult listResult = new ListGamesResult(games);
+
+        var serializer = new Gson();
+        System.out.println(serializer.toJson(listResult));
+        System.out.println("length: " + listResult.games().size());
 
         return new ListGamesResult(games);
     }
@@ -61,24 +58,23 @@ public class GameService {
 
         // check if it's already taken
         GameData gameToJoin = dataAccess.getGame(joinRequest.gameID());
-
-        if ((joinRequest.playerColor().equals("WHITE")&&!gameToJoin.playerWhite().isEmpty()
-        || (joinRequest.playerColor().equals("BLACK")&&!gameToJoin.playerBlack().isEmpty()))) {
+        if ((joinRequest.playerColor().equals("WHITE")&&gameToJoin.whiteUsername()!=null
+        || (joinRequest.playerColor().equals("BLACK")&&gameToJoin.blackUsername()!=null))) {
             throw new AlreadyTakenException(String.format("%s is already taken", joinRequest.playerColor()));
         }
 
         // okay, now create a new GameData and replace the old one
         String username = dataAccess.getAuthData(auth).username();
-        String playerBlack = gameToJoin.playerBlack();
-        String playerWhite = gameToJoin.playerWhite();
+        String playerBlack = gameToJoin.blackUsername();
+        String playerWhite = gameToJoin.whiteUsername();
         if (joinRequest.playerColor().equals("WHITE")) {
             playerWhite = username;
         }
         else {
             playerBlack = username;
         }
-        GameData updatedGame = new GameData(gameToJoin.gameID(), playerWhite, playerBlack, gameToJoin.name());
-        dataAccess.addGame(updatedGame);
+        GameData updatedGame = new GameData(gameToJoin.gameID(), playerWhite, playerBlack, gameToJoin.gameName());
+        dataAccess.updateGame(updatedGame);
     }
 
 }

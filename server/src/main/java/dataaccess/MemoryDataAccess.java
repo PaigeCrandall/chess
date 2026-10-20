@@ -4,64 +4,72 @@ import dataaccess.memoryDatabase.MemoryDatabase;
 import model.*;
 
 import java.util.ArrayList;
-import java.util.Collection;
 
 public class MemoryDataAccess implements DataAccess {
     final static MemoryDatabase db = new MemoryDatabase();
+    public static int gameID = 1;
 
     public void printUsers() {
-        MemoryDatabase.users.forEach((username, user) -> {
+        db.users.forEach((username, user) -> {
             System.out.println(username + " : " + user.email() + ", " + user.password());
         });
     }
 
     public void printGames() {
-        MemoryDatabase.games.forEach((id, game) -> {
-            System.out.println(id + " : " + game.name());
+        db.games.forEach((id, game) -> {
+            System.out.println(id + " " + game.gameName() + " - playerWhite: " + game.whiteUsername() + ", playerBlack: " + game.blackUsername());
         });
     }
 
     @Override
     public void clear() {
-        MemoryDatabase.users.clear();
-        MemoryDatabase.authorization.clear();
-        MemoryDatabase.games.clear();
+        db.users.clear();
+        db.authorization.clear();
+        db.games.clear();
     }
 
     @Override
     public void createUser(UserData user, AuthData auth) {
-        MemoryDatabase.users.put(user.username(), user);
+        db.users.put(user.username(), user);
     }
 
     @Override
     public UserData getUser(String username) {
-        return MemoryDatabase.users.getOrDefault(username, null);
+        return db.users.getOrDefault(username, null);
     }
 
     @Override
     public void addAuthData(AuthData auth) {
-        MemoryDatabase.authorization.put(auth.authToken(), auth);
+        db.authorization.put(auth.authToken(), auth);
     }
 
     public AuthData getAuthData(String authToken) {
-        return MemoryDatabase.authorization.getOrDefault(authToken, null);
+        return db.authorization.getOrDefault(authToken, null);
     }
 
     public void deleteAuthToken(String authToken) {
-        MemoryDatabase.authorization.remove(authToken);
+        db.authorization.remove(authToken);
     }
 
-    public void addGame(GameData game) {
-        MemoryDatabase.games.put(game.gameID(), game);
+    public int createGame(String gameName) {
+        int newGameID = gameID;
+        gameID++;
+        GameData gewGame = new GameData(newGameID, null, null, gameName);
+        db.games.put(newGameID, gewGame);
+        return newGameID;
+    }
+
+    public void updateGame(GameData game) {
+        db.games.put(game.gameID(),game);
     }
 
     public GameData getGame(Integer gameId) {
-        return MemoryDatabase.games.getOrDefault(gameId, null);
+        return db.games.getOrDefault(gameId, null);
     }
 
-    public Collection<GameData> getAllGames() {
-        Collection<GameData> games = new ArrayList<GameData>();
-        MemoryDatabase.games.forEach((gameId, game) -> {
+    public ArrayList<GameData> getAllGames() {
+        ArrayList<GameData> games = new ArrayList<GameData>();
+        db.games.forEach((gameId, game) -> {
             games.add(game);
         });
         return games;

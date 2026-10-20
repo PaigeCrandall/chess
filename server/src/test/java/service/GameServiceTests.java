@@ -56,6 +56,7 @@ public class GameServiceTests {
         assertThrows(UnauthorizedException.class, () -> {
             gameService.createGame(new CreateGameRequest("chess-no-calla"), token);
         });
+        dataAccess.clear();
     }
 
     @Test
@@ -63,16 +64,20 @@ public class GameServiceTests {
         String token = addUserAndReturnAuthToken("Ali");
         addThreeValidGames(token);
 
-        ListGamesResult result = gameService.listGames(token);
-        assertEquals(3, result.games().size());
+        ListGamesResult listResult = gameService.listGames(token);
+        assertEquals(3, listResult.games().size());
 
-//        System.out.println(result);
+        var serializer = new Gson();
+        GameService gameService = new GameService();
+        ListGamesResult result = gameService.listGames(token);
+        System.out.println(serializer.toJson(result));
 
         // unauthorized user
         userService.logout(token);
         assertThrows(UnauthorizedException.class, () -> {
             gameService.listGames(token);
         });
+        dataAccess.clear();
     }
 
     @Test
@@ -83,6 +88,11 @@ public class GameServiceTests {
         // try joining validly
         gameService.joinGame(token, new JoinGameRequest("WHITE", 1));
         gameService.joinGame(token, new JoinGameRequest("BLACK", 3));
+        assertEquals("Lenae", dataAccess.getGame(1).whiteUsername());
+        assertEquals("Lenae", dataAccess.getGame(3).blackUsername());
+
+        dataAccess.printGames();
+
 
         // try joining invalidly
         assertThrows(AlreadyTakenException.class, () -> {
@@ -100,5 +110,7 @@ public class GameServiceTests {
         assertThrows(UnauthorizedException.class, () -> {
             gameService.joinGame(token, new JoinGameRequest("BLACK", 2));
         });
+        dataAccess.clear();
     }
+
 }
