@@ -1,4 +1,4 @@
-package dataaccess.memoryDatabase;
+package dataaccess.memorydatabase;
 
 import model.*;
 

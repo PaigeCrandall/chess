@@ -36,23 +36,19 @@ public class GameService {
             throw new UnauthorizedException("unauthorized");
         }
         ArrayList<GameData> games = dataAccess.getAllGames();
-        ListGamesResult listResult = new ListGamesResult(games);
-
-        var serializer = new Gson();
-        System.out.println(serializer.toJson(listResult));
-        System.out.println("length: " + listResult.games().size());
-
         return new ListGamesResult(games);
     }
 
-    public void joinGame(String auth, JoinGameRequest joinRequest) throws UnauthorizedException, BadRequestException, AlreadyTakenException {
+    public void joinGame(String auth, JoinGameRequest joinRequest)
+            throws UnauthorizedException, BadRequestException, AlreadyTakenException {
         // check auth
         if (dataAccess.getAuthData(auth)==null) {
             throw new UnauthorizedException("unauthorized");
         }
 
         // check that it's not a bad request
-        if (joinRequest.playerColor()==null||joinRequest.gameID()==null||(!joinRequest.playerColor().equals("BLACK")&&!joinRequest.playerColor().equals("WHITE"))) {
+        if (joinRequest.playerColor()==null||joinRequest.gameID()==null
+                || (!joinRequest.playerColor().equals("BLACK")&&!joinRequest.playerColor().equals("WHITE"))) {
             throw new BadRequestException("bad request");
         }
 

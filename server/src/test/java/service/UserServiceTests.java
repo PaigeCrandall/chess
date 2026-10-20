@@ -35,6 +35,8 @@ public class UserServiceTests {
         assertEquals(dataAccess.getUser(user1.username()), user1);
         assertEquals(dataAccess.getUser(user2.username()), user2);
 
+        dataAccess.printUsers();
+
         // trying to add a user that is already added
         assertThrows(AlreadyTakenException.class, () -> {
             userService.registerUser(new UserData("Vivian", "VarclinPeever@gmail.com", "password2468**"));
