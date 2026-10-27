@@ -38,6 +38,11 @@ public class MemoryDataAccess implements DataAccess {
         return DB.users.getOrDefault(username, null);
     }
 
+    public boolean validatePassword(String username, String passwordToCheck) {
+        String validPassword = DB.users.get(username).password();
+        return passwordToCheck.equals(validPassword);
+    }
+
     @Override
     public void addAuthData(AuthData auth) {
         DB.authorization.put(auth.authToken(), auth);

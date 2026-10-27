@@ -5,13 +5,14 @@ import model.*;
 import java.util.ArrayList;
 
 public interface DataAccess {
-    public void clear();
+    public void clear() throws DataAccessException;
 
     public void printUsers();
     public void printGames();
 
     public void createUser(UserData user, AuthData auth);
     public UserData getUser(String username);
+    public boolean validatePassword(String username, String passwordToCheck);
 
     public void addAuthData(AuthData auth);
     public void deleteAuthToken(String authToken);

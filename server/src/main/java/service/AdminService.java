@@ -1,6 +1,7 @@
 package service;
 
 import dataaccess.DataAccess;
+import dataaccess.DataAccessException;
 import dataaccess.MemoryDataAccess;
 
 public class AdminService {
@@ -10,7 +11,7 @@ public class AdminService {
         this.dataAccess = new MemoryDataAccess();
     }
 
-    public void clear() {
+    public void clear() throws DataAccessException {
         dataAccess.clear();
     }
 }

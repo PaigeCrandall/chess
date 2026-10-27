@@ -10,10 +10,13 @@ import java.util.Map;
 public class AdminHandler extends Handler {
 
     public static void clearDatabase(@NotNull Context ctx) {
-        AdminService adminService = new AdminService();
-        adminService.clear();
-        var r = Map.of();
-        var serializer = new Gson();
-        sendGoodResult(ctx, serializer.toJson(r));
+        try {
+            AdminService adminService = new AdminService();
+            adminService.clear();
+            var r = Map.of();
+            var serializer = new Gson();
+            sendGoodResult(ctx, serializer.toJson(r));
+        }
+        catch(Exception e) { errorHandling(ctx, e); }
     }
 }

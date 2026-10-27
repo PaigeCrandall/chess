@@ -1,6 +1,7 @@
 package service;
 
 import dataaccess.DataAccess;
+import dataaccess.DataAccessException;
 import dataaccess.MemoryDataAccess;
 import model.*;
 import model.requests.LoginRequest;
@@ -23,7 +24,7 @@ public class UserService {
     }
 
 
-    public AuthData registerUser(UserData registerRequest) throws AlreadyTakenException, BadRequestException {
+    public AuthData registerUser(UserData registerRequest) throws AlreadyTakenException, BadRequestException, DataAccessException {
         if ((registerRequest.username()==null)||(registerRequest.password()==null)||registerRequest.email()==null) {
             throw new BadRequestException("bad request");
         }
@@ -38,7 +39,7 @@ public class UserService {
         }
     }
 
-    public void logout(String auth) throws UnauthorizedException {
+    public void logout(String auth) throws UnauthorizedException, DataAccessException {
         if (dataAccess.getAuthData(auth)==null) {
             throw new UnauthorizedException("unauthorized");
         }
@@ -47,14 +48,14 @@ public class UserService {
         }
     }
 
-    public LoginResult login(LoginRequest loginRequest) throws BadRequestException, UnauthorizedException {
+    public LoginResult login(LoginRequest loginRequest) throws BadRequestException, UnauthorizedException, DataAccessException {
         if (loginRequest.username()==null||loginRequest.password()==null) {
             throw new BadRequestException("bad request");
         }
         if ((dataAccess.getUser(loginRequest.username())==null)) {
             throw new UnauthorizedException("username does not exist");
         }
-        if (!loginRequest.password().equals(dataAccess.getUser(loginRequest.username()).password())) {
+        if (!dataAccess.validatePassword(loginRequest.username(), loginRequest.password())) {
             throw new UnauthorizedException("unauthorized");
         }
         String authToken = createAuthToken();

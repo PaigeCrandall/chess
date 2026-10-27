@@ -1,6 +1,7 @@
 package server;
 
 import com.google.gson.Gson;
+import dataaccess.DataAccessException;
 import io.javalin.http.Context;
 import org.jetbrains.annotations.NotNull;
 import service.exceptions.*;
@@ -14,6 +15,7 @@ public class Handler {
             case UnauthorizedException unauthorizedException -> ctx.status(401);
             case BadRequestException badRequestException -> ctx.status(400);
             case AlreadyTakenException alreadyTakenException -> ctx.status(403);
+            case DataAccessException dataAccessException -> ctx.status(500);
             case null, default -> ctx.status(500);
         }
         var serializer = new Gson();

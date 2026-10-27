@@ -48,7 +48,7 @@ public class UserServiceTests {
     }
 
     @Test
-    void logout() throws UnauthorizedException {
+    void logout() throws UnauthorizedException, DataAccessException {
         // create a new user
         UserData user = new UserData("Gracie", "LadyPhilclagen@gmail.com", "password1234:)");
         String token = userService.createAuthToken();
