@@ -2,6 +2,7 @@ package service;
 
 import com.google.gson.Gson;
 import dataaccess.DataAccess;
+import dataaccess.DataAccessException;
 import dataaccess.MemoryDataAccess;
 import model.*;
 import model.requests.*;
@@ -11,6 +12,8 @@ import service.exceptions.AlreadyTakenException;
 import service.exceptions.BadRequestException;
 import service.exceptions.UnauthorizedException;
 
+import javax.xml.crypto.Data;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 public class GameServiceTests {
@@ -18,7 +21,7 @@ public class GameServiceTests {
     private final GameService gameService = new GameService();
     private final UserService userService = new UserService();
 
-    public String addUserAndReturnAuthToken(String name) {
+    public String addUserAndReturnAuthToken(String name) throws DataAccessException {
         UserData user = new UserData(name, "awesome@gmail.com", "passcode6:)");
         String token = userService.createAuthToken();
         AuthData auth = new AuthData(user.username(), token);

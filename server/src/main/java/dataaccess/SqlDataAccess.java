@@ -10,6 +10,10 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.List;
+
+import static java.sql.Statement.RETURN_GENERATED_KEYS;
+import static java.sql.Types.NULL;
 
 public class SqlDataAccess implements DataAccess {
     public SqlDataAccess() throws DataAccessException {
@@ -17,25 +21,13 @@ public class SqlDataAccess implements DataAccess {
     }
 
     public void clear() throws DataAccessException {
-        try (Connection conn = DatabaseManager.getConnection()) {
-            var userStatement = "TRUNCATE chess.users";
-            try (PreparedStatement preparedStatement = conn.prepareStatement(userStatement)) {
-                preparedStatement.executeUpdate();
-            }
-            var authStatement = "TRUNCATE chess.users";
-            try (PreparedStatement preparedStatement = conn.prepareStatement(authStatement)) {
-                preparedStatement.executeUpdate();
-            }
-//            var gamesStatement = "TRUNCATE chess.games";
-//            try (PreparedStatement preparedStatement = conn.prepareStatement(gamesStatement)) {
-//                preparedStatement.executeUpdate();
-//            }
-        } catch (Exception ex) {
-            throw new DataAccessException(String.format("Unable to clear database: %s", ex.getMessage()));
+        for (String tableName : List.of("chess.users", "chess.authorization")) {
+            var statement = "TRUNCATE " + tableName;
+            updataDatabase(statement);
         }
     }
 
-    public boolean validatePassword(String username, String passwordToCheck) {
+    public boolean validatePassword(String username, String passwordToCheck) throws DataAccessException {
         String validPassword = getUser(username).password();
         return BCrypt.checkpw(passwordToCheck, validPassword);
     }
@@ -43,24 +35,12 @@ public class SqlDataAccess implements DataAccess {
     public void printUsers() {}
     public void printGames() {}
 
-    public void createUser(UserData user, AuthData auth) {
-        try (Connection conn = DatabaseManager.getConnection()) {
-            var statement = "INSERT INTO chess.users (username, email, password) VALUES (?, ?, ?)";
-            try (PreparedStatement preparedStatement = conn.prepareStatement(statement)) {
-                preparedStatement.setString(1, user.username());
-                preparedStatement.setString(2, user.email());
-                String hashedPassword = BCrypt.hashpw(user.password(), BCrypt.gensalt());
-                preparedStatement.setString(3, hashedPassword);
-
-                preparedStatement.executeUpdate();
-            }
-        } catch (Exception ex) {
-            System.out.println("DataAccessException");
-//            throw new DataAccessException(String.format("Unable to configure database: %s", ex.getMessage()));
-        }
+    public void createUser(UserData user, AuthData auth) throws DataAccessException {
+        var statement = "INSERT INTO chess.users (username, email, password) VALUES (?, ?, ?)";
+        updataDatabase(statement, user.username(), user.email(), BCrypt.hashpw(user.password(), BCrypt.gensalt()));
     }
 
-    public UserData getUser(String username) {
+    public UserData getUser(String username) throws DataAccessException {
         try (Connection conn = DatabaseManager.getConnection()) {
             var statement = "SELECT * FROM chess.users WHERE username=?";
             try (PreparedStatement preparedStatement = conn.prepareStatement(statement)) {
@@ -76,13 +56,16 @@ public class SqlDataAccess implements DataAccess {
                 }
             }
         } catch (Exception ex) {
-            System.out.println("DataAccessException");
-//            throw new DataAccessException(String.format("Unable to configure database: %s", ex.getMessage()));
+            throw new DataAccessException(String.format("Unable to configure database: %s", ex.getMessage()));
         }
         return null;
     }
 
-    public void addAuthData(AuthData auth) {}
+    public void addAuthData(AuthData auth) throws DataAccessException {
+        var statement = "INSERT INTO chess.authorization (authToken, username) VALUES (?, ?)";
+        updataDatabase(statement, auth.authToken(), auth.username());
+    }
+
     public void deleteAuthToken(String authToken) {}
     public AuthData getAuthData(String authToken) {return new AuthData("name", "123");}
 
@@ -90,6 +73,25 @@ public class SqlDataAccess implements DataAccess {
     public void updateGame(GameData game) {}
     public GameData getGame(Integer gameId) {return null;}
     public ArrayList<GameData> getAllGames() {return null;}
+
+    private void updataDatabase(String statement, Object... params) throws DataAccessException {
+        try (Connection conn = DatabaseManager.getConnection()) {
+            try (PreparedStatement preparedStatement = conn.prepareStatement(statement)) {
+                for (int i = 0; i < params.length; i++) {
+                    Object param = params[i];
+                    switch (param) {
+                        case String p -> preparedStatement.setString(i + 1, p);
+                        case Integer p -> preparedStatement.setInt(i + 1, p);
+                        case null -> preparedStatement.setNull(i + 1, NULL);
+                        default -> {}
+                    }
+                }
+                preparedStatement.executeUpdate();
+            }
+        } catch (SQLException e) {
+            throw new DataAccessException(String.format("unable to update database: %s, %s", statement, e.getMessage()));
+        }
+    }
 
     private final String[] createStatements = {
             """

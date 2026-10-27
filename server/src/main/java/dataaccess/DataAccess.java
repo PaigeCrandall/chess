@@ -5,21 +5,21 @@ import model.*;
 import java.util.ArrayList;
 
 public interface DataAccess {
-    public void clear() throws DataAccessException;
+    void clear() throws DataAccessException;
 
-    public void printUsers();
-    public void printGames();
+    void printUsers();
+    void printGames();
 
-    public void createUser(UserData user, AuthData auth);
-    public UserData getUser(String username);
-    public boolean validatePassword(String username, String passwordToCheck);
+    void createUser(UserData user, AuthData auth) throws DataAccessException;
+    UserData getUser(String username) throws DataAccessException;
+    boolean validatePassword(String username, String passwordToCheck) throws DataAccessException;
 
-    public void addAuthData(AuthData auth);
-    public void deleteAuthToken(String authToken);
-    public AuthData getAuthData(String authToken);
+    void addAuthData(AuthData auth) throws DataAccessException;
+    void deleteAuthToken(String authToken);
+    AuthData getAuthData(String authToken);
 
-    public int createGame(String gameName);
-    public void updateGame(GameData game);
-    public GameData getGame(Integer gameId);
-    public ArrayList<GameData> getAllGames();
+    int createGame(String gameName);
+    void updateGame(GameData game);
+    GameData getGame(Integer gameId);
+    ArrayList<GameData> getAllGames();
 }

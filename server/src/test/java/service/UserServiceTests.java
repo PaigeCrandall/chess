@@ -28,7 +28,7 @@ public class UserServiceTests {
     }
 
     @Test
-    void register() throws AlreadyTakenException, BadRequestException {
+    void register() throws AlreadyTakenException, BadRequestException, DataAccessException {
         // adding two users, and making sure they are in the database
         UserData user1 = validRegisterUser("Monroe");
         UserData user2 = validRegisterUser("Vivian");
