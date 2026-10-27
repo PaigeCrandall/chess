@@ -15,8 +15,8 @@ public interface DataAccess {
     boolean validatePassword(String username, String passwordToCheck) throws DataAccessException;
 
     void addAuthData(AuthData auth) throws DataAccessException;
-    void deleteAuthToken(String authToken);
-    AuthData getAuthData(String authToken);
+    void deleteAuthToken(String authToken) throws DataAccessException;
+    AuthData getAuthData(String authToken) throws DataAccessException;
 
     int createGame(String gameName);
     void updateGame(GameData game);

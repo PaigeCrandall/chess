@@ -3,12 +3,14 @@ package service;
 import chess.ChessGame;
 import com.google.gson.Gson;
 import dataaccess.DataAccess;
+import dataaccess.DataAccessException;
 import dataaccess.MemoryDataAccess;
 import model.*;
 import model.requests.*;
 import model.results.*;
 import service.exceptions.*;
 
+import javax.xml.crypto.Data;
 import java.util.ArrayList;
 import java.util.Collection;
 
@@ -19,7 +21,7 @@ public class GameService {
         this.dataAccess = new MemoryDataAccess();
     }
 
-    public CreateGameResult createGame(CreateGameRequest creationRequest, String auth) throws UnauthorizedException, BadRequestException {
+    public CreateGameResult createGame(CreateGameRequest creationRequest, String auth) throws UnauthorizedException, BadRequestException, DataAccessException {
         if (creationRequest.gameName()==null) {
             throw new BadRequestException("bad request");
         }
@@ -30,7 +32,7 @@ public class GameService {
         return new CreateGameResult(gameID);
     }
 
-    public ListGamesResult listGames(String auth) throws UnauthorizedException {
+    public ListGamesResult listGames(String auth) throws UnauthorizedException, DataAccessException {
         // check auth
         if (dataAccess.getAuthData(auth)==null) {
             throw new UnauthorizedException("unauthorized");
@@ -40,7 +42,7 @@ public class GameService {
     }
 
     public void joinGame(String auth, JoinGameRequest joinRequest)
-            throws UnauthorizedException, BadRequestException, AlreadyTakenException {
+            throws UnauthorizedException, BadRequestException, AlreadyTakenException, DataAccessException {
         // check auth
         if (dataAccess.getAuthData(auth)==null) {
             throw new UnauthorizedException("unauthorized");

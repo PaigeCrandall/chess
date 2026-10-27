@@ -11,8 +11,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-
-import static java.sql.Statement.RETURN_GENERATED_KEYS;
 import static java.sql.Types.NULL;
 
 public class SqlDataAccess implements DataAccess {
@@ -23,7 +21,7 @@ public class SqlDataAccess implements DataAccess {
     public void clear() throws DataAccessException {
         for (String tableName : List.of("chess.users", "chess.authorization")) {
             var statement = "TRUNCATE " + tableName;
-            updataDatabase(statement);
+            updateDatabase(statement);
         }
     }
 
@@ -37,7 +35,7 @@ public class SqlDataAccess implements DataAccess {
 
     public void createUser(UserData user, AuthData auth) throws DataAccessException {
         var statement = "INSERT INTO chess.users (username, email, password) VALUES (?, ?, ?)";
-        updataDatabase(statement, user.username(), user.email(), BCrypt.hashpw(user.password(), BCrypt.gensalt()));
+        updateDatabase(statement, user.username(), user.email(), BCrypt.hashpw(user.password(), BCrypt.gensalt()));
     }
 
     public UserData getUser(String username) throws DataAccessException {
@@ -63,18 +61,38 @@ public class SqlDataAccess implements DataAccess {
 
     public void addAuthData(AuthData auth) throws DataAccessException {
         var statement = "INSERT INTO chess.authorization (authToken, username) VALUES (?, ?)";
-        updataDatabase(statement, auth.authToken(), auth.username());
+        updateDatabase(statement, auth.authToken(), auth.username());
     }
 
-    public void deleteAuthToken(String authToken) {}
-    public AuthData getAuthData(String authToken) {return new AuthData("name", "123");}
+    public void deleteAuthToken(String authToken) throws DataAccessException {
+        var statement = "Delete FROM chess.authorization WHERE authToken=" + authToken;
+        updateDatabase(statement);
+    }
+
+    public AuthData getAuthData(String authToken) throws DataAccessException {
+        try (Connection conn = DatabaseManager.getConnection()) {
+            var statement = "SELECT * FROM chess.authorization WHERE authToken=" + authToken;
+            try (PreparedStatement preparedStatement = conn.prepareStatement(statement);
+                 ResultSet rs = preparedStatement.executeQuery()) {
+                if (rs.next()) {
+                    return new AuthData(
+                            rs.getString("authToken"),
+                            rs.getString("username")
+                    );
+                }
+            }
+        } catch (Exception ex) {
+            throw new DataAccessException(String.format("Unable to configure database: %s", ex.getMessage()));
+        }
+        return null;
+    }
 
     public int createGame(String gameName) {return 1;}
     public void updateGame(GameData game) {}
     public GameData getGame(Integer gameId) {return null;}
     public ArrayList<GameData> getAllGames() {return null;}
 
-    private void updataDatabase(String statement, Object... params) throws DataAccessException {
+    private void updateDatabase(String statement, Object... params) throws DataAccessException {
         try (Connection conn = DatabaseManager.getConnection()) {
             try (PreparedStatement preparedStatement = conn.prepareStatement(statement)) {
                 for (int i = 0; i < params.length; i++) {
@@ -106,9 +124,9 @@ public class SqlDataAccess implements DataAccess {
             """,
             """
             CREATE TABLE IF NOT EXISTS authorization (
-              `token` int NOT NULL,
+              `authToken` int NOT NULL,
               `username` varchar(256) NOT NULL,
-              PRIMARY KEY (`token`),
+              PRIMARY KEY (`authToken`),
               INDEX(username)
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
             """
