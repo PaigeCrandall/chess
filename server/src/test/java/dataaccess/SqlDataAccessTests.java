@@ -1,7 +1,9 @@
 package dataaccess;
 
 import model.*;
+import model.requests.CreateGameRequest;
 import org.junit.jupiter.api.*;
+import service.exceptions.UnauthorizedException;
 
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
@@ -39,7 +41,6 @@ public class SqlDataAccessTests {
         catch(Exception e) {
             System.out.println("Database connection issue");
         }
-        // dataAccess.createUser(new UserData("Paige", "palmtree@tropic.com", "turtles"), new AuthData("1234", "Paige"));
     }
 
     @Test
@@ -78,9 +79,9 @@ public class SqlDataAccessTests {
         try {
             DataAccess dataAccess = new SqlDataAccess();
             dataAccess.createUser(new UserData("Paige", "palmtree@tropic.com", "turtles"), new AuthData("1234", "Paige"));
-            dataAccess.addAuthData(new AuthData("1234", "Paige"));
+            dataAccess.addAuthData(new AuthData("Paige", "1234"));
             dataAccess.createUser(new UserData("Vivian", "aspentree@tropic.com", "bluebirds"), new AuthData("5678", "Paige"));
-            dataAccess.addAuthData(new AuthData("5678", "Vivian"));
+            dataAccess.addAuthData(new AuthData("Vivian", "5678"));
             assertNotNull(dataAccess.getAuthData("1234"));
             assertNotNull(dataAccess.getAuthData("5678"));
 

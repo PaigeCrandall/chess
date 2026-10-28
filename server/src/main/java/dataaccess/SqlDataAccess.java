@@ -39,24 +39,8 @@ public class SqlDataAccess implements DataAccess {
     }
 
     public UserData getUser(String username) throws DataAccessException {
-        try (Connection conn = DatabaseManager.getConnection()) {
-            var statement = "SELECT * FROM chess.users WHERE username=?";
-            try (PreparedStatement preparedStatement = conn.prepareStatement(statement)) {
-                preparedStatement.setString(1, username);
-                try (ResultSet rs = preparedStatement.executeQuery()) {
-                    if (rs.next()) {
-                        return new UserData(
-                                rs.getString("username"),
-                                rs.getString("email"),
-                                rs.getString("password")
-                        );
-                    }
-                }
-            }
-        } catch (Exception ex) {
-            throw new DataAccessException(String.format("Unable to configure database: %s", ex.getMessage()));
-        }
-        return null;
+        var statement = "SELECT * FROM chess.users WHERE username='" + username + "'";
+        return (UserData) readFromDatabase(statement, "UserData");
     }
 
     public void addAuthData(AuthData auth) throws DataAccessException {
@@ -65,26 +49,13 @@ public class SqlDataAccess implements DataAccess {
     }
 
     public void deleteAuthToken(String authToken) throws DataAccessException {
-        var statement = "Delete FROM chess.authorization WHERE authToken=" + authToken;
+        var statement = "Delete FROM chess.authorization WHERE authToken='" + authToken + "'";
         updateDatabase(statement);
     }
 
     public AuthData getAuthData(String authToken) throws DataAccessException {
-        try (Connection conn = DatabaseManager.getConnection()) {
-            var statement = "SELECT * FROM chess.authorization WHERE authToken=" + authToken;
-            try (PreparedStatement preparedStatement = conn.prepareStatement(statement);
-                 ResultSet rs = preparedStatement.executeQuery()) {
-                if (rs.next()) {
-                    return new AuthData(
-                            rs.getString("authToken"),
-                            rs.getString("username")
-                    );
-                }
-            }
-        } catch (Exception ex) {
-            throw new DataAccessException(String.format("Unable to configure database: %s", ex.getMessage()));
-        }
-        return null;
+        var statement = "SELECT * FROM chess.authorization WHERE authToken='" + authToken + "'";
+        return (AuthData) readFromDatabase(statement, "AuthData");
     }
 
     public int createGame(String gameName) {return 1;}
@@ -109,6 +80,32 @@ public class SqlDataAccess implements DataAccess {
         } catch (SQLException e) {
             throw new DataAccessException(String.format("unable to update database: %s, %s", statement, e.getMessage()));
         }
+    }
+
+    private Object readFromDatabase(String statement, String type) throws DataAccessException {
+        try (Connection conn = DatabaseManager.getConnection();
+            PreparedStatement preparedStatement = conn.prepareStatement(statement);
+            ResultSet rs = preparedStatement.executeQuery()) {
+
+                if (rs.next()) {
+                    if (type.equals("AuthData")) {
+                        return new AuthData(
+                            rs.getString("authToken"),
+                            rs.getString("username")
+                    );
+                    } else if (type.equals("UserData")) {
+                        return new UserData(
+                                rs.getString("username"),
+                                rs.getString("email"),
+                                rs.getString("password")
+                        );
+                    }
+                }
+
+        } catch (SQLException e) {
+            throw new DataAccessException(String.format("Unable to configure database: %s", e.getMessage()));
+        }
+        return null;
     }
 
     private final String[] createStatements = {
