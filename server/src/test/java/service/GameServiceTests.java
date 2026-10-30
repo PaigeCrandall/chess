@@ -4,22 +4,31 @@ import com.google.gson.Gson;
 import dataaccess.DataAccess;
 import dataaccess.DataAccessException;
 import dataaccess.MemoryDataAccess;
+import dataaccess.SqlDataAccess;
 import model.*;
 import model.requests.*;
 import model.results.*;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import service.exceptions.AlreadyTakenException;
 import service.exceptions.BadRequestException;
 import service.exceptions.UnauthorizedException;
 
-import javax.xml.crypto.Data;
-
 import static org.junit.jupiter.api.Assertions.*;
 
 public class GameServiceTests {
-    private final DataAccess dataAccess = new MemoryDataAccess();
-    private final GameService gameService = new GameService();
-    private final UserService userService = new UserService();
+//    private final DataAccess dataAccess = new MemoryDataAccess();
+    private static DataAccess dataAccess;
+    private static UserService userService;
+    private static GameService gameService;
+
+    @BeforeAll
+    static void setUp() throws DataAccessException {
+        dataAccess = new SqlDataAccess();
+        gameService = new GameService();
+        userService = new UserService();
+    }
+
 
     public String addUserAndReturnAuthToken(String name) throws DataAccessException {
         UserData user = new UserData(name, "awesome@gmail.com", "passcode6:)");
@@ -50,15 +59,11 @@ public class GameServiceTests {
         addThreeValidGames(token);
 
         // invalid request
-        assertThrows(BadRequestException.class, () -> {
-            gameService.createGame(new CreateGameRequest(null), token);
-        });
+        assertThrows(BadRequestException.class, () -> gameService.createGame(new CreateGameRequest(null), token));
 
         // unauthorized user tries to make one
         userService.logout(token);
-        assertThrows(UnauthorizedException.class, () -> {
-            gameService.createGame(new CreateGameRequest("chess-no-calla"), token);
-        });
+        assertThrows(UnauthorizedException.class, () -> gameService.createGame(new CreateGameRequest("chess-no-calla"), token));
         dataAccess.clear();
     }
 
@@ -77,9 +82,7 @@ public class GameServiceTests {
 
         // unauthorized user
         userService.logout(token);
-        assertThrows(UnauthorizedException.class, () -> {
-            gameService.listGames(token);
-        });
+        assertThrows(UnauthorizedException.class, () -> gameService.listGames(token) );
         dataAccess.clear();
     }
 
@@ -98,21 +101,13 @@ public class GameServiceTests {
 
 
         // try joining invalidly
-        assertThrows(AlreadyTakenException.class, () -> {
-            gameService.joinGame(token, new JoinGameRequest("WHITE", 1));
-        });
+        assertThrows(AlreadyTakenException.class, () -> gameService.joinGame(token, new JoinGameRequest("WHITE", 1)));
 
-        assertThrows(BadRequestException.class, () -> {
-            gameService.joinGame(token, new JoinGameRequest("BLUE", 1));
-        });
-        assertThrows(BadRequestException.class, () -> {
-            gameService.joinGame(token, new JoinGameRequest("BLACK", null));
-        });
+        assertThrows(BadRequestException.class, () -> gameService.joinGame(token, new JoinGameRequest("BLUE", 1)));
+        assertThrows(BadRequestException.class, () -> gameService.joinGame(token, new JoinGameRequest("BLACK", null)));
 
         userService.logout(token);
-        assertThrows(UnauthorizedException.class, () -> {
-            gameService.joinGame(token, new JoinGameRequest("BLACK", 2));
-        });
+        assertThrows(UnauthorizedException.class, () -> gameService.joinGame(token, new JoinGameRequest("BLACK", 2)));
         dataAccess.clear();
     }
 

@@ -1,16 +1,26 @@
 package dataaccess;
 
+import chess.ChessBoard;
+import chess.ChessGame;
+import chess.ChessPiece;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonDeserializer;
+import com.google.gson.JsonObject;
 import model.AuthData;
 import model.GameData;
 import model.UserData;
 import org.mindrot.jbcrypt.BCrypt;
 
+import javax.xml.crypto.Data;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+
+import static java.sql.Statement.RETURN_GENERATED_KEYS;
 import static java.sql.Types.NULL;
 
 public class SqlDataAccess implements DataAccess {
@@ -19,7 +29,7 @@ public class SqlDataAccess implements DataAccess {
     }
 
     public void clear() throws DataAccessException {
-        for (String tableName : List.of("chess.users", "chess.authorization")) {
+        for (String tableName : List.of("chess.users", "chess.authorization", "chess.games")) {
             var statement = "TRUNCATE " + tableName;
             updateDatabase(statement);
         }
@@ -58,14 +68,83 @@ public class SqlDataAccess implements DataAccess {
         return (AuthData) readFromDatabase(statement, "AuthData");
     }
 
-    public int createGame(String gameName) {return 1;}
-    public void updateGame(GameData game) {}
-    public GameData getGame(Integer gameId) {return null;}
-    public ArrayList<GameData> getAllGames() {return null;}
+    public int createGame(String gameName) throws DataAccessException {
+        var statement = "INSERT INTO chess.games (whiteUsername, blackUsername, gameName, game) VALUES (?, ?, ?, ?)";
 
-    private void updateDatabase(String statement, Object... params) throws DataAccessException {
+        ChessGame newGame = new ChessGame();
+        var serializer = new Gson();
+        String jsonGameInfo = serializer.toJson(newGame);
+
+        return updateDatabase(statement, null, null, gameName, jsonGameInfo);
+    }
+
+    public void updateGame(GameData game) throws DataAccessException {
+        var serializer = new Gson();
+        var statement = "UPDATE games SET whiteUsername = ?, blackUsername = ?," +
+                "gameName = ?, game = ? WHERE gameID = ?;";
+        updateDatabase(statement, game.whiteUsername(), game.blackUsername(),
+                game.gameName(), serializer.toJson(game.game()), game.gameID());
+    }
+
+
+    public static Gson createChessSerializer() {
+        GsonBuilder gsonBuilder = new GsonBuilder();
+        gsonBuilder.registerTypeAdapter(ChessPiece.class,
+                (JsonDeserializer<ChessPiece>) (jsonString, t, ctx) -> {
+                    JsonObject jsonObject = jsonString.getAsJsonObject();
+                    ChessGame.TeamColor color = ctx.deserialize(jsonObject.get("color"), ChessGame.TeamColor.class);
+                    ChessPiece.PieceType type = ctx.deserialize(jsonObject.get("type"), ChessPiece.PieceType.class);
+                    return new ChessPiece(color, type);
+                });
+
+        gsonBuilder.registerTypeAdapter(ChessGame.class,
+                (JsonDeserializer<ChessGame>) (jsonString, t, ctx) -> {
+                    JsonObject jsonObject = jsonString.getAsJsonObject();
+                    ChessBoard board = ctx.deserialize(jsonObject.get("board"), ChessBoard.class);
+                    ChessGame.TeamColor team = ctx.deserialize(jsonObject.get("team"), ChessGame.TeamColor.class);
+                    return new ChessGame(board, team);
+                });
+
+        return gsonBuilder.create();
+    }
+
+    public static ChessGame deserializeGame(String jsonGameInfo) {
+        Gson gameSerializer =  createChessSerializer();
+        return gameSerializer.fromJson(jsonGameInfo, ChessGame.class);
+    }
+
+    public GameData getGame(Integer gameId)  throws DataAccessException {
+        var statement = "SELECT * FROM chess.games WHERE gameID='" + gameId + "'";
+        return (GameData) readFromDatabase(statement, "GameData");
+    }
+
+    public ArrayList<GameData> getAllGames() throws DataAccessException {
+        ArrayList<GameData> gamesList = new ArrayList<GameData>();
+        var statement = "SELECT gameID, whiteUsername, blackUsername, gameName, game FROM chess.games";
         try (Connection conn = DatabaseManager.getConnection()) {
-            try (PreparedStatement preparedStatement = conn.prepareStatement(statement)) {
+            try (PreparedStatement ps = conn.prepareStatement(statement)) {
+                try (ResultSet rs = ps.executeQuery()) {
+                    while (rs.next()) {
+                        gamesList.add(new GameData(
+                                rs.getInt("gameID"),
+                                rs.getString("whiteUsername"),
+                                rs.getString("blackUsername"),
+                                rs.getString("gameName"),
+                                deserializeGame(rs.getString("game"))
+                        ));
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            throw new DataAccessException(String.format("unable to update database: %s, %s", statement, e.getMessage()));
+        }
+
+        return gamesList;
+    }
+
+    private int updateDatabase(String statement, Object... params) throws DataAccessException {
+        try (Connection conn = DatabaseManager.getConnection()) {
+            try (PreparedStatement preparedStatement = conn.prepareStatement(statement, RETURN_GENERATED_KEYS)) {
                 for (int i = 0; i < params.length; i++) {
                     Object param = params[i];
                     switch (param) {
@@ -76,6 +155,13 @@ public class SqlDataAccess implements DataAccess {
                     }
                 }
                 preparedStatement.executeUpdate();
+
+                ResultSet rs = preparedStatement.getGeneratedKeys();
+                if (rs.next()) {
+                    return rs.getInt(1);
+                }
+
+                return 0;
             }
         } catch (SQLException e) {
             throw new DataAccessException(String.format("unable to update database: %s, %s", statement, e.getMessage()));
@@ -86,19 +172,30 @@ public class SqlDataAccess implements DataAccess {
         try (Connection conn = DatabaseManager.getConnection();
             PreparedStatement preparedStatement = conn.prepareStatement(statement);
             ResultSet rs = preparedStatement.executeQuery()) {
-
                 if (rs.next()) {
-                    if (type.equals("AuthData")) {
-                        return new AuthData(
-                            rs.getString("authToken"),
-                            rs.getString("username")
-                    );
-                    } else if (type.equals("UserData")) {
-                        return new UserData(
-                                rs.getString("username"),
-                                rs.getString("email"),
-                                rs.getString("password")
-                        );
+                    switch (type) {
+                        case "AuthData" -> {
+                            return new AuthData(
+                                    rs.getString("username"),
+                                    rs.getString("authToken")
+                            );
+                        }
+                        case "UserData" -> {
+                            return new UserData(
+                                    rs.getString("username"),
+                                    rs.getString("email"),
+                                    rs.getString("password")
+                            );
+                        }
+                        case "GameData" -> {
+                            return new GameData(
+                                    rs.getInt("gameID"),
+                                    rs.getString("whiteUsername"),
+                                    rs.getString("blackUsername"),
+                                    rs.getString("gameName"),
+                                    deserializeGame(rs.getString("game"))
+                            );
+                        }
                     }
                 }
 
@@ -121,10 +218,20 @@ public class SqlDataAccess implements DataAccess {
             """,
             """
             CREATE TABLE IF NOT EXISTS authorization (
-              `authToken` int NOT NULL,
+              `authToken` varchar(256) NOT NULL,
               `username` varchar(256) NOT NULL,
               PRIMARY KEY (`authToken`),
               INDEX(username)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
+            """,
+            """
+            CREATE TABLE IF NOT EXISTS games (
+              `gameID` int NOT NULL AUTO_INCREMENT,
+              `whiteUsername` varchar(256),
+              `blackUsername` varchar(256),
+              `gameName` varchar(256) NOT NULL,
+              `game` TEXT,
+              PRIMARY KEY (`gameID`)
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
             """
     };

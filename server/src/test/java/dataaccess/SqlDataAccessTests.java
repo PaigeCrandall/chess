@@ -1,8 +1,12 @@
 package dataaccess;
 
+import chess.ChessGame;
+import chess.ChessMove;
+import chess.ChessPosition;
 import model.*;
 import model.requests.CreateGameRequest;
 import org.junit.jupiter.api.*;
+import service.UserService;
 import service.exceptions.UnauthorizedException;
 
 import java.sql.Connection;
@@ -12,26 +16,26 @@ import java.sql.ResultSet;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 public class SqlDataAccessTests {
+    private static DataAccess dataAccess;
+
+    @BeforeAll
+    static void setUp() throws DataAccessException {
+        dataAccess = new SqlDataAccess();
+    }
 
     @AfterEach
-    void clearData() {
-        try {
-            DataAccess dataAccess = new SqlDataAccess();
-            dataAccess.clear();
-        }
-        catch(Exception e) {
-            System.out.println("Database did not clear!");
-        }
+    void clearData() throws DataAccessException {
+        dataAccess.clear();
     }
 
     @Test
     void setup() {
         try (Connection conn = DatabaseManager.getConnection()) {
-            DataAccess dataAccess = new SqlDataAccess();
             DatabaseMetaData meta = conn.getMetaData();
-            List<String> tablesToCheck = List.of("users", "authorization");
+            List<String> tablesToCheck = List.of("users", "authorization", "games");
             for (String tableName : tablesToCheck) {
                 try (ResultSet rs = meta.getTables(null, null, tableName, null)) {
                     assertTrue(rs.next());
@@ -46,10 +50,9 @@ public class SqlDataAccessTests {
     @Test
     void clear() {
         try (Connection conn = DatabaseManager.getConnection()) {
-            DataAccess dataAccess = new SqlDataAccess();
             dataAccess.createUser(new UserData("Vivian", "aspentree@tropic.com", "bluebirds"), new AuthData("1234", "Paige"));
             dataAccess.clear();
-            List<String> tablesToClear = List.of("chess.users", "chess.authorization");
+            List<String> tablesToClear = List.of("chess.users", "chess.authorization", "chess.games");
             for (String tableName : tablesToClear) {
                 String statement = "SELECT * FROM " + tableName;
                 PreparedStatement preppedStatement = conn.prepareStatement(statement);
@@ -65,7 +68,6 @@ public class SqlDataAccessTests {
     @Test
     void addAndGetUser() {
         try {
-            DataAccess dataAccess = new SqlDataAccess();
             dataAccess.createUser(new UserData("Paige", "palmtree@tropic.com", "turtles"), new AuthData("1234", "Paige"));
             assertNotNull(dataAccess.getUser("Paige"));
         }
@@ -77,7 +79,6 @@ public class SqlDataAccessTests {
     @Test
     void addAndGetAndDeleteAuth() {
         try {
-            DataAccess dataAccess = new SqlDataAccess();
             dataAccess.createUser(new UserData("Paige", "palmtree@tropic.com", "turtles"), new AuthData("1234", "Paige"));
             dataAccess.addAuthData(new AuthData("Paige", "1234"));
             dataAccess.createUser(new UserData("Vivian", "aspentree@tropic.com", "bluebirds"), new AuthData("5678", "Paige"));
@@ -90,6 +91,74 @@ public class SqlDataAccessTests {
         }
         catch (DataAccessException e) {
             System.out.println("DataAccessException e = " + e);
+        }
+    }
+
+    @Test
+    public void getAndCreateGame() {
+        try {
+            dataAccess.createGame("Champions");
+            assertNotNull(dataAccess.getGame(1));
+            assertEquals("Champions", dataAccess.getGame(1).gameName());
+            assertNull(dataAccess.getGame(1).whiteUsername());
+            assertNull(dataAccess.getGame(1).blackUsername());
+            assertNotNull(dataAccess.getGame(1).game());
+        }
+        catch (DataAccessException e) {
+            System.out.println("DataAccessException e = " + e);
+        }
+    }
+
+    @Test
+    void listGames() {
+        try {
+            dataAccess.createGame("Champions");
+            dataAccess.createGame("Losers");
+            dataAccess.createGame("Fighters");
+            dataAccess.createGame("Wizards");
+            assertEquals(4, dataAccess.getAllGames().size());
+        }
+        catch (DataAccessException e) {
+            System.out.println("DataAccessException e = " + e);
+        }
+    }
+
+    @Test
+    void joinGameUpdate() {
+        try {
+            int id = dataAccess.createGame("Champions");
+            GameData game1 = dataAccess.getGame(id);
+            assertNull(game1.blackUsername());
+            assertNull(game1.whiteUsername());
+            dataAccess.updateGame(new GameData(game1.gameID(), game1.whiteUsername(), "Phyllis", game1.gameName(), new ChessGame()));
+            GameData updatedGame1 = dataAccess.getGame(id);
+            assertEquals("Phyllis", updatedGame1.blackUsername());
+            assertNull(updatedGame1.whiteUsername());
+            dataAccess.updateGame(new GameData(updatedGame1.gameID(), "Paige", updatedGame1.blackUsername(), updatedGame1.gameName(), new ChessGame()));
+            assertEquals("Paige", dataAccess.getGame(id).whiteUsername());
+        }
+        catch (DataAccessException e) {
+            System.out.println("DataAccessException e = " + e);
+        }
+    }
+
+    @Test
+    void makeMoveUpdate() {
+        try {
+            int id = dataAccess.createGame("Losers");
+            GameData startGame = dataAccess.getGame(id);
+            assertNotNull(startGame.game());
+            assertNull(dataAccess.getGame(id).game().getBoard().getPiece(new ChessPosition(3,2)));
+            startGame.game().makeMove(new ChessMove(new ChessPosition(2,2), new ChessPosition(3,2)));
+            GameData newGame = new GameData(startGame.gameID(), startGame.whiteUsername(), startGame.blackUsername(), startGame.gameName(), startGame.game());
+            dataAccess.updateGame(newGame);
+            assertNotNull(dataAccess.getGame(id).game().getBoard().getPiece(new ChessPosition(3,2)));
+        }
+        catch (DataAccessException e) {
+            System.out.println("DataAccessException e = " + e);
+        }
+        catch (chess.InvalidMoveException e) {
+            System.out.println("InvalidMoveException e = " + e);
         }
     }
 

@@ -12,8 +12,19 @@ import service.exceptions.UnauthorizedException;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class UserServiceTests {
-    private final DataAccess dataAccess = new MemoryDataAccess();
-    private final UserService userService = new UserService();
+    private static DataAccess dataAccess;
+    private static UserService userService;
+
+    @BeforeAll
+    static void setUp() throws DataAccessException {
+        dataAccess = new SqlDataAccess();
+        userService = new UserService();
+    }
+
+    @AfterEach
+    void clearData() throws DataAccessException {
+        dataAccess.clear();
+    }
 
     UserData validRegisterUser(String username) {
         UserData user = new UserData(username, "email.address@gmail.com", "password1234:)");
@@ -32,8 +43,8 @@ public class UserServiceTests {
         // adding two users, and making sure they are in the database
         UserData user1 = validRegisterUser("Monroe");
         UserData user2 = validRegisterUser("Vivian");
-        assertEquals(dataAccess.getUser(user1.username()), user1);
-        assertEquals(dataAccess.getUser(user2.username()), user2);
+        assertEquals(dataAccess.getUser(user1.username()).username(), user1.username());
+        assertEquals(dataAccess.getUser(user2.username()).username(), user2.username());
 
         dataAccess.printUsers();
 

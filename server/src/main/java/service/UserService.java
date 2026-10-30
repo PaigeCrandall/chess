@@ -16,8 +16,8 @@ import java.util.UUID;
 public class UserService {
     DataAccess dataAccess;
 
-    public UserService() {
-        this.dataAccess = new MemoryDataAccess();
+    public UserService() throws DataAccessException {
+        this.dataAccess = new SqlDataAccess();
     }
 
     public String createAuthToken() {
@@ -40,6 +40,7 @@ public class UserService {
         }
     }
 
+
     public void logout(String auth) throws UnauthorizedException, DataAccessException {
         if (dataAccess.getAuthData(auth)==null) {
             throw new UnauthorizedException("unauthorized");
@@ -48,6 +49,7 @@ public class UserService {
             dataAccess.deleteAuthToken(auth);
         }
     }
+
 
     public LoginResult login(LoginRequest loginRequest) throws BadRequestException, UnauthorizedException, DataAccessException {
         if (loginRequest.username()==null||loginRequest.password()==null) {

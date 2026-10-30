@@ -18,8 +18,8 @@ public interface DataAccess {
     void deleteAuthToken(String authToken) throws DataAccessException;
     AuthData getAuthData(String authToken) throws DataAccessException;
 
-    int createGame(String gameName);
-    void updateGame(GameData game);
-    GameData getGame(Integer gameId);
-    ArrayList<GameData> getAllGames();
+    int createGame(String gameName)  throws DataAccessException;
+    void updateGame(GameData game)  throws DataAccessException;
+    GameData getGame(Integer gameId)  throws DataAccessException;
+    ArrayList<GameData> getAllGames()  throws DataAccessException;
 }

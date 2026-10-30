@@ -5,6 +5,7 @@ import com.google.gson.Gson;
 import dataaccess.DataAccess;
 import dataaccess.DataAccessException;
 import dataaccess.MemoryDataAccess;
+import dataaccess.SqlDataAccess;
 import model.*;
 import model.requests.*;
 import model.results.*;
@@ -16,9 +17,8 @@ import java.util.Collection;
 
 public class GameService {
     DataAccess dataAccess;
-
-    public GameService() {
-        this.dataAccess = new MemoryDataAccess();
+    public GameService() throws DataAccessException {
+        this.dataAccess = new SqlDataAccess();
     }
 
     public CreateGameResult createGame(CreateGameRequest creationRequest, String auth) throws UnauthorizedException, BadRequestException, DataAccessException {
@@ -71,7 +71,7 @@ public class GameService {
         else {
             playerBlack = username;
         }
-        GameData updatedGame = new GameData(gameToJoin.gameID(), playerWhite, playerBlack, gameToJoin.gameName());
+        GameData updatedGame = new GameData(gameToJoin.gameID(), playerWhite, playerBlack, gameToJoin.gameName(), new ChessGame());
         dataAccess.updateGame(updatedGame);
     }
 

@@ -24,6 +24,11 @@ public class ChessGame {
         this.team = TeamColor.WHITE;
     }
 
+    public ChessGame(ChessBoard board, TeamColor color) {
+        this.board = board;
+        this.team = color;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) {
