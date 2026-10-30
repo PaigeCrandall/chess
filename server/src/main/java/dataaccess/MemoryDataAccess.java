@@ -10,18 +10,6 @@ public class MemoryDataAccess implements DataAccess {
     final static MemoryDatabase DB = new MemoryDatabase();
     public static int gameID = 1;
 
-    public void printUsers() {
-        DB.users.forEach((username, user) -> {
-            System.out.println(username + " : " + user.email() + ", " + user.password());
-        });
-    }
-
-    public void printGames() {
-        DB.games.forEach((id, game) -> {
-            System.out.println(id + " " + game.gameName() + " - playerWhite: " + game.whiteUsername() + ", playerBlack: " + game.blackUsername());
-        });
-    }
-
     @Override
     public void clear() {
         DB.users.clear();
@@ -74,10 +62,8 @@ public class MemoryDataAccess implements DataAccess {
     }
 
     public ArrayList<GameData> getAllGames() {
-        ArrayList<GameData> games = new ArrayList<GameData>();
-        DB.games.forEach((gameId, game) -> {
-            games.add(game);
-        });
+        ArrayList<GameData> games = new ArrayList<>();
+        DB.games.forEach((gameId, game) -> games.add(game));
         return games;
     }
 

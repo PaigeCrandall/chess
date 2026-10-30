@@ -12,7 +12,6 @@ import model.GameData;
 import model.UserData;
 import org.mindrot.jbcrypt.BCrypt;
 
-import javax.xml.crypto.Data;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -39,9 +38,6 @@ public class SqlDataAccess implements DataAccess {
         String validPassword = getUser(username).password();
         return BCrypt.checkpw(passwordToCheck, validPassword);
     }
-
-    public void printUsers() {}
-    public void printGames() {}
 
     public void createUser(UserData user, AuthData auth) throws DataAccessException {
         var statement = "INSERT INTO chess.users (username, email, password) VALUES (?, ?, ?)";
@@ -90,7 +86,7 @@ public class SqlDataAccess implements DataAccess {
     public static Gson createChessSerializer() {
         GsonBuilder gsonBuilder = new GsonBuilder();
         gsonBuilder.registerTypeAdapter(ChessPiece.class,
-                (JsonDeserializer<ChessPiece>) (jsonString, t, ctx) -> {
+                (JsonDeserializer<ChessPiece>) (jsonString, _, ctx) -> {
                     JsonObject jsonObject = jsonString.getAsJsonObject();
                     ChessGame.TeamColor color = ctx.deserialize(jsonObject.get("color"), ChessGame.TeamColor.class);
                     ChessPiece.PieceType type = ctx.deserialize(jsonObject.get("type"), ChessPiece.PieceType.class);
@@ -98,7 +94,7 @@ public class SqlDataAccess implements DataAccess {
                 });
 
         gsonBuilder.registerTypeAdapter(ChessGame.class,
-                (JsonDeserializer<ChessGame>) (jsonString, t, ctx) -> {
+                (JsonDeserializer<ChessGame>) (jsonString, _, ctx) -> {
                     JsonObject jsonObject = jsonString.getAsJsonObject();
                     ChessBoard board = ctx.deserialize(jsonObject.get("board"), ChessBoard.class);
                     ChessGame.TeamColor team = ctx.deserialize(jsonObject.get("team"), ChessGame.TeamColor.class);
@@ -114,13 +110,13 @@ public class SqlDataAccess implements DataAccess {
     }
 
     public GameData getGame(Integer gameId)  throws DataAccessException {
-        var statement = "SELECT * FROM chess.games WHERE gameID='" + gameId + "'";
+        var statement = "SELECT * FROM chess.games WHERE gameID='" + gameId + "';";
         return (GameData) readFromDatabase(statement, "GameData");
     }
 
     public ArrayList<GameData> getAllGames() throws DataAccessException {
-        ArrayList<GameData> gamesList = new ArrayList<GameData>();
-        var statement = "SELECT gameID, whiteUsername, blackUsername, gameName, game FROM chess.games";
+        ArrayList<GameData> gamesList = new ArrayList<>();
+        var statement = "SELECT gameID, whiteUsername, blackUsername, gameName, game FROM chess.games;";
         try (Connection conn = DatabaseManager.getConnection()) {
             try (PreparedStatement ps = conn.prepareStatement(statement)) {
                 try (ResultSet rs = ps.executeQuery()) {

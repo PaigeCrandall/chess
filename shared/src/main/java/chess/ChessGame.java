@@ -110,7 +110,7 @@ public class ChessGame {
     public Collection<ChessMove> validMoves(ChessPosition startPosition) {
         if (board.getPiece(startPosition)!=null) {
 
-            // get the piece's possible moves from it's strategy
+            // get the piece's possible moves from its strategy
             ChessPiece piece = board.getPiece(startPosition);
             Collection<ChessMove> moves = piece.pieceMoves(board, startPosition);
 
@@ -176,16 +176,9 @@ public class ChessGame {
      * @throws InvalidMoveException if move is invalid
      */
     public void makeMove(ChessMove move) throws InvalidMoveException {
-        try {
-            checkMoveValidity(move);
-
-            movePiece(move);
-
-            switchTeamTurn(team);
-        }
-        catch(InvalidMoveException e) {
-            throw e;
-        }
+        checkMoveValidity(move);
+        movePiece(move);
+        switchTeamTurn(team);
     }
 
     public boolean pieceCanKillKing(ChessPosition kingPosition, ChessPosition squareToCheck, TeamColor teamColor) {
@@ -218,7 +211,6 @@ public class ChessGame {
 
         for (int row=1; row<=8; row++) {
             for (int col=1; col<=8; col++) {
-                ChessPosition position = new ChessPosition(row, col);
                 if (pieceCanKillKing(kingPosition, new ChessPosition(row, col), teamColor)) {
                     return true;
                 }

@@ -33,29 +33,24 @@ public class UserServiceTests {
             return user;
         }
         catch(Exception e) {
-            System.out.println("Couldn't add user");
+            System.out.println("Couldn't add user. Error: " + e);
             return null;
         }
     }
 
     @Test
-    void register() throws AlreadyTakenException, BadRequestException, DataAccessException {
+    void register() throws DataAccessException {
         // adding two users, and making sure they are in the database
         UserData user1 = validRegisterUser("Monroe");
         UserData user2 = validRegisterUser("Vivian");
         assertEquals(dataAccess.getUser(user1.username()).username(), user1.username());
         assertEquals(dataAccess.getUser(user2.username()).username(), user2.username());
 
-        dataAccess.printUsers();
 
         // trying to add a user that is already added
-        assertThrows(AlreadyTakenException.class, () -> {
-            userService.registerUser(new UserData("Vivian", "VarclinPeever@gmail.com", "password2468**"));
-        });
+        assertThrows(AlreadyTakenException.class, () -> userService.registerUser(new UserData("Vivian", "VarclinPeever@gmail.com", "password2468**")));
 
-        assertThrows(BadRequestException.class, () -> {
-            userService.registerUser(new UserData(null, "VarclinPeever@gmail.com", "password2468**"));
-        });
+        assertThrows(BadRequestException.class, () -> userService.registerUser(new UserData(null, "VarclinPeever@gmail.com", "password2468**")));
     }
 
     @Test
@@ -72,11 +67,8 @@ public class UserServiceTests {
         userService.logout(token);
         assertNull(dataAccess.getAuthData(token));
 
-        // unauthorized user tries to log out
-        // not sure when that could happen, but we're going with it
-        assertThrows(UnauthorizedException.class, () -> {
-            userService.logout(token);
-        });
+        // unauthorized user tries to log out ?
+        assertThrows(UnauthorizedException.class, () -> userService.logout(token));
     }
 
     @Test
@@ -96,19 +88,13 @@ public class UserServiceTests {
         assertEquals(result.authToken(), dataAccess.getAuthData(result.authToken()).authToken());
 
         // user does not exist
-        assertThrows(UnauthorizedException.class, () -> {
-            userService.login(new LoginRequest("Bobby", "bobbyBike123*"));
-        });
+        assertThrows(UnauthorizedException.class, () -> userService.login(new LoginRequest("Bobby", "bobbyBike123*")));
 
         // user password doesn't match
-        assertThrows(UnauthorizedException.class, () -> {
-            userService.login(new LoginRequest(user.username(), "bobbyBike123*"));
-        });
+        assertThrows(UnauthorizedException.class, () -> userService.login(new LoginRequest(user.username(), "bobbyBike123*")));
 
         // bad request
-        assertThrows(BadRequestException.class, () -> {
-            userService.login(new LoginRequest("Fatima", null));
-        });
+        assertThrows(BadRequestException.class, () -> userService.login(new LoginRequest("Fatima", null)));
 
     }
 }

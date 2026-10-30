@@ -12,10 +12,10 @@ public class Handler {
 
     public static void errorHandling(@NotNull Context ctx, Exception e) {
         switch (e) {
-            case UnauthorizedException unauthorizedException -> ctx.status(401);
-            case BadRequestException badRequestException -> ctx.status(400);
-            case AlreadyTakenException alreadyTakenException -> ctx.status(403);
-            case DataAccessException dataAccessException -> ctx.status(500);
+            case UnauthorizedException _ -> ctx.status(401);
+            case BadRequestException _ -> ctx.status(400);
+            case AlreadyTakenException _ -> ctx.status(403);
+            case DataAccessException _ -> ctx.status(500);
             case null, default -> ctx.status(500);
         }
         var serializer = new Gson();

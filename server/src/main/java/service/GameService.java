@@ -1,7 +1,6 @@
 package service;
 
 import chess.ChessGame;
-import com.google.gson.Gson;
 import dataaccess.DataAccess;
 import dataaccess.DataAccessException;
 import dataaccess.MemoryDataAccess;
@@ -11,9 +10,7 @@ import model.requests.*;
 import model.results.*;
 import service.exceptions.*;
 
-import javax.xml.crypto.Data;
 import java.util.ArrayList;
-import java.util.Collection;
 
 public class GameService {
     DataAccess dataAccess;

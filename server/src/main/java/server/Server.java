@@ -1,11 +1,6 @@
 package server;
 
-import com.google.gson.Gson;
 import io.javalin.*;
-import io.javalin.http.Context;
-import org.jetbrains.annotations.NotNull;
-
-import java.util.Map;
 
 public class Server {
 

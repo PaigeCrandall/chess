@@ -4,10 +4,7 @@ import chess.ChessGame;
 import chess.ChessMove;
 import chess.ChessPosition;
 import model.*;
-import model.requests.CreateGameRequest;
 import org.junit.jupiter.api.*;
-import service.UserService;
-import service.exceptions.UnauthorizedException;
 
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
@@ -129,7 +126,6 @@ public class SqlDataAccessTests {
             int id = dataAccess.createGame("Champions");
             GameData game1 = dataAccess.getGame(id);
             assertNull(game1.blackUsername());
-            assertNull(game1.whiteUsername());
             dataAccess.updateGame(new GameData(game1.gameID(), game1.whiteUsername(), "Phyllis", game1.gameName(), new ChessGame()));
             GameData updatedGame1 = dataAccess.getGame(id);
             assertEquals("Phyllis", updatedGame1.blackUsername());

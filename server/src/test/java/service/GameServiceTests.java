@@ -97,8 +97,6 @@ public class GameServiceTests {
         assertEquals("Lenae", dataAccess.getGame(1).whiteUsername());
         assertEquals("Lenae", dataAccess.getGame(3).blackUsername());
 
-        dataAccess.printGames();
-
 
         // try joining invalidly
         assertThrows(AlreadyTakenException.class, () -> gameService.joinGame(token, new JoinGameRequest("WHITE", 1)));

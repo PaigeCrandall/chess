@@ -2,7 +2,6 @@ package service;
 
 import dataaccess.*;
 import model.*;
-import org.eclipse.jetty.security.authentication.AuthorizationService;
 import org.junit.jupiter.api.*;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -25,7 +24,7 @@ public class AdminServiceTests {
         dataAccess.createUser(user, auth);
         dataAccess.addAuthData(auth);
 
-        // making sure the user and authtoken are not in the database
+        // making sure the user and authToken are not in the database
         service.clear();
         assertNull(dataAccess.getUser(user.username()));
         assertNull(dataAccess.getAuthData(auth.authToken()));
