@@ -1,15 +1,11 @@
 package dataaccess;
 
-import chess.ChessBoard;
-import chess.ChessGame;
-import chess.ChessPiece;
+import chess.*;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonObject;
-import model.AuthData;
-import model.GameData;
-import model.UserData;
+import model.*;
 import org.mindrot.jbcrypt.BCrypt;
 
 import java.sql.Connection;
@@ -82,33 +78,6 @@ public class SqlDataAccess implements DataAccess {
                 game.gameName(), serializer.toJson(game.game()), game.gameID());
     }
 
-
-    public static Gson createChessSerializer() {
-        GsonBuilder gsonBuilder = new GsonBuilder();
-        gsonBuilder.registerTypeAdapter(ChessPiece.class,
-                (JsonDeserializer<ChessPiece>) (jsonString, _, ctx) -> {
-                    JsonObject jsonObject = jsonString.getAsJsonObject();
-                    ChessGame.TeamColor color = ctx.deserialize(jsonObject.get("color"), ChessGame.TeamColor.class);
-                    ChessPiece.PieceType type = ctx.deserialize(jsonObject.get("type"), ChessPiece.PieceType.class);
-                    return new ChessPiece(color, type);
-                });
-
-        gsonBuilder.registerTypeAdapter(ChessGame.class,
-                (JsonDeserializer<ChessGame>) (jsonString, _, ctx) -> {
-                    JsonObject jsonObject = jsonString.getAsJsonObject();
-                    ChessBoard board = ctx.deserialize(jsonObject.get("board"), ChessBoard.class);
-                    ChessGame.TeamColor team = ctx.deserialize(jsonObject.get("team"), ChessGame.TeamColor.class);
-                    return new ChessGame(board, team);
-                });
-
-        return gsonBuilder.create();
-    }
-
-    public static ChessGame deserializeGame(String jsonGameInfo) {
-        Gson gameSerializer =  createChessSerializer();
-        return gameSerializer.fromJson(jsonGameInfo, ChessGame.class);
-    }
-
     public GameData getGame(Integer gameId)  throws DataAccessException {
         var statement = "SELECT * FROM chess.games WHERE gameID='" + gameId + "';";
         return (GameData) readFromDatabase(statement, "GameData");
@@ -136,6 +105,33 @@ public class SqlDataAccess implements DataAccess {
         }
 
         return gamesList;
+    }
+
+
+    public static Gson createChessSerializer() {
+        GsonBuilder gsonBuilder = new GsonBuilder();
+        gsonBuilder.registerTypeAdapter(ChessPiece.class,
+                (JsonDeserializer<ChessPiece>) (jsonString, _, ctx) -> {
+                    JsonObject jsonObject = jsonString.getAsJsonObject();
+                    ChessGame.TeamColor color = ctx.deserialize(jsonObject.get("color"), ChessGame.TeamColor.class);
+                    ChessPiece.PieceType type = ctx.deserialize(jsonObject.get("type"), ChessPiece.PieceType.class);
+                    return new ChessPiece(color, type);
+                });
+
+        gsonBuilder.registerTypeAdapter(ChessGame.class,
+                (JsonDeserializer<ChessGame>) (jsonString, _, ctx) -> {
+                    JsonObject jsonObject = jsonString.getAsJsonObject();
+                    ChessBoard board = ctx.deserialize(jsonObject.get("board"), ChessBoard.class);
+                    ChessGame.TeamColor team = ctx.deserialize(jsonObject.get("team"), ChessGame.TeamColor.class);
+                    return new ChessGame(board, team);
+                });
+
+        return gsonBuilder.create();
+    }
+
+    public static ChessGame deserializeGame(String jsonGameInfo) {
+        Gson gameSerializer =  createChessSerializer();
+        return gameSerializer.fromJson(jsonGameInfo, ChessGame.class);
     }
 
     private int updateDatabase(String statement, Object... params) throws DataAccessException {
