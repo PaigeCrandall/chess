@@ -17,8 +17,8 @@ public class UserServiceTests {
 
     @BeforeAll
     static void setUp() throws DataAccessException {
-        dataAccess = new SqlDataAccess();
-        userService = new UserService();
+        dataAccess = new MemoryDataAccess();
+        userService = new UserService(dataAccess);
     }
 
     @AfterEach
@@ -45,7 +45,6 @@ public class UserServiceTests {
         UserData user2 = validRegisterUser("Vivian");
         assertEquals(dataAccess.getUser(user1.username()).username(), user1.username());
         assertEquals(dataAccess.getUser(user2.username()).username(), user2.username());
-
 
         // trying to add a user that is already added
         assertThrows(AlreadyTakenException.class, () -> userService.registerUser(new UserData("Vivian", "VarclinPeever@gmail.com", "password2468**")));

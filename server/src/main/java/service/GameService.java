@@ -14,8 +14,8 @@ import java.util.ArrayList;
 
 public class GameService {
     DataAccess dataAccess;
-    public GameService() throws DataAccessException {
-        this.dataAccess = new SqlDataAccess();
+    public GameService(DataAccess dataAccessImplementation) throws DataAccessException {
+        this.dataAccess = dataAccessImplementation;
     }
 
     public CreateGameResult createGame(CreateGameRequest creationRequest, String auth) throws UnauthorizedException, BadRequestException, DataAccessException {

@@ -8,10 +8,14 @@ import service.AdminService;
 import java.util.Map;
 
 public class AdminHandler extends Handler {
+    AdminService adminService;
 
-    public static void clearDatabase(@NotNull Context ctx) {
+    AdminHandler(AdminService adminServiceImplementation) {
+        adminService = adminServiceImplementation;
+    }
+
+    public void clearDatabase(@NotNull Context ctx) {
         try {
-            AdminService adminService = new AdminService();
             adminService.clear();
             var r = Map.of();
             var serializer = new Gson();

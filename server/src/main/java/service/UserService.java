@@ -16,8 +16,8 @@ import java.util.UUID;
 public class UserService {
     DataAccess dataAccess;
 
-    public UserService() throws DataAccessException {
-        this.dataAccess = new SqlDataAccess();
+    public UserService(DataAccess dataAccessImplementation) throws DataAccessException {
+        this.dataAccess = dataAccessImplementation;
     }
 
     public String createAuthToken() {

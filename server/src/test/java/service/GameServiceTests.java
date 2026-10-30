@@ -17,16 +17,15 @@ import service.exceptions.UnauthorizedException;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class GameServiceTests {
-//    private final DataAccess dataAccess = new MemoryDataAccess();
     private static DataAccess dataAccess;
     private static UserService userService;
     private static GameService gameService;
 
     @BeforeAll
     static void setUp() throws DataAccessException {
-        dataAccess = new SqlDataAccess();
-        gameService = new GameService();
-        userService = new UserService();
+        dataAccess = new MemoryDataAccess();
+        gameService = new GameService(dataAccess);
+        userService = new UserService(dataAccess);
     }
 
 
@@ -51,7 +50,6 @@ public class GameServiceTests {
 
     @Test
     public void createGame() throws Exception {
-
         // set up an authorized user who can add the game
         String token = addUserAndReturnAuthToken("Jacob");
 
@@ -76,7 +74,6 @@ public class GameServiceTests {
         assertEquals(3, listResult.games().size());
 
         var serializer = new Gson();
-        GameService gameService = new GameService();
         ListGamesResult result = gameService.listGames(token);
         System.out.println(serializer.toJson(result));
 

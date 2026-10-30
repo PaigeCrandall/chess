@@ -1,8 +1,6 @@
 package dataaccess;
 
-import chess.ChessGame;
-import chess.ChessMove;
-import chess.ChessPosition;
+import chess.*;
 import model.*;
 import org.junit.jupiter.api.*;
 
@@ -15,7 +13,7 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-public class SqlDataAccessTests {
+public class DataAccessTests {
     private static DataAccess dataAccess;
 
     @BeforeAll

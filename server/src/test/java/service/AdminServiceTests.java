@@ -12,15 +12,15 @@ public class AdminServiceTests {
 
     @BeforeAll
     static void setUp() throws DataAccessException {
-        dataAccess = new SqlDataAccess();
-        service = new AdminService();
+        dataAccess = new MemoryDataAccess();
+        service = new AdminService(dataAccess);
     }
 
     @Test
     void clear() throws DataAccessException {
         // adding a user to the database directly
         UserData user = new UserData("Paige", "LadyPhilclagen@gmail.com", "password1234:)");
-        AuthData auth = new AuthData(user.username(), new UserService().createAuthToken());
+        AuthData auth = new AuthData(user.username(), new UserService(dataAccess).createAuthToken());
         dataAccess.createUser(user, auth);
         dataAccess.addAuthData(auth);
 
