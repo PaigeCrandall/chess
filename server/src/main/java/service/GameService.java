@@ -3,8 +3,6 @@ package service;
 import chess.ChessGame;
 import dataaccess.DataAccess;
 import dataaccess.DataAccessException;
-import dataaccess.MemoryDataAccess;
-import dataaccess.SqlDataAccess;
 import model.*;
 import model.requests.*;
 import model.results.*;
@@ -14,7 +12,7 @@ import java.util.ArrayList;
 
 public class GameService {
     DataAccess dataAccess;
-    public GameService(DataAccess dataAccessImplementation) throws DataAccessException {
+    public GameService(DataAccess dataAccessImplementation) {
         this.dataAccess = dataAccessImplementation;
     }
 

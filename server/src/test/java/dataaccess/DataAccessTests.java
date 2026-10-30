@@ -1,6 +1,8 @@
 package dataaccess;
 
 import chess.*;
+import dataaccess.sql.DatabaseManager;
+import dataaccess.sql.SqlDataAccess;
 import model.*;
 import org.junit.jupiter.api.*;
 

@@ -2,8 +2,6 @@ package service;
 
 import dataaccess.DataAccess;
 import dataaccess.DataAccessException;
-import dataaccess.MemoryDataAccess;
-import dataaccess.SqlDataAccess;
 import model.*;
 import model.requests.LoginRequest;
 import model.results.LoginResult;
@@ -16,7 +14,7 @@ import java.util.UUID;
 public class UserService {
     DataAccess dataAccess;
 
-    public UserService(DataAccess dataAccessImplementation) throws DataAccessException {
+    public UserService(DataAccess dataAccessImplementation) {
         this.dataAccess = dataAccessImplementation;
     }
 

@@ -1,10 +1,12 @@
-package dataaccess;
+package dataaccess.sql;
 
 import chess.*;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonObject;
+import dataaccess.DataAccess;
+import dataaccess.DataAccessException;
 import model.*;
 import org.mindrot.jbcrypt.BCrypt;
 

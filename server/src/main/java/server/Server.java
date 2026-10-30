@@ -1,9 +1,8 @@
 package server;
 
 import dataaccess.DataAccess;
-import dataaccess.SqlDataAccess;
+import dataaccess.sql.SqlDataAccess;
 import io.javalin.*;
-import org.jetbrains.annotations.NotNull;
 import service.AdminService;
 import service.GameService;
 import service.UserService;
@@ -32,6 +31,8 @@ public class Server {
             javalin.post("/game", gameHandler::createGame); // create game
             javalin.get("/game", gameHandler::getAllGames); // list games
             javalin.put("/game", gameHandler::joinGame); // list games
+
+
         } catch (Exception e) {
             System.out.println("There was a problem getting the server and dataAccess started.\n" + e);
         }
