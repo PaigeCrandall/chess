@@ -26,7 +26,7 @@ public class SqlDataAccess implements DataAccess {
     }
 
     public void clear() throws DataAccessException {
-        for (String tableName : List.of("chess.users", "chess.authorization", "chess.games")) {
+        for (String tableName : List.of("users", "authorization", "games")) {
             var statement = "TRUNCATE " + tableName;
             updateDatabase(statement);
         }
@@ -38,32 +38,32 @@ public class SqlDataAccess implements DataAccess {
     }
 
     public void createUser(UserData user, AuthData auth) throws DataAccessException {
-        var statement = "INSERT INTO chess.users (username, email, password) VALUES (?, ?, ?)";
+        var statement = "INSERT INTO users (username, email, password) VALUES (?, ?, ?)";
         updateDatabase(statement, user.username(), user.email(), BCrypt.hashpw(user.password(), BCrypt.gensalt()));
     }
 
     public UserData getUser(String username) throws DataAccessException {
-        var statement = "SELECT * FROM chess.users WHERE username='" + username + "'";
+        var statement = "SELECT * FROM users WHERE username='" + username + "'";
         return (UserData) readFromDatabase(statement, "UserData");
     }
 
     public void addAuthData(AuthData auth) throws DataAccessException {
-        var statement = "INSERT INTO chess.authorization (authToken, username) VALUES (?, ?)";
+        var statement = "INSERT INTO authorization (authToken, username) VALUES (?, ?)";
         updateDatabase(statement, auth.authToken(), auth.username());
     }
 
     public void deleteAuthToken(String authToken) throws DataAccessException {
-        var statement = "Delete FROM chess.authorization WHERE authToken='" + authToken + "'";
+        var statement = "Delete FROM authorization WHERE authToken='" + authToken + "'";
         updateDatabase(statement);
     }
 
     public AuthData getAuthData(String authToken) throws DataAccessException {
-        var statement = "SELECT * FROM chess.authorization WHERE authToken='" + authToken + "'";
+        var statement = "SELECT * FROM authorization WHERE authToken='" + authToken + "'";
         return (AuthData) readFromDatabase(statement, "AuthData");
     }
 
     public int createGame(String gameName) throws DataAccessException {
-        var statement = "INSERT INTO chess.games (whiteUsername, blackUsername, gameName, game) VALUES (?, ?, ?, ?)";
+        var statement = "INSERT INTO games (whiteUsername, blackUsername, gameName, game) VALUES (?, ?, ?, ?)";
 
         ChessGame newGame = new ChessGame();
         var serializer = new Gson();
@@ -81,13 +81,13 @@ public class SqlDataAccess implements DataAccess {
     }
 
     public GameData getGame(Integer gameId)  throws DataAccessException {
-        var statement = "SELECT * FROM chess.games WHERE gameID='" + gameId + "';";
+        var statement = "SELECT * FROM games WHERE gameID='" + gameId + "';";
         return (GameData) readFromDatabase(statement, "GameData");
     }
 
     public ArrayList<GameData> getAllGames() throws DataAccessException {
         ArrayList<GameData> gamesList = new ArrayList<>();
-        var statement = "SELECT gameID, whiteUsername, blackUsername, gameName, game FROM chess.games;";
+        var statement = "SELECT gameID, whiteUsername, blackUsername, gameName, game FROM games;";
         try (Connection conn = DatabaseManager.getConnection()) {
             try (PreparedStatement ps = conn.prepareStatement(statement)) {
                 try (ResultSet rs = ps.executeQuery()) {
