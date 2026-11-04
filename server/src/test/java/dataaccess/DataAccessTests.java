@@ -139,13 +139,25 @@ public class DataAccessTests {
             GameData game1 = dataAccess.getGame(id);
             assertNull(game1.blackUsername());
             dataAccess.updateGame(
-                    new GameData(game1.gameID(), game1.whiteUsername(), "Phyllis", game1.gameName(), new ChessGame())
+                    new GameData(
+                            game1.gameID(),
+                            game1.whiteUsername(),
+                            "Phyllis",
+                            game1.gameName(),
+                            new ChessGame()
+                    )
             );
             GameData updatedGame1 = dataAccess.getGame(id);
             assertEquals("Phyllis", updatedGame1.blackUsername());
             assertNull(updatedGame1.whiteUsername());
             dataAccess.updateGame(
-                    new GameData(updatedGame1.gameID(), "Paige", updatedGame1.blackUsername(), updatedGame1.gameName(), new ChessGame())
+                    new GameData(
+                            updatedGame1.gameID(),
+                            "Paige",
+                            updatedGame1.blackUsername(),
+                            updatedGame1.gameName(),
+                            new ChessGame()
+                    )
             );
             assertEquals("Paige", dataAccess.getGame(id).whiteUsername());
         }
@@ -162,7 +174,13 @@ public class DataAccessTests {
             assertNotNull(startGame.game());
             assertNull(dataAccess.getGame(id).game().getBoard().getPiece(new ChessPosition(3,2)));
             startGame.game().makeMove(new ChessMove(new ChessPosition(2,2), new ChessPosition(3,2)));
-            GameData newGame = new GameData(startGame.gameID(), startGame.whiteUsername(), startGame.blackUsername(), startGame.gameName(), startGame.game());
+            GameData newGame = new GameData(
+                    startGame.gameID(),
+                    startGame.whiteUsername(),
+                    startGame.blackUsername(),
+                    startGame.gameName(),
+                    startGame.game()
+            );
             dataAccess.updateGame(newGame);
             assertNotNull(dataAccess.getGame(id).game().getBoard().getPiece(new ChessPosition(3,2)));
         }
