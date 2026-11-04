@@ -16,7 +16,8 @@ public class GameService {
         this.dataAccess = dataAccessImplementation;
     }
 
-    public CreateGameResult createGame(CreateGameRequest creationRequest, String auth) throws UnauthorizedException, BadRequestException, DataAccessException {
+    public CreateGameResult createGame(CreateGameRequest creationRequest, String auth)
+            throws UnauthorizedException, BadRequestException, DataAccessException {
         if (creationRequest.gameName()==null) {
             throw new BadRequestException("bad request");
         }

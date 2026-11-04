@@ -47,7 +47,10 @@ public class DataAccessTests {
     @Test
     void clear() {
         try (Connection conn = DatabaseManager.getConnection()) {
-            dataAccess.createUser(new UserData("Vivian", "aspentree@tropic.com", "bluebirds"), new AuthData("1234", "Paige"));
+            dataAccess.createUser(
+                    new UserData("Vivian", "aspentree@tropic.com", "bluebirds"),
+                    new AuthData("1234", "Paige")
+            );
             dataAccess.clear();
             List<String> tablesToClear = List.of("chess.users", "chess.authorization", "chess.games");
             for (String tableName : tablesToClear) {
@@ -65,7 +68,10 @@ public class DataAccessTests {
     @Test
     void addAndGetUser() {
         try {
-            dataAccess.createUser(new UserData("Paige", "palmtree@tropic.com", "turtles"), new AuthData("1234", "Paige"));
+            dataAccess.createUser(
+                    new UserData("Paige", "palmtree@tropic.com", "turtles"),
+                    new AuthData("1234", "Paige")
+            );
             assertNotNull(dataAccess.getUser("Paige"));
         }
         catch (DataAccessException e) {
@@ -76,9 +82,15 @@ public class DataAccessTests {
     @Test
     void addAndGetAndDeleteAuth() {
         try {
-            dataAccess.createUser(new UserData("Paige", "palmtree@tropic.com", "turtles"), new AuthData("1234", "Paige"));
+            dataAccess.createUser(
+                    new UserData("Paige", "palmtree@tropic.com", "turtles"),
+                    new AuthData("1234", "Paige")
+            );
             dataAccess.addAuthData(new AuthData("Paige", "1234"));
-            dataAccess.createUser(new UserData("Vivian", "aspentree@tropic.com", "bluebirds"), new AuthData("5678", "Paige"));
+            dataAccess.createUser(
+                    new UserData("Vivian", "aspentree@tropic.com", "bluebirds"),
+                    new AuthData("5678", "Paige")
+            );
             dataAccess.addAuthData(new AuthData("Vivian", "5678"));
             assertNotNull(dataAccess.getAuthData("1234"));
             assertNotNull(dataAccess.getAuthData("5678"));
@@ -126,11 +138,15 @@ public class DataAccessTests {
             int id = dataAccess.createGame("Champions");
             GameData game1 = dataAccess.getGame(id);
             assertNull(game1.blackUsername());
-            dataAccess.updateGame(new GameData(game1.gameID(), game1.whiteUsername(), "Phyllis", game1.gameName(), new ChessGame()));
+            dataAccess.updateGame(
+                    new GameData(game1.gameID(), game1.whiteUsername(), "Phyllis", game1.gameName(), new ChessGame())
+            );
             GameData updatedGame1 = dataAccess.getGame(id);
             assertEquals("Phyllis", updatedGame1.blackUsername());
             assertNull(updatedGame1.whiteUsername());
-            dataAccess.updateGame(new GameData(updatedGame1.gameID(), "Paige", updatedGame1.blackUsername(), updatedGame1.gameName(), new ChessGame()));
+            dataAccess.updateGame(
+                    new GameData(updatedGame1.gameID(), "Paige", updatedGame1.blackUsername(), updatedGame1.gameName(), new ChessGame())
+            );
             assertEquals("Paige", dataAccess.getGame(id).whiteUsername());
         }
         catch (DataAccessException e) {

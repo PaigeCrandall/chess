@@ -47,9 +47,13 @@ public class UserServiceTests {
         assertEquals(dataAccess.getUser(user2.username()).username(), user2.username());
 
         // trying to add a user that is already added
-        assertThrows(AlreadyTakenException.class, () -> userService.registerUser(new UserData("Vivian", "VarclinPeever@gmail.com", "password2468**")));
+        assertThrows(AlreadyTakenException.class, () -> userService.registerUser(
+                new UserData("Vivian", "VarclinPeever@gmail.com", "password2468**"))
+        );
 
-        assertThrows(BadRequestException.class, () -> userService.registerUser(new UserData(null, "VarclinPeever@gmail.com", "password2468**")));
+        assertThrows(BadRequestException.class, () -> userService.registerUser(
+                new UserData(null, "VarclinPeever@gmail.com", "password2468**"))
+        );
     }
 
     @Test
