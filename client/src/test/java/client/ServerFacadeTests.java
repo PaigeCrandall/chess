@@ -17,6 +17,11 @@ public class ServerFacadeTests {
     static void stopServer() {
         server.stop();
     }
+//
+//    @BeforeEach
+//    static void clearDatabse() {
+////        server.stop();
+//    }
 
 
     @Test
