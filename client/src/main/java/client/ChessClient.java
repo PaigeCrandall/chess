@@ -1,7 +1,9 @@
 package client;
 
+import exceptions.*;
 import model.AuthData;
 
+import javax.xml.crypto.Data;
 import java.io.PrintStream;
 import java.util.Scanner;
 
@@ -26,13 +28,21 @@ public class ChessClient {
         return state;
     }
 
+    public void handleErrors(Exception e, PrintStream outStream, String command) {
+        switch (e) {
+            case UnauthorizedException _ -> outStream.println("You are not authorized to " + command);
+            case BadRequestException _ -> outStream.println("You did not provide valid data to " + command);
+            case AlreadyTakenException _ -> outStream.println("Your username is not unique. Please choose a different username and try again.");
+            case DataAccessException _ -> outStream.println("There was a problem accessing the database. Please try again.");
+            default -> outStream.println("Apologies, there was an error when executing " + command + ". Please try again.");
+        }
+    }
+
     public void clear(PrintStream outStream) {
         try {
             facade.clear();
             outStream.println("The database has been cleared!");
-        } catch(Exception e) {
-            outStream.println("there was a problem clearing the database: " + e);
-        }
+        } catch(Exception e) { handleErrors(e, outStream, "clear"); }
     }
 
     public void help(PrintStream outStream) {
@@ -62,9 +72,7 @@ public class ChessClient {
             auth = facade.login(username, password);
             state = UserState.LOGGED_IN;
             outStream.println("You are signed in!");
-        } catch(Exception e) {
-            outStream.println("there was a problem registering the user: " + e);
-        }
+        }  catch(Exception e) { handleErrors(e, outStream, "login"); }
     }
 
     public void register(PrintStream outStream, Scanner scanner) {
@@ -78,11 +86,7 @@ public class ChessClient {
             auth = facade.register(username, email, password);
             state = UserState.LOGGED_IN;
             outStream.println("You are signed in!");
-        }
-        catch(Exception e) {
-            // write a function to handle these :)
-            outStream.println("there was a problem registering the user: " + e);
-        }
+        } catch(Exception e) { handleErrors(e, outStream, "register"); }
     }
 
     public void logout(PrintStream outStream) {
@@ -91,12 +95,7 @@ public class ChessClient {
             state = UserState.LOGGED_OUT;
             auth = null;
             outStream.println("You are signed out!");
-        }
-        catch(Exception e) {
-            // write a function to handle these :)
-            outStream.println("Can't log out! " + e);
-        }
+        } catch(Exception e) { handleErrors(e, outStream, "logout"); }
     }
-
 
 }
