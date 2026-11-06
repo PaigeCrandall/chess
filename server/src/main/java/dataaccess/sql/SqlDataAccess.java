@@ -6,7 +6,7 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonObject;
 import dataaccess.DataAccess;
-import dataaccess.DataAccessException;
+import exceptions.DataAccessException;
 import model.*;
 import org.mindrot.jbcrypt.BCrypt;
 

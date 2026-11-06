@@ -1,10 +1,12 @@
 package server;
 
 import com.google.gson.Gson;
-import dataaccess.DataAccessException;
+import exceptions.DataAccessException;
+import exceptions.AlreadyTakenException;
+import exceptions.BadRequestException;
+import exceptions.UnauthorizedException;
 import io.javalin.http.Context;
 import org.jetbrains.annotations.NotNull;
-import service.exceptions.*;
 
 import java.util.Map;
 

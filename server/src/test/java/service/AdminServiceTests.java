@@ -1,6 +1,8 @@
 package service;
 
 import dataaccess.*;
+import dataaccess.memory.MemoryDataAccess;
+import exceptions.DataAccessException;
 import model.*;
 import org.junit.jupiter.api.*;
 

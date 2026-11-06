@@ -1,7 +1,7 @@
-package dataaccess;
+package dataaccess.memory;
 
 import chess.ChessGame;
-import dataaccess.memorydatabase.MemoryDatabase;
+import dataaccess.DataAccess;
 import model.*;
 
 import java.util.ArrayList;

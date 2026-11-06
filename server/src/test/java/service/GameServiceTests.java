@@ -2,16 +2,16 @@ package service;
 
 import com.google.gson.Gson;
 import dataaccess.DataAccess;
-import dataaccess.DataAccessException;
-import dataaccess.MemoryDataAccess;
+import exceptions.DataAccessException;
+import dataaccess.memory.MemoryDataAccess;
 import model.*;
 import model.requests.*;
 import model.results.*;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import service.exceptions.AlreadyTakenException;
-import service.exceptions.BadRequestException;
-import service.exceptions.UnauthorizedException;
+import exceptions.AlreadyTakenException;
+import exceptions.BadRequestException;
+import exceptions.UnauthorizedException;
 
 import static org.junit.jupiter.api.Assertions.*;
 

@@ -5,40 +5,44 @@ import java.util.Scanner;
 import java.util.function.Consumer;
 
 public class Repl {
-    public UserState state;
     public ChessClient client;
+    public Scanner scanner;
 
-    public Repl() {
-        this.state = UserState.LOGGED_OUT;
-        this.client = new ChessClient();
-    }
-
-    public enum UserState {
-        QUIT,
-        LOGGED_OUT,
-        LOGGED_IN
+    public Repl(String serverUrl) {
+        this.client = new ChessClient(serverUrl);
+        this.scanner = new Scanner(System.in);
     }
 
     public void handleLoggedOutState(String input, PrintStream outStream) {
-        Scanner scanner = new Scanner(System.in);
         switch (input) {
-            case "help": client.help(outStream, state); break;
+            case "clear": client.clear(outStream); break;
             case "login": client.login(outStream, scanner); break;
-            case "quit": outStream.println("Bye!"); state=UserState.QUIT; break;
+            case "register": client.register(outStream, scanner); break;
+            case "help": client.help(outStream); break;
+            case "quit": client.quit(outStream); break;
+            default: outStream.println(input + " is not a valid command."); client.help(outStream); break;
+        }
+    }
+
+    public void handleLoggedInState(String input, PrintStream outStream) {
+        switch (input) {
+            case "clear": client.clear(outStream); break;
+            case "logout": client.logout(outStream); break;
+            case "help": client.help(outStream); break;
+            case "quit": client.quit(outStream); break;
+            default: outStream.println(input + " is not a valid command."); client.help(outStream); break;
         }
     }
 
     public void runInteractions(PrintStream outStream) {
         System.out.println("Welcome to Chess ;)");
-        while (!state.equals(UserState.QUIT)) {
-            Scanner scanner = new Scanner(System.in);
+        while (!client.getState().equals(ChessClient.UserState.QUIT)) {
             outStream.print(">> ");
             String input = scanner.nextLine();
-            if (state == UserState.LOGGED_OUT) {
+            if (client.getState().equals(ChessClient.UserState.LOGGED_OUT)) {
                 handleLoggedOutState(input, outStream);
             } else {
-                outStream.println("you are logged in");
-                state = UserState.QUIT;
+                handleLoggedInState(input, outStream);
             }
         }
     }

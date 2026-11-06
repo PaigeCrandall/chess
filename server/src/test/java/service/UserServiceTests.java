@@ -1,13 +1,15 @@
 package service;
 
 import dataaccess.*;
+import dataaccess.memory.MemoryDataAccess;
+import exceptions.DataAccessException;
 import model.*;
 import model.requests.LoginRequest;
 import model.results.LoginResult;
 import org.junit.jupiter.api.*;
-import service.exceptions.AlreadyTakenException;
-import service.exceptions.BadRequestException;
-import service.exceptions.UnauthorizedException;
+import exceptions.AlreadyTakenException;
+import exceptions.BadRequestException;
+import exceptions.UnauthorizedException;
 
 import static org.junit.jupiter.api.Assertions.*;
 
