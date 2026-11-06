@@ -1,5 +1,7 @@
 package client;
 
+import chess.ChessGame;
+import chess.GameSerializer;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -10,6 +12,7 @@ import exceptions.DataAccessException;
 import exceptions.UnauthorizedException;
 import model.AuthData;
 import model.GameData;
+import model.requests.JoinGameRequest;
 import model.results.CreateGameResult;
 import model.results.ListGamesResult;
 
@@ -118,6 +121,11 @@ public class ServerFacade {
         throwsExceptions(httpResponse.statusCode());
     }
 
+    public static ChessGame deserializeGame(String jsonGameInfo) {
+        Gson gameSerializer = new GameSerializer().createChessSerializer();
+        return gameSerializer.fromJson(jsonGameInfo, ChessGame.class);
+    }
+
     public ListGamesResult listGames(String authToken) throws Exception {
         String urlString = String.format(Locale.getDefault(), "%s/game", url);
 
@@ -130,11 +138,9 @@ public class ServerFacade {
                 .build();
 
         HttpResponse<String> httpResponse = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
-        var serializer = new Gson();
-        System.out.println(httpResponse.body());
 
         throwsExceptions(httpResponse.statusCode());
-        return serializer.fromJson(httpResponse.body(), ListGamesResult.class);
+        return new GameSerializer().deserializeGamesList(httpResponse.body());
     }
 
     public CreateGameResult createGame(String gameName, String authToken) throws Exception {
@@ -154,6 +160,24 @@ public class ServerFacade {
         HttpResponse<String> httpResponse = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
         throwsExceptions(httpResponse.statusCode());
         return serializer.fromJson(httpResponse.body(), CreateGameResult.class);
+    }
+
+    public void joinGame(Integer gameID, String color, String authToken) throws Exception {
+        JoinGameRequest joinRequest = new JoinGameRequest(color, gameID);
+        String urlString = String.format(Locale.getDefault(), "%s/game", url);
+        var serializer = new Gson();
+        String jsonBody = serializer.toJson(joinRequest);
+
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(new URI(urlString))
+                .timeout(java.time.Duration.ofMillis(5000))
+                .header("Content-Type", "application/json")
+                .header("authorization", authToken)
+                .PUT(HttpRequest.BodyPublishers.ofString(jsonBody))
+                .build();
+
+        HttpResponse<String> httpResponse = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+        throwsExceptions(httpResponse.statusCode());
     }
 
 }

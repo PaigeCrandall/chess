@@ -14,7 +14,7 @@ public class Repl {
 
     public void handleLoggedOutState(String input, PrintStream outStream) {
         switch (input) {
-            case "clear": client.clear(outStream); break;
+            case "clear": client.clear(outStream, scanner); break;
             case "login": client.login(outStream, scanner); break;
             case "register": client.register(outStream, scanner); break;
             case "help": client.help(outStream); break;
@@ -25,12 +25,12 @@ public class Repl {
 
     public void handleLoggedInState(String input, PrintStream outStream) {
         switch (input) {
-            case "clear": client.clear(outStream); break;
+            case "clear": client.clear(outStream, scanner); break;
             case "logout": client.logout(outStream); break;
-            case "list games": client.listGames(outStream); break;
+            case "list": client.listGames(outStream); break;
             case "create game": client.createGame(outStream, scanner); break;
-//            case "join game": client.listGames(outStream); break;
-//            case "observe game": client.listGames(outStream); break;
+            case "play game": client.playGame(outStream, scanner); break;
+            case "observe game": client.observeGame(outStream, scanner); break;
             case "help": client.help(outStream); break;
             case "quit": client.quit(outStream); break;
             default: outStream.println(input + " is not a valid command."); client.help(outStream); break;
@@ -41,7 +41,7 @@ public class Repl {
         System.out.println("Welcome to Chess ;)");
         while (!client.getState().equals(ChessClient.UserState.QUIT)) {
             outStream.print(">> ");
-            String input = scanner.nextLine();
+            String input = scanner.nextLine().toLowerCase();
             if (client.getState().equals(ChessClient.UserState.LOGGED_OUT)) {
                 handleLoggedOutState(input, outStream);
             } else {

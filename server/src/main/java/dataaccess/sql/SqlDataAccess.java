@@ -97,7 +97,7 @@ public class SqlDataAccess implements DataAccess {
                                 rs.getString("whiteUsername"),
                                 rs.getString("blackUsername"),
                                 rs.getString("gameName"),
-                                deserializeGame(rs.getString("game"))
+                                new GameSerializer().deserializeGame(rs.getString("game"))
                         ));
                     }
                 }
@@ -107,33 +107,6 @@ public class SqlDataAccess implements DataAccess {
         }
 
         return gamesList;
-    }
-
-
-    public static Gson createChessSerializer() {
-        GsonBuilder gsonBuilder = new GsonBuilder();
-        gsonBuilder.registerTypeAdapter(ChessPiece.class,
-                (JsonDeserializer<ChessPiece>) (jsonString, _, ctx) -> {
-                    JsonObject jsonObject = jsonString.getAsJsonObject();
-                    ChessGame.TeamColor color = ctx.deserialize(jsonObject.get("color"), ChessGame.TeamColor.class);
-                    ChessPiece.PieceType type = ctx.deserialize(jsonObject.get("type"), ChessPiece.PieceType.class);
-                    return new ChessPiece(color, type);
-                });
-
-        gsonBuilder.registerTypeAdapter(ChessGame.class,
-                (JsonDeserializer<ChessGame>) (jsonString, _, ctx) -> {
-                    JsonObject jsonObject = jsonString.getAsJsonObject();
-                    ChessBoard board = ctx.deserialize(jsonObject.get("board"), ChessBoard.class);
-                    ChessGame.TeamColor team = ctx.deserialize(jsonObject.get("team"), ChessGame.TeamColor.class);
-                    return new ChessGame(board, team);
-                });
-
-        return gsonBuilder.create();
-    }
-
-    public static ChessGame deserializeGame(String jsonGameInfo) {
-        Gson gameSerializer =  createChessSerializer();
-        return gameSerializer.fromJson(jsonGameInfo, ChessGame.class);
     }
 
     private int updateDatabase(String statement, Object... params) throws DataAccessException {
@@ -186,7 +159,7 @@ public class SqlDataAccess implements DataAccess {
                                     rs.getString("whiteUsername"),
                                     rs.getString("blackUsername"),
                                     rs.getString("gameName"),
-                                    deserializeGame(rs.getString("game"))
+                                    new GameSerializer().deserializeGame(rs.getString("game"))
                             );
                         }
                     }

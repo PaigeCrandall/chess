@@ -30,7 +30,7 @@ public class Server {
             javalin.post("/session", userHandler::loginUser); // login
             javalin.post("/game", gameHandler::createGame); // create game
             javalin.get("/game", gameHandler::getAllGames); // list games
-            javalin.put("/game", gameHandler::joinGame); // list games
+            javalin.put("/game", gameHandler::joinGame); // join games
 
 
         } catch (Exception e) {
