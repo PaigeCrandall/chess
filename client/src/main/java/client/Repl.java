@@ -28,6 +28,9 @@ public class Repl {
             case "clear": client.clear(outStream); break;
             case "logout": client.logout(outStream); break;
             case "list games": client.listGames(outStream); break;
+            case "create game": client.createGame(outStream, scanner); break;
+//            case "join game": client.listGames(outStream); break;
+//            case "observe game": client.listGames(outStream); break;
             case "help": client.help(outStream); break;
             case "quit": client.quit(outStream); break;
             default: outStream.println(input + " is not a valid command."); client.help(outStream); break;

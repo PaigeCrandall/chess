@@ -107,13 +107,24 @@ public class ChessClient {
             ListGamesResult result = facade.listGames(auth.authToken());
             ArrayList<GameData> games = result.games();
             if (games.isEmpty()) {
-                outStream.println("There are no games created yet.");
+                outStream.println("There are no chess games yet. Type create game to make one.");
             }
-//            else {
-//                for (GameData game : games) {
-//                    // print
-//                }
-//            }
-        } catch(Exception e) { handleErrors(e, outStream, "logout"); }
+            else {
+                outStream.println("we got to the point, didn't we? trying to go through my list and look at the games.");
+                for (GameData game : games) {
+                    outStream.println(game.toString());
+                }
+            }
+        } catch(Exception e) { handleErrors(e, outStream, "list games"); outStream.println(e); }
+    }
+
+    public void createGame(PrintStream outStream, Scanner scanner) {
+        outStream.print("give your game a snazzy title: ");
+        String name = scanner.nextLine();
+        try {
+            int gameID = facade.createGame(name, auth.authToken()).gameID();
+            outStream.println("Created 1 new game:");
+            outStream.println(gameID + ". " + name);
+        } catch(Exception e) { handleErrors(e, outStream, "create game"); }
     }
 }

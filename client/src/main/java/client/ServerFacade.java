@@ -1,17 +1,23 @@
 package client;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+import com.google.gson.reflect.TypeToken;
 import exceptions.AlreadyTakenException;
 import exceptions.BadRequestException;
 import exceptions.DataAccessException;
 import exceptions.UnauthorizedException;
 import model.AuthData;
+import model.GameData;
+import model.results.CreateGameResult;
 import model.results.ListGamesResult;
 
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.util.ArrayList;
 import java.util.Locale;
 import java.util.Map;
 
@@ -125,8 +131,29 @@ public class ServerFacade {
 
         HttpResponse<String> httpResponse = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
         var serializer = new Gson();
+        System.out.println(httpResponse.body());
+
         throwsExceptions(httpResponse.statusCode());
         return serializer.fromJson(httpResponse.body(), ListGamesResult.class);
+    }
+
+    public CreateGameResult createGame(String gameName, String authToken) throws Exception {
+        String urlString = String.format(Locale.getDefault(), "%s/game", url);
+        var body = Map.of("gameName", gameName );
+        var serializer = new Gson();
+        var jsonBody = serializer.toJson(body);
+
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(new URI(urlString))
+                .timeout(java.time.Duration.ofMillis(5000))
+                .header("Content-Type", "application/json")
+                .header("authorization", authToken)
+                .POST(HttpRequest.BodyPublishers.ofString(jsonBody))
+                .build();
+
+        HttpResponse<String> httpResponse = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+        throwsExceptions(httpResponse.statusCode());
+        return serializer.fromJson(httpResponse.body(), CreateGameResult.class);
     }
 
 }
