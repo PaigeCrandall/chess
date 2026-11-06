@@ -2,7 +2,6 @@ package client;
 
 import java.io.PrintStream;
 import java.util.Scanner;
-import java.util.function.Consumer;
 
 public class Repl {
     public ChessClient client;

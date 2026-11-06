@@ -72,7 +72,7 @@ public class ChessClient {
             auth = facade.login(username, password);
             state = UserState.LOGGED_IN;
             outStream.println("You are signed in!");
-        }  catch(Exception e) { handleErrors(e, outStream, "login"); }
+        } catch(Exception e) { handleErrors(e, outStream, "login"); }
     }
 
     public void register(PrintStream outStream, Scanner scanner) {
@@ -92,8 +92,8 @@ public class ChessClient {
     public void logout(PrintStream outStream) {
         try {
             facade.logout(auth.authToken());
-            state = UserState.LOGGED_OUT;
             auth = null;
+            state = UserState.LOGGED_OUT;
             outStream.println("You are signed out!");
         } catch(Exception e) { handleErrors(e, outStream, "logout"); }
     }

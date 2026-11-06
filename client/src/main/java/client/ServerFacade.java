@@ -48,11 +48,7 @@ public class ServerFacade {
                 .build();
 
         HttpResponse<String> httpResponse = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
-
-        if (httpResponse.statusCode() < 200 || httpResponse.statusCode() >= 300) {
-            // create a function to throw the right kinds of exceptions
-            throw new Exception("Error: received status code " + httpResponse.statusCode());
-        }
+        throwsExceptions(httpResponse.statusCode());
     }
 
     public AuthData register(String username, String email, String password) throws Exception {
@@ -112,10 +108,7 @@ public class ServerFacade {
                 .build();
 
         HttpResponse<String> httpResponse = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
-
-        if (httpResponse.statusCode() < 200 || httpResponse.statusCode() >= 300) {
-            // create a function to throw the right kinds of exceptions
-            throw new Exception("Error: received status code " + httpResponse.statusCode());
-        }
+        throwsExceptions(httpResponse.statusCode());
     }
+
 }
