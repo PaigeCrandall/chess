@@ -6,6 +6,7 @@ import exceptions.BadRequestException;
 import exceptions.DataAccessException;
 import exceptions.UnauthorizedException;
 import model.AuthData;
+import model.results.ListGamesResult;
 
 import java.net.URI;
 import java.net.http.HttpClient;
@@ -109,6 +110,23 @@ public class ServerFacade {
 
         HttpResponse<String> httpResponse = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
         throwsExceptions(httpResponse.statusCode());
+    }
+
+    public ListGamesResult listGames(String authToken) throws Exception {
+        String urlString = String.format(Locale.getDefault(), "%s/game", url);
+
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(new URI(urlString))
+                .timeout(java.time.Duration.ofMillis(5000))
+                .header("Content-Type", "application/json")
+                .header("authorization", authToken)
+                .GET()
+                .build();
+
+        HttpResponse<String> httpResponse = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+        var serializer = new Gson();
+        throwsExceptions(httpResponse.statusCode());
+        return serializer.fromJson(httpResponse.body(), ListGamesResult.class);
     }
 
 }

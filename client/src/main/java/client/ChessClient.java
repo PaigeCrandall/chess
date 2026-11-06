@@ -2,9 +2,12 @@ package client;
 
 import exceptions.*;
 import model.AuthData;
+import model.GameData;
+import model.results.ListGamesResult;
 
 import javax.xml.crypto.Data;
 import java.io.PrintStream;
+import java.util.ArrayList;
 import java.util.Scanner;
 
 public class ChessClient {
@@ -54,6 +57,7 @@ public class ChessClient {
         else if (state == UserState.LOGGED_IN) {
             outStream.println("You are currently signed in! These are the commands you can run:");
             outStream.println("  logout - sign out");
+            outStream.println("  list games - view a list of all chess games");
         }
         outStream.println("  help - see a list of possible commands that you can run");
         outStream.println("  quit - exit the chess program");
@@ -98,4 +102,18 @@ public class ChessClient {
         } catch(Exception e) { handleErrors(e, outStream, "logout"); }
     }
 
+    public void listGames(PrintStream outStream) {
+        try {
+            ListGamesResult result = facade.listGames(auth.authToken());
+            ArrayList<GameData> games = result.games();
+            if (games.isEmpty()) {
+                outStream.println("There are no games created yet.");
+            }
+//            else {
+//                for (GameData game : games) {
+//                    // print
+//                }
+//            }
+        } catch(Exception e) { handleErrors(e, outStream, "logout"); }
+    }
 }
