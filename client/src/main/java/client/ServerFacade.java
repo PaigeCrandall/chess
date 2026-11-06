@@ -1,6 +1,10 @@
 package client;
 
 import com.google.gson.Gson;
+import exceptions.AlreadyTakenException;
+import exceptions.BadRequestException;
+import exceptions.DataAccessException;
+import exceptions.UnauthorizedException;
 import model.AuthData;
 
 import java.net.URI;
@@ -16,6 +20,21 @@ public class ServerFacade {
 
     ServerFacade(String serverUrl) {
         this.url = serverUrl;
+    }
+
+    public void throwsExceptions(int status) throws Exception {
+        if (status == 401) {
+            throw new UnauthorizedException("401 Error: unauthorized");
+        }
+        else if (status == 400) {
+            throw new BadRequestException("400 Error: bad request");
+        }
+        else if (status == 403) {
+            throw new AlreadyTakenException("403 Error: already taken");
+        }
+        else if (status == 500) {
+            throw new DataAccessException("500 Error: failed to access data");
+        }
     }
 
     public void clear() throws Exception {
@@ -55,10 +74,7 @@ public class ServerFacade {
 
         HttpResponse<String> httpResponse = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
 
-        if (httpResponse.statusCode() < 200 || httpResponse.statusCode() >= 300) {
-            // create a function to throw the right kinds of exceptions
-            throw new Exception("Error: received status code " + httpResponse.statusCode());
-        }
+        throwsExceptions(httpResponse.statusCode());
         return serializer.fromJson(httpResponse.body(), AuthData.class);
     }
 
@@ -80,10 +96,7 @@ public class ServerFacade {
 
         HttpResponse<String> httpResponse = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
 
-        if (httpResponse.statusCode() < 200 || httpResponse.statusCode() >= 300) {
-            // create a function to throw the right kinds of exceptions
-            throw new Exception("Error: received status code " + httpResponse.statusCode());
-        }
+        throwsExceptions(httpResponse.statusCode());
         return serializer.fromJson(httpResponse.body(), AuthData.class);
     }
 
