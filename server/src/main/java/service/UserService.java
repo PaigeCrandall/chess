@@ -24,7 +24,8 @@ public class UserService {
 
 
     public AuthData registerUser(UserData registerRequest) throws AlreadyTakenException, BadRequestException, DataAccessException {
-        if ((registerRequest.username()==null)||(registerRequest.password()==null)||registerRequest.email()==null) {
+        if ((registerRequest.username()==null)||(registerRequest.password()==null)||(registerRequest.email()==null)
+              || (registerRequest.username().isEmpty())||(registerRequest.password().isEmpty())||registerRequest.email().isEmpty()) {
             throw new BadRequestException("bad request");
         }
         if (dataAccess.getUser(registerRequest.username()) == null) {

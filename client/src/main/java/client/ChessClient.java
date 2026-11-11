@@ -1,5 +1,6 @@
 package client;
 
+import chess.ChessGame;
 import exceptions.*;
 import model.AuthData;
 import model.GameData;
@@ -67,7 +68,7 @@ public class ChessClient {
             outStream.println("  register - create a new account");
         }
         else if (state == UserState.LOGGED_IN) {
-            outStream.println("You are currently signed in! These are the commands you can run:");
+            outStream.println("You are currently signed in as " + auth.username() + "! These are the commands you can run:");
             outStream.println("  logout - sign out");
             outStream.println("  list - view a list of all chess games");
             outStream.println("  create game - create a new chess game");
@@ -107,6 +108,8 @@ public class ChessClient {
             auth = facade.register(username, email, password);
             state = UserState.LOGGED_IN;
             outStream.println("You are signed in!");
+        } catch(AlreadyTakenException e) {
+            outStream.println("Your username is not unique. Please choose a different username and try again.");
         } catch(Exception e) { handleErrors(e, outStream, "register"); }
     }
 
@@ -144,23 +147,26 @@ public class ChessClient {
         } catch(Exception e) { handleErrors(e, outStream, "create game"); }
     }
 
-    public void printGame(PrintStream outStream) {
+    public void printChessBoard(PrintStream outStream, ChessGame game, String colorPerspective) {
         outStream.println("\nThis will print the board out!\n");
     }
 
-    public void playGame(PrintStream outStream, Scanner scanner) {
+    public Integer getGameIdFromPlayer(PrintStream outStream, Scanner scanner) {
         outStream.print("Game id: ");
         String id = scanner.nextLine();
-        if ((id==null)||id.isEmpty()) {return;}
-        while (!id.matches("\\d+")) {
+        while (!id.matches("\\d+") || (Integer.parseInt(id) < 1)) {
+            if (id.trim().isEmpty()) { return null;}
             outStream.println("Please input a valid game id.");
             outStream.print("Game id: ");
             id = scanner.nextLine();
-            if (id.equals("quit")) {return;}
         }
+        return Integer.valueOf(id);
+    }
+
+    public String getColorFromPlayer(PrintStream outStream, Scanner scanner) {
         outStream.print("Which color would you like to be? ");
         String color = scanner.nextLine().toLowerCase();
-        if ((color.isEmpty())) {return;}
+        if ((color.isEmpty())) {return null;}
         while (!color.equals("w")&&!color.equals("white")&&!color.equals("b")&&!color.equals("black")) {
             outStream.println(color + " is not a valid color.");
             outStream.print("Which color would you like to be? ");
@@ -168,9 +174,20 @@ public class ChessClient {
         }
         if (color.equals("w")||color.equals("white")) { color = "WHITE"; }
         else { color = "BLACK"; }
+        return color;
+    }
+
+    public void playGame(PrintStream outStream, Scanner scanner) {
+        Integer id = getGameIdFromPlayer(outStream, scanner);
+        if (id==null) {return;}
+        String color = getColorFromPlayer(outStream, scanner);
+        if (color==null) {return;}
         try {
-            facade.joinGame(Integer.valueOf(id), color, auth.authToken());
+            facade.joinGame(id, color, auth.authToken());
             outStream.println("You have joined game " + id + " as " + color.toLowerCase() + "!");
+            printChessBoard(outStream, new ChessGame(), color);
+        } catch(AlreadyTakenException e) {
+            outStream.println(color.toLowerCase() + " is already taken.");
         } catch(Exception e) {
             handleErrors(e, outStream, "create game");
         }

@@ -3,24 +3,15 @@ package client;
 import chess.ChessGame;
 import chess.GameSerializer;
 import com.google.gson.Gson;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
-import com.google.gson.reflect.TypeToken;
-import exceptions.AlreadyTakenException;
-import exceptions.BadRequestException;
-import exceptions.DataAccessException;
-import exceptions.UnauthorizedException;
+import exceptions.*;
 import model.AuthData;
-import model.GameData;
 import model.requests.JoinGameRequest;
-import model.results.CreateGameResult;
-import model.results.ListGamesResult;
+import model.results.*;
 
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
-import java.util.ArrayList;
 import java.util.Locale;
 import java.util.Map;
 
@@ -28,7 +19,7 @@ public class ServerFacade {
     private static final HttpClient httpClient = HttpClient.newHttpClient();
     String url;
 
-    ServerFacade(String serverUrl) {
+    public ServerFacade(String serverUrl) {
         this.url = serverUrl;
     }
 
@@ -47,18 +38,36 @@ public class ServerFacade {
         }
     }
 
-    public void clear() throws Exception {
-        String urlString = String.format(Locale.getDefault(), "%s/db", url);
-
+    public HttpResponse<String> postHTTP(String urlString, String jsonBody) throws Exception {
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(new URI(urlString))
                 .timeout(java.time.Duration.ofMillis(5000))
                 .header("Content-Type", "application/json")
-                .DELETE()
+                .POST(HttpRequest.BodyPublishers.ofString(jsonBody))
                 .build();
 
         HttpResponse<String> httpResponse = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
         throwsExceptions(httpResponse.statusCode());
+        return httpResponse;
+    }
+
+    public void deleteHTTP(String urlString, String headerName, String headerValue) throws Exception {
+        HttpRequest.Builder builder = HttpRequest.newBuilder()
+                .uri(new URI(urlString))
+                .timeout(java.time.Duration.ofMillis(5000))
+                .header("Content-Type", "application/json");
+        if (!headerName.isEmpty()&&!headerValue.isEmpty()) {
+            builder.header(headerName, headerValue);
+        }
+        HttpRequest request = builder.DELETE().build();
+
+        HttpResponse<String> httpResponse = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+        throwsExceptions(httpResponse.statusCode());
+    }
+
+    public void clear() throws Exception {
+        String urlString = String.format(Locale.getDefault(), "%s/db", url);
+        deleteHTTP(urlString, "", "");
     }
 
     public AuthData register(String username, String email, String password) throws Exception {
@@ -69,18 +78,7 @@ public class ServerFacade {
                 "password", password
         );
         var serializer = new Gson();
-        var jsonBody = serializer.toJson(body);
-
-        HttpRequest request = HttpRequest.newBuilder()
-                .uri(new URI(urlString))
-                .timeout(java.time.Duration.ofMillis(5000))
-                .header("Content-Type", "application/json")
-                .POST(HttpRequest.BodyPublishers.ofString(jsonBody))
-                .build();
-
-        HttpResponse<String> httpResponse = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
-
-        throwsExceptions(httpResponse.statusCode());
+        HttpResponse<String> httpResponse = postHTTP(urlString, serializer.toJson(body));
         return serializer.fromJson(httpResponse.body(), AuthData.class);
     }
 
@@ -91,39 +89,24 @@ public class ServerFacade {
                 "password", password
         );
         var serializer = new Gson();
-        var jsonBody = serializer.toJson(body);
-
-        HttpRequest request = HttpRequest.newBuilder()
-                .uri(new URI(urlString))
-                .timeout(java.time.Duration.ofMillis(5000))
-                .header("Content-Type", "application/json")
-                .POST(HttpRequest.BodyPublishers.ofString(jsonBody))
-                .build();
-
-        HttpResponse<String> httpResponse = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
-
-        throwsExceptions(httpResponse.statusCode());
+        HttpResponse<String> httpResponse = postHTTP(urlString, serializer.toJson(body));
         return serializer.fromJson(httpResponse.body(), AuthData.class);
     }
 
     public void logout(String authToken) throws Exception {
         String urlString = String.format(Locale.getDefault(), "%s/session", url);
+        deleteHTTP(urlString, "authorization", authToken);
 
-        HttpRequest request = HttpRequest.newBuilder()
-                .uri(new URI(urlString))
-                .timeout(java.time.Duration.ofMillis(5000))
-                .header("Content-Type", "application/json")
-                .header("authorization", authToken)
-                .DELETE()
-                .build();
-
-        HttpResponse<String> httpResponse = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
-        throwsExceptions(httpResponse.statusCode());
-    }
-
-    public static ChessGame deserializeGame(String jsonGameInfo) {
-        Gson gameSerializer = new GameSerializer().createChessSerializer();
-        return gameSerializer.fromJson(jsonGameInfo, ChessGame.class);
+//        HttpRequest request = HttpRequest.newBuilder()
+//                .uri(new URI(urlString))
+//                .timeout(java.time.Duration.ofMillis(5000))
+//                .header("Content-Type", "application/json")
+//                .header("authorization", authToken)
+//                .DELETE()
+//                .build();
+//
+//        HttpResponse<String> httpResponse = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+//        throwsExceptions(httpResponse.statusCode());
     }
 
     public ListGamesResult listGames(String authToken) throws Exception {
@@ -147,18 +130,8 @@ public class ServerFacade {
         String urlString = String.format(Locale.getDefault(), "%s/game", url);
         var body = Map.of("gameName", gameName );
         var serializer = new Gson();
-        var jsonBody = serializer.toJson(body);
 
-        HttpRequest request = HttpRequest.newBuilder()
-                .uri(new URI(urlString))
-                .timeout(java.time.Duration.ofMillis(5000))
-                .header("Content-Type", "application/json")
-                .header("authorization", authToken)
-                .POST(HttpRequest.BodyPublishers.ofString(jsonBody))
-                .build();
-
-        HttpResponse<String> httpResponse = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
-        throwsExceptions(httpResponse.statusCode());
+        HttpResponse<String> httpResponse = postHTTP(urlString, serializer.toJson(body));
         return serializer.fromJson(httpResponse.body(), CreateGameResult.class);
     }
 
