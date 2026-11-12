@@ -170,8 +170,7 @@ public class ChessClient {
         String name = scanner.nextLine();
         try {
             int gameID = facade.createGame(name, auth.authToken()).gameID();
-            outStream.println(SET_TEXT_COLOR_WHITE + "Created 1 new game:");
-            outStream.println(SET_TEXT_COLOR_WHITE + gameID + ". " + SET_TEXT_COLOR_BLUE + name);
+            outStream.println(SET_TEXT_COLOR_WHITE + "Created 1 new game.");
         } catch(Exception e) { handleErrors(e, outStream, "create game"); }
     }
 
@@ -216,7 +215,7 @@ public class ChessClient {
             try {
                 facade.joinGame(id, color, auth.authToken());
                 outStream.println(SET_TEXT_COLOR_LIGHT_GREY + "You have joined game " + id + " as " + color.toLowerCase() + "!");
-                outStream.println("You can't play a game yet, but here's a new board.");
+                outStream.println("You can't play a game yet, but here's a new board from the " + color.toLowerCase() + " perspective.");
                 printChessBoard(outStream, new ChessGame(), color);
             } catch(AlreadyTakenException e) {
                 outStream.println(SET_TEXT_COLOR_RED + color.toLowerCase() + " is already taken.");
@@ -239,7 +238,7 @@ public class ChessClient {
                 return;
             }
             outStream.println(SET_TEXT_COLOR_LIGHT_GREY + "You have joined game " + id + " as an observer.");
-            outStream.println("You can't observe a game yet, but here's a new board.");
+            outStream.println("You can't observe a game yet, but here's a new board from the white perspective.");
             printChessBoard(outStream, new ChessGame(), "WHITE");
         }
         resetColors(outStream);
