@@ -16,7 +16,7 @@ import java.util.Locale;
 import java.util.Map;
 
 public class ServerFacade {
-    private static final HttpClient httpClient = HttpClient.newHttpClient();
+    private static final HttpClient HTTPCLIENT = HttpClient.newHttpClient();
     String url;
 
     public ServerFacade(String serverUrl) {
@@ -53,7 +53,7 @@ public class ServerFacade {
         addAuthHeaderIfNeeded(builder, headerValue);
         HttpRequest request = builder.POST(HttpRequest.BodyPublishers.ofString(jsonBody)).build();
 
-        HttpResponse<String> httpResponse = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+        HttpResponse<String> httpResponse = HTTPCLIENT.send(request, HttpResponse.BodyHandlers.ofString());
         throwsExceptions(httpResponse.statusCode());
         return httpResponse;
     }
@@ -67,7 +67,7 @@ public class ServerFacade {
         addAuthHeaderIfNeeded(builder, headerValue);
         HttpRequest request = builder.DELETE().build();
 
-        HttpResponse<String> httpResponse = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+        HttpResponse<String> httpResponse = HTTPCLIENT.send(request, HttpResponse.BodyHandlers.ofString());
         throwsExceptions(httpResponse.statusCode());
     }
 
@@ -115,7 +115,7 @@ public class ServerFacade {
                 .GET()
                 .build();
 
-        HttpResponse<String> httpResponse = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+        HttpResponse<String> httpResponse = HTTPCLIENT.send(request, HttpResponse.BodyHandlers.ofString());
 
         throwsExceptions(httpResponse.statusCode());
         return new GameSerializer().deserializeGamesList(httpResponse.body());
@@ -143,7 +143,7 @@ public class ServerFacade {
                 .PUT(HttpRequest.BodyPublishers.ofString(jsonBody))
                 .build();
 
-        HttpResponse<String> httpResponse = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+        HttpResponse<String> httpResponse = HTTPCLIENT.send(request, HttpResponse.BodyHandlers.ofString());
         throwsExceptions(httpResponse.statusCode());
     }
 

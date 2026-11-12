@@ -75,18 +75,24 @@ public class ChessClient {
 
     public void help(PrintStream outStream) {
         if (state == UserState.LOGGED_OUT) {
-            outStream.println(SET_TEXT_BOLD + SET_TEXT_COLOR_LIGHT_GREY + "You are currently signed out. These are the commands you can run:" + SET_TEXT_FAINT);
-            outStream.println(SET_TEXT_COLOR_BLUE + "  login" + SET_TEXT_COLOR_WHITE + SET_TEXT_ITALIC + " - sign in with a username and password");
+            outStream.println(SET_TEXT_BOLD + SET_TEXT_COLOR_LIGHT_GREY +
+                    "You are currently signed out. These are the commands you can run:" + SET_TEXT_FAINT);
+            outStream.println(SET_TEXT_COLOR_BLUE + "  login" +
+                    SET_TEXT_COLOR_WHITE + SET_TEXT_ITALIC + " - sign in with a username and password");
             outStream.println(SET_TEXT_COLOR_BLUE + "  register" + SET_TEXT_COLOR_WHITE + SET_TEXT_ITALIC + " - create a new account");
         }
         else if (state == UserState.LOGGED_IN) {
             outStream.println(SET_TEXT_BOLD + SET_TEXT_COLOR_LIGHT_GREY + "You are currently signed in as " +
                     auth.username() + "! These are the commands you can run:" + SET_TEXT_FAINT);
             outStream.println(SET_TEXT_COLOR_BLUE + "  logout" + SET_TEXT_COLOR_WHITE + SET_TEXT_ITALIC + " - sign out");
-            outStream.println(SET_TEXT_COLOR_BLUE + "  list games" + SET_TEXT_COLOR_WHITE + SET_TEXT_ITALIC + " - view a list of all chess games");
-            outStream.println(SET_TEXT_COLOR_BLUE + "  create game" + SET_TEXT_COLOR_WHITE + SET_TEXT_ITALIC + " - create a new chess game");
-            outStream.println(SET_TEXT_COLOR_BLUE + "  play game" + SET_TEXT_COLOR_WHITE + SET_TEXT_ITALIC + " - create a new chess game");
-            outStream.println(SET_TEXT_COLOR_BLUE + "  observe game" + SET_TEXT_COLOR_WHITE + SET_TEXT_ITALIC + " - create a new chess game");
+            outStream.println(SET_TEXT_COLOR_BLUE + "  list games" +
+                    SET_TEXT_COLOR_WHITE + SET_TEXT_ITALIC + " - view a list of all chess games");
+            outStream.println(SET_TEXT_COLOR_BLUE + "  create game" +
+                    SET_TEXT_COLOR_WHITE + SET_TEXT_ITALIC + " - create a new chess game");
+            outStream.println(SET_TEXT_COLOR_BLUE + "  play game" +
+                    SET_TEXT_COLOR_WHITE + SET_TEXT_ITALIC + " - create a new chess game");
+            outStream.println(SET_TEXT_COLOR_BLUE + "  observe game" + SET_TEXT_COLOR_WHITE +
+                    SET_TEXT_ITALIC + " - create a new chess game");
         }
         outStream.println(SET_TEXT_COLOR_BLUE + "  help" + SET_TEXT_COLOR_WHITE + SET_TEXT_ITALIC + " - see a list of possible commands that you can run");
         outStream.println(SET_TEXT_COLOR_BLUE + "  quit" + SET_TEXT_COLOR_WHITE + SET_TEXT_ITALIC + " - exit the chess program");

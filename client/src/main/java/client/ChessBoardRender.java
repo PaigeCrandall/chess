@@ -66,12 +66,12 @@ public class ChessBoardRender {
         outstream.print(RESET_BG_COLOR + RESET_TEXT_COLOR + RESET_TEXT_BOLD_FAINT);
     }
 
-    public void printEmptySpace(String bg_color) {
-        outstream.print(bg_color + EMPTY);
+    public void printEmptySpace(String bgColor) {
+        outstream.print(bgColor + EMPTY);
         resetColors();
     }
 
-    public void printPiece(ChessPiece piece, String bg_color) {
+    public void printPiece(ChessPiece piece, String bgColor) {
         String pieceColor = getPieceColor(piece);
         String symbol = EMPTY;
         if (piece.getTeamColor()==ChessGame.TeamColor.WHITE) {
@@ -80,7 +80,7 @@ public class ChessBoardRender {
         else if (piece.getTeamColor()==ChessGame.TeamColor.BLACK) {
             symbol = BLACK_PIECE_SHAPES.get(piece.getPieceType());
         }
-        outstream.print(bg_color + pieceColor + symbol);
+        outstream.print(bgColor + pieceColor + symbol);
         resetColors();
     }
 
