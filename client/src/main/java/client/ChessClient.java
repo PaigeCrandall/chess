@@ -16,11 +16,13 @@ public class ChessClient {
     public ServerFacade facade;
     public ChessClient.UserState state;
     public AuthData auth;
+    public ArrayList<GameData> listedGames;
 
     ChessClient(String serverUrl) {
         this.facade = new ServerFacade(serverUrl);
         this.state = ChessClient.UserState.LOGGED_OUT;
         this.auth = null;
+        this.listedGames = new ArrayList<>();
     }
 
     public enum UserState {
@@ -120,9 +122,9 @@ public class ChessClient {
         try {
             auth = facade.register(username, email, password);
             state = UserState.LOGGED_IN;
-            outStream.println(SET_TEXT_COLOR_LIGHT_GREY + "You are signed in!");
+            outStream.println(SET_TEXT_COLOR_WHITE + "You are signed in!");
         } catch(AlreadyTakenException e) {
-            outStream.println(SET_TEXT_COLOR_LIGHT_GREY + "Your username is not unique. Please choose a different username.");
+            outStream.println(SET_TEXT_COLOR_WHITE + "Your username is not unique. Please choose a different username.");
         } catch(Exception e) { handleErrors(e, outStream, "register"); }
     }
 
@@ -136,6 +138,7 @@ public class ChessClient {
     }
 
     public void listGames(PrintStream outStream) {
+        listedGames = new ArrayList<>();
         try {
             ListGamesResult result = facade.listGames(auth.authToken());
             ArrayList<GameData> games = result.games();
@@ -145,8 +148,11 @@ public class ChessClient {
             else {
                 outStream.println(SET_TEXT_COLOR_WHITE + SET_TEXT_BOLD +
                         "Existing Chess Games:" + RESET_TEXT_BOLD_FAINT);
+                int userFriendlyId = 1;
                 for (GameData game : games) {
-                    outStream.println(SET_TEXT_COLOR_WHITE + game.gameID() + ". " + SET_TEXT_COLOR_BLUE + game.gameName());
+                    listedGames.add(game);
+                    outStream.println(SET_TEXT_COLOR_WHITE + userFriendlyId + ". " + SET_TEXT_COLOR_BLUE + game.gameName());
+                    userFriendlyId++;
                 }
             }
         } catch(Exception e) { handleErrors(e, outStream, "list games"); }
@@ -168,13 +174,15 @@ public class ChessClient {
     }
 
     public Integer getGameIdFromPlayer(PrintStream outStream, Scanner scanner) {
-        outStream.print(SET_TEXT_COLOR_BLUE + "Game id: ");
-        String id = scanner.nextLine();
-        if (!id.matches("\\d+") || (Integer.parseInt(id) < 1)) {
-            outStream.println(SET_TEXT_COLOR_RED + "Please input a valid game id.");
+        outStream.print(SET_TEXT_COLOR_BLUE + "Game number: ");
+        String userFriendlyId = scanner.nextLine();
+        if (!userFriendlyId.matches("\\d+") ||
+                (Integer.parseInt(userFriendlyId) < 1) ||
+                (Integer.parseInt(userFriendlyId)>listedGames.size())) {
+            outStream.println(SET_TEXT_COLOR_RED + "Please input a valid game number.");
             return null;
         }
-        return Integer.valueOf(id);
+        return listedGames.get(Integer.parseInt(userFriendlyId)-1).gameID();
     }
 
     public String getColorFromPlayer(PrintStream outStream, Scanner scanner) {
@@ -190,31 +198,43 @@ public class ChessClient {
     }
 
     public void playGame(PrintStream outStream, Scanner scanner) {
-        Integer id = getGameIdFromPlayer(outStream, scanner);
-        if (id==null) {return;}
-        String color = getColorFromPlayer(outStream, scanner);
-        if (color==null) {return;}
-        try {
-            facade.joinGame(id, color, auth.authToken());
-            outStream.println(SET_TEXT_COLOR_LIGHT_GREY + "You have joined game " + id + " as " + color.toLowerCase() + "!");
-            outStream.println("You can't play a game yet, but here's a new board.");
-            printChessBoard(outStream, new ChessGame(), color);
-        } catch(AlreadyTakenException e) {
-            outStream.println(SET_TEXT_COLOR_RED + color.toLowerCase() + " is already taken.");
-        } catch(DataAccessException e) {
+        if (listedGames.isEmpty()) {
+            outStream.println(SET_TEXT_COLOR_LIGHT_GREY + "Type list games first to see the available games");
+        }
+        else {
+            Integer id = getGameIdFromPlayer(outStream, scanner);
+            if (id==null) {return;}
+            String color = getColorFromPlayer(outStream, scanner);
+            if (color==null) {return;}
+            try {
+                facade.joinGame(id, color, auth.authToken());
+                outStream.println(SET_TEXT_COLOR_LIGHT_GREY + "You have joined game " + id + " as " + color.toLowerCase() + "!");
+                outStream.println("You can't play a game yet, but here's a new board.");
+                printChessBoard(outStream, new ChessGame(), color);
+            } catch(AlreadyTakenException e) {
+                outStream.println(SET_TEXT_COLOR_RED + color.toLowerCase() + " is already taken.");
+            } catch(DataAccessException e) {
                 outStream.println(SET_TEXT_COLOR_RED + "The game does not exist.");
-        } catch(Exception e) {
-            handleErrors(e, outStream, "create game");
+            } catch(Exception e) {
+                handleErrors(e, outStream, "create game");
+            }
         }
         resetColors(outStream);
     }
 
     public void observeGame(PrintStream outStream, Scanner scanner) {
-        Integer id = getGameIdFromPlayer(outStream, scanner);
-        if (id==null) {return;}
-        outStream.println(SET_TEXT_COLOR_LIGHT_GREY + "You have joined game " + id + " as an observer.");
-        outStream.println("You can't observe a game yet, but here's a new board.");
-        printChessBoard(outStream, new ChessGame(), "WHITE");
+        if (listedGames.isEmpty()) {
+            outStream.println(SET_TEXT_COLOR_LIGHT_GREY + "Type list games first to see the available games");
+        }
+        else {
+            Integer id = getGameIdFromPlayer(outStream, scanner);
+            if (id == null) {
+                return;
+            }
+            outStream.println(SET_TEXT_COLOR_LIGHT_GREY + "You have joined game " + id + " as an observer.");
+            outStream.println("You can't observe a game yet, but here's a new board.");
+            printChessBoard(outStream, new ChessGame(), "WHITE");
+        }
         resetColors(outStream);
     }
 }
