@@ -1,4 +1,5 @@
-import client.ServerFacade;
+package client;
+
 import exceptions.*;
 import model.AuthData;
 import model.results.ListGamesResult;
