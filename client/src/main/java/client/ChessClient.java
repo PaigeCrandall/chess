@@ -4,14 +4,10 @@ import chess.ChessGame;
 import exceptions.*;
 import model.AuthData;
 import model.GameData;
-import model.requests.JoinGameRequest;
 import model.results.ListGamesResult;
-
-import javax.xml.crypto.Data;
 import java.io.PrintStream;
 import java.net.ConnectException;
 import java.util.ArrayList;
-import java.util.Locale;
 import java.util.Scanner;
 
 import static ui.EscapeSequences.*;
@@ -82,7 +78,8 @@ public class ChessClient {
             outStream.println(SET_TEXT_COLOR_BLUE + "  register" + SET_TEXT_COLOR_WHITE + SET_TEXT_ITALIC + " - create a new account");
         }
         else if (state == UserState.LOGGED_IN) {
-            outStream.println(SET_TEXT_BOLD + SET_TEXT_COLOR_LIGHT_GREY + "You are currently signed in as " + auth.username() + "! These are the commands you can run:" + SET_TEXT_FAINT);
+            outStream.println(SET_TEXT_BOLD + SET_TEXT_COLOR_LIGHT_GREY + "You are currently signed in as " +
+                    auth.username() + "! These are the commands you can run:" + SET_TEXT_FAINT);
             outStream.println(SET_TEXT_COLOR_BLUE + "  logout" + SET_TEXT_COLOR_WHITE + SET_TEXT_ITALIC + " - sign out");
             outStream.println(SET_TEXT_COLOR_BLUE + "  list games" + SET_TEXT_COLOR_WHITE + SET_TEXT_ITALIC + " - view a list of all chess games");
             outStream.println(SET_TEXT_COLOR_BLUE + "  create game" + SET_TEXT_COLOR_WHITE + SET_TEXT_ITALIC + " - create a new chess game");
@@ -108,7 +105,8 @@ public class ChessClient {
             state = UserState.LOGGED_IN;
             outStream.println(SET_TEXT_COLOR_WHITE + "You are signed in!");
         } catch(UnauthorizedException e) {
-            outStream.println(SET_TEXT_COLOR_RED + "Username or password are not correct. Please try again or register to create an account.");
+            outStream.println(SET_TEXT_COLOR_RED + "Username or password are not correct. " +
+                    "Please try again or register to create an account." + RESET_TEXT_COLOR);
         } catch(Exception e) { handleErrors(e, outStream, "login"); }
     }
 

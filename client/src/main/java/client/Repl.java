@@ -23,7 +23,7 @@ public class Repl {
             case "register": client.register(outStream, scanner); break;
             case "help": client.help(outStream); break;
             case "quit": client.quit(outStream); break;
-            default: outStream.println(input + " is not a valid command."); client.help(outStream); break;
+            default: outStream.println(SET_TEXT_COLOR_RED + input + " is not a valid command."); client.help(outStream); break;
         }
     }
 
