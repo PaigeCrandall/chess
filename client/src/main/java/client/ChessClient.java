@@ -9,9 +9,12 @@ import model.results.ListGamesResult;
 
 import javax.xml.crypto.Data;
 import java.io.PrintStream;
+import java.net.ConnectException;
 import java.util.ArrayList;
 import java.util.Locale;
 import java.util.Scanner;
+
+import static ui.EscapeSequences.*;
 
 public class ChessClient {
     public ServerFacade facade;
@@ -35,17 +38,24 @@ public class ChessClient {
     }
 
     public void handleErrors(Exception e, PrintStream outStream, String command) {
+        outStream.print(SET_TEXT_COLOR_RED);
         switch (e) {
             case UnauthorizedException _ -> outStream.println("You are not authorized to " + command + ". Please login or register.");
             case BadRequestException _ -> outStream.println("You did not provide valid data to " + command);
-            case AlreadyTakenException _ -> outStream.println("Your username is not unique. Please choose a different username and try again.");
+            case AlreadyTakenException _ -> outStream.println("You tried to do something that was already taken.");
             case DataAccessException _ -> outStream.println("There was a problem accessing the database. Please try again.");
-            default -> outStream.println("Apologies, there was an error when executing " + command + ". Please try again.");
+            case ConnectException ignored -> outStream.println("You are not connected to the server!");
+            default -> outStream.println("Apologies, there was an error when executing " + command + ". Please try again. " + e);
         }
+        outStream.print(RESET_TEXT_COLOR);
     }
 
     public void clear(PrintStream outStream, Scanner scanner) {
-        outStream.print("Are you sure you want to clear all of the databases? This will log you out and remove all users and games. (y/n) ");
+        outStream.print(SET_TEXT_FAINT + SET_TEXT_COLOR_WHITE +
+                "Are you sure you want to clear all of the databases? " + SET_TEXT_BOLD +
+                "This will log you out and remove all users and games. " + SET_TEXT_FAINT +
+                SET_TEXT_COLOR_RED + "(y/n) ");
+        resetColors(outStream);
         String y_n = scanner.nextLine().toLowerCase();
         if (y_n.equals("y")) {
             try {
@@ -61,22 +71,27 @@ public class ChessClient {
         }
     }
 
+    public void resetColors(PrintStream outStream) {
+        outStream.print(RESET_BG_COLOR + RESET_TEXT_COLOR + RESET_TEXT_BOLD_FAINT + RESET_TEXT_ITALIC);
+    }
+
     public void help(PrintStream outStream) {
         if (state == UserState.LOGGED_OUT) {
-            outStream.println("You are currently signed out. These are the commands you can run:");
-            outStream.println("  login - sign in with a username and password");
-            outStream.println("  register - create a new account");
+            outStream.println(SET_TEXT_BOLD + SET_TEXT_COLOR_LIGHT_GREY + "You are currently signed out. These are the commands you can run:" + SET_TEXT_FAINT);
+            outStream.println(SET_TEXT_COLOR_BLUE + "  login" + SET_TEXT_COLOR_WHITE + SET_TEXT_ITALIC + " - sign in with a username and password");
+            outStream.println(SET_TEXT_COLOR_BLUE + "  register" + SET_TEXT_COLOR_WHITE + SET_TEXT_ITALIC + " - create a new account");
         }
         else if (state == UserState.LOGGED_IN) {
-            outStream.println("You are currently signed in as " + auth.username() + "! These are the commands you can run:");
-            outStream.println("  logout - sign out");
-            outStream.println("  list - view a list of all chess games");
-            outStream.println("  create game - create a new chess game");
-            outStream.println("  play game - create a new chess game");
-            outStream.println("  observe game - create a new chess game");
+            outStream.println(SET_TEXT_BOLD + SET_TEXT_COLOR_LIGHT_GREY + "You are currently signed in as " + auth.username() + "! These are the commands you can run:" + SET_TEXT_FAINT);
+            outStream.println(SET_TEXT_COLOR_BLUE + "  logout" + SET_TEXT_COLOR_WHITE + SET_TEXT_ITALIC + " - sign out");
+            outStream.println(SET_TEXT_COLOR_BLUE + "  list games" + SET_TEXT_COLOR_WHITE + SET_TEXT_ITALIC + " - view a list of all chess games");
+            outStream.println(SET_TEXT_COLOR_BLUE + "  create game" + SET_TEXT_COLOR_WHITE + SET_TEXT_ITALIC + " - create a new chess game");
+            outStream.println(SET_TEXT_COLOR_BLUE + "  play game" + SET_TEXT_COLOR_WHITE + SET_TEXT_ITALIC + " - create a new chess game");
+            outStream.println(SET_TEXT_COLOR_BLUE + "  observe game" + SET_TEXT_COLOR_WHITE + SET_TEXT_ITALIC + " - create a new chess game");
         }
-        outStream.println("  help - see a list of possible commands that you can run");
-        outStream.println("  quit - exit the chess program");
+        outStream.println(SET_TEXT_COLOR_BLUE + "  help" + SET_TEXT_COLOR_WHITE + SET_TEXT_ITALIC + " - see a list of possible commands that you can run");
+        outStream.println(SET_TEXT_COLOR_BLUE + "  quit" + SET_TEXT_COLOR_WHITE + SET_TEXT_ITALIC + " - exit the chess program");
+        resetColors(outStream);
     }
 
     public void quit(PrintStream outStream) {
@@ -84,32 +99,32 @@ public class ChessClient {
     }
 
     public void login(PrintStream outStream, Scanner scanner) {
-        outStream.print("username: ");
+        outStream.print(SET_TEXT_COLOR_BLUE + "username: ");
         String username = scanner.nextLine();
-        outStream.print("password: ");
+        outStream.print(SET_TEXT_COLOR_BLUE + "password: ");
         String password = scanner.nextLine();
         try {
             auth = facade.login(username, password);
             state = UserState.LOGGED_IN;
-            outStream.println("You are signed in!");
+            outStream.println(SET_TEXT_COLOR_WHITE + "You are signed in!");
         } catch(UnauthorizedException e) {
-            outStream.println("Username or password are not correct. Please try again or register to create an account.");
+            outStream.println(SET_TEXT_COLOR_RED + "Username or password are not correct. Please try again or register to create an account.");
         } catch(Exception e) { handleErrors(e, outStream, "login"); }
     }
 
     public void register(PrintStream outStream, Scanner scanner) {
-        outStream.print("username: ");
+        outStream.print(SET_TEXT_COLOR_BLUE + "username: ");
         String username = scanner.nextLine();
-        outStream.print("email: ");
+        outStream.print(SET_TEXT_COLOR_BLUE + "email: ");
         String email = scanner.nextLine();
-        outStream.print("password: ");
+        outStream.print(SET_TEXT_COLOR_BLUE + "password: ");
         String password = scanner.nextLine();
         try {
             auth = facade.register(username, email, password);
             state = UserState.LOGGED_IN;
-            outStream.println("You are signed in!");
+            outStream.println(SET_TEXT_COLOR_LIGHT_GREY + "You are signed in!");
         } catch(AlreadyTakenException e) {
-            outStream.println("Your username is not unique. Please choose a different username and try again.");
+            outStream.println(SET_TEXT_COLOR_LIGHT_GREY + "Your username is not unique. Please choose a different username.");
         } catch(Exception e) { handleErrors(e, outStream, "register"); }
     }
 
@@ -118,7 +133,7 @@ public class ChessClient {
             facade.logout(auth.authToken());
             auth = null;
             state = UserState.LOGGED_OUT;
-            outStream.println("You are signed out!");
+            outStream.println(SET_TEXT_COLOR_WHITE + "You are signed out!");
         } catch(Exception e) { handleErrors(e, outStream, "logout"); }
     }
 
@@ -127,53 +142,52 @@ public class ChessClient {
             ListGamesResult result = facade.listGames(auth.authToken());
             ArrayList<GameData> games = result.games();
             if (games.isEmpty()) {
-                outStream.println("There are no chess games yet. Type create game to make one.");
+                outStream.println(SET_TEXT_COLOR_WHITE + "There are no chess games yet. Type create game to make one.");
             }
             else {
+                outStream.println(SET_TEXT_COLOR_WHITE + SET_TEXT_BOLD +
+                        "Existing Chess Games:" + RESET_TEXT_BOLD_FAINT);
                 for (GameData game : games) {
-                    outStream.println(game.toString());
+                    outStream.println(SET_TEXT_COLOR_WHITE + game.gameID() + ". " + SET_TEXT_COLOR_BLUE + game.gameName());
                 }
             }
         } catch(Exception e) { handleErrors(e, outStream, "list games"); }
     }
 
     public void createGame(PrintStream outStream, Scanner scanner) {
-        outStream.print("Give your game a snazzy title: ");
+        outStream.print(SET_TEXT_ITALIC + SET_TEXT_COLOR_BLUE + "Give your game a snazzy title: " + RESET_TEXT_ITALIC);
         String name = scanner.nextLine();
         try {
             int gameID = facade.createGame(name, auth.authToken()).gameID();
-            outStream.println("Created 1 new game:");
-            outStream.println(gameID + ". " + name);
+            outStream.println(SET_TEXT_COLOR_WHITE + "Created 1 new game:");
+            outStream.println(SET_TEXT_COLOR_WHITE + gameID + ". " + SET_TEXT_COLOR_BLUE + name);
         } catch(Exception e) { handleErrors(e, outStream, "create game"); }
     }
 
     public void printChessBoard(PrintStream outStream, ChessGame game, String colorPerspective) {
-        outStream.println("\nThis will print the board out!\n");
+        ChessBoardRender renderer = new ChessBoardRender(outStream, game.getBoard(), colorPerspective, "Chess Board");
+        renderer.renderBoard();
     }
 
     public Integer getGameIdFromPlayer(PrintStream outStream, Scanner scanner) {
-        outStream.print("Game id: ");
+        outStream.print(SET_TEXT_COLOR_BLUE + "Game id: ");
         String id = scanner.nextLine();
-        while (!id.matches("\\d+") || (Integer.parseInt(id) < 1)) {
-            if (id.trim().isEmpty()) { return null;}
-            outStream.println("Please input a valid game id.");
-            outStream.print("Game id: ");
-            id = scanner.nextLine();
+        if (!id.matches("\\d+") || (Integer.parseInt(id) < 1)) {
+            outStream.println(SET_TEXT_COLOR_RED + "Please input a valid game id.");
+            return null;
         }
         return Integer.valueOf(id);
     }
 
     public String getColorFromPlayer(PrintStream outStream, Scanner scanner) {
-        outStream.print("Which color would you like to be? ");
+        outStream.print(SET_TEXT_COLOR_BLUE + "Which color would you like to be? ");
         String color = scanner.nextLine().toLowerCase();
-        if ((color.isEmpty())) {return null;}
-        while (!color.equals("w")&&!color.equals("white")&&!color.equals("b")&&!color.equals("black")) {
-            outStream.println(color + " is not a valid color.");
-            outStream.print("Which color would you like to be? ");
-            color = scanner.nextLine().toLowerCase();
-        }
         if (color.equals("w")||color.equals("white")) { color = "WHITE"; }
-        else { color = "BLACK"; }
+        else if (color.equals("b")||color.equals("black")) { color = "BLACK"; }
+        else {
+            outStream.println(SET_TEXT_COLOR_RED + color + " is not a valid color.");
+            color = null;
+        }
         return color;
     }
 
@@ -184,16 +198,25 @@ public class ChessClient {
         if (color==null) {return;}
         try {
             facade.joinGame(id, color, auth.authToken());
-            outStream.println("You have joined game " + id + " as " + color.toLowerCase() + "!");
+            outStream.println(SET_TEXT_COLOR_LIGHT_GREY + "You have joined game " + id + " as " + color.toLowerCase() + "!");
+            outStream.println("You can't play a game yet, but here's a new board.");
             printChessBoard(outStream, new ChessGame(), color);
         } catch(AlreadyTakenException e) {
-            outStream.println(color.toLowerCase() + " is already taken.");
+            outStream.println(SET_TEXT_COLOR_RED + color.toLowerCase() + " is already taken.");
+        } catch(DataAccessException e) {
+                outStream.println(SET_TEXT_COLOR_RED + "The game does not exist.");
         } catch(Exception e) {
             handleErrors(e, outStream, "create game");
         }
+        resetColors(outStream);
     }
 
     public void observeGame(PrintStream outStream, Scanner scanner) {
-        outStream.println("You can't observe a game yet.");
+        Integer id = getGameIdFromPlayer(outStream, scanner);
+        if (id==null) {return;}
+        outStream.println(SET_TEXT_COLOR_LIGHT_GREY + "You have joined game " + id + " as an observer.");
+        outStream.println("You can't observe a game yet, but here's a new board.");
+        printChessBoard(outStream, new ChessGame(), "WHITE");
+        resetColors(outStream);
     }
 }
