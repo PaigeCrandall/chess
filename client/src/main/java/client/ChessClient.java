@@ -94,8 +94,9 @@ public class ChessClient {
             outStream.println(SET_TEXT_COLOR_BLUE + "  observe game" + SET_TEXT_COLOR_WHITE +
                     SET_TEXT_ITALIC + " - create a new chess game");
         }
-        outStream.println(SET_TEXT_COLOR_BLUE + "  help" + SET_TEXT_COLOR_WHITE + SET_TEXT_ITALIC + " - see a list of possible commands that you can run");
-        outStream.println(SET_TEXT_COLOR_BLUE + "  quit" + SET_TEXT_COLOR_WHITE + SET_TEXT_ITALIC + " - exit the chess program");
+        outStream.println(SET_TEXT_COLOR_BLUE + "  help" + SET_TEXT_COLOR_WHITE + SET_TEXT_ITALIC +
+                " - see a list of possible commands that you can run");
+        outStream.println(SET_TEXT_COLOR_BLUE + "  quit" + SET_TEXT_COLOR_WHITE + SET_TEXT_ITALIC +" - exit the chess program");
         resetColors(outStream);
     }
 
