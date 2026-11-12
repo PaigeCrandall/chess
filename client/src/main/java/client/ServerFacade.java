@@ -38,27 +38,33 @@ public class ServerFacade {
         }
     }
 
-    public HttpResponse<String> postHTTP(String urlString, String jsonBody) throws Exception {
-        HttpRequest request = HttpRequest.newBuilder()
+    public void addAuthHeaderIfNeeded(HttpRequest.Builder builder, String headerValue) {
+        if (!headerValue.isEmpty()) {
+            builder.header("authorization", headerValue);
+        }
+    }
+
+    public HttpResponse<String> postHTTP(String urlString, String jsonBody, String headerValue) throws Exception {
+        HttpRequest.Builder builder = HttpRequest.newBuilder()
                 .uri(new URI(urlString))
                 .timeout(java.time.Duration.ofMillis(5000))
-                .header("Content-Type", "application/json")
-                .POST(HttpRequest.BodyPublishers.ofString(jsonBody))
-                .build();
+                .header("Content-Type", "application/json");
+
+        addAuthHeaderIfNeeded(builder, headerValue);
+        HttpRequest request = builder.POST(HttpRequest.BodyPublishers.ofString(jsonBody)).build();
 
         HttpResponse<String> httpResponse = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
         throwsExceptions(httpResponse.statusCode());
         return httpResponse;
     }
 
-    public void deleteHTTP(String urlString, String headerName, String headerValue) throws Exception {
+    public void deleteHTTP(String urlString, String headerValue) throws Exception {
         HttpRequest.Builder builder = HttpRequest.newBuilder()
                 .uri(new URI(urlString))
                 .timeout(java.time.Duration.ofMillis(5000))
                 .header("Content-Type", "application/json");
-        if (!headerName.isEmpty()&&!headerValue.isEmpty()) {
-            builder.header(headerName, headerValue);
-        }
+
+        addAuthHeaderIfNeeded(builder, headerValue);
         HttpRequest request = builder.DELETE().build();
 
         HttpResponse<String> httpResponse = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
@@ -67,7 +73,7 @@ public class ServerFacade {
 
     public void clear() throws Exception {
         String urlString = String.format(Locale.getDefault(), "%s/db", url);
-        deleteHTTP(urlString, "", "");
+        deleteHTTP(urlString, "");
     }
 
     public AuthData register(String username, String email, String password) throws Exception {
@@ -78,7 +84,7 @@ public class ServerFacade {
                 "password", password
         );
         var serializer = new Gson();
-        HttpResponse<String> httpResponse = postHTTP(urlString, serializer.toJson(body));
+        HttpResponse<String> httpResponse = postHTTP(urlString, serializer.toJson(body), "");
         return serializer.fromJson(httpResponse.body(), AuthData.class);
     }
 
@@ -89,24 +95,13 @@ public class ServerFacade {
                 "password", password
         );
         var serializer = new Gson();
-        HttpResponse<String> httpResponse = postHTTP(urlString, serializer.toJson(body));
+        HttpResponse<String> httpResponse = postHTTP(urlString, serializer.toJson(body), "");
         return serializer.fromJson(httpResponse.body(), AuthData.class);
     }
 
     public void logout(String authToken) throws Exception {
         String urlString = String.format(Locale.getDefault(), "%s/session", url);
-        deleteHTTP(urlString, "authorization", authToken);
-
-//        HttpRequest request = HttpRequest.newBuilder()
-//                .uri(new URI(urlString))
-//                .timeout(java.time.Duration.ofMillis(5000))
-//                .header("Content-Type", "application/json")
-//                .header("authorization", authToken)
-//                .DELETE()
-//                .build();
-//
-//        HttpResponse<String> httpResponse = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
-//        throwsExceptions(httpResponse.statusCode());
+        deleteHTTP(urlString, authToken);
     }
 
     public ListGamesResult listGames(String authToken) throws Exception {
@@ -128,10 +123,9 @@ public class ServerFacade {
 
     public CreateGameResult createGame(String gameName, String authToken) throws Exception {
         String urlString = String.format(Locale.getDefault(), "%s/game", url);
-        var body = Map.of("gameName", gameName );
+        var body = Map.of("gameName", gameName);
         var serializer = new Gson();
-
-        HttpResponse<String> httpResponse = postHTTP(urlString, serializer.toJson(body));
+        HttpResponse<String> httpResponse = postHTTP(urlString, serializer.toJson(body), authToken);
         return serializer.fromJson(httpResponse.body(), CreateGameResult.class);
     }
 
