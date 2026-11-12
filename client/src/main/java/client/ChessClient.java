@@ -101,7 +101,7 @@ public class ChessClient {
     }
 
     public void quit(PrintStream outStream) {
-        outStream.println("Bye!"); state = UserState.QUIT;
+        outStream.println(SET_TEXT_COLOR_WHITE + "Bye!"); state = UserState.QUIT;
     }
 
     public void login(PrintStream outStream, Scanner scanner) {
@@ -158,7 +158,14 @@ public class ChessClient {
                 int userFriendlyId = 1;
                 for (GameData game : games) {
                     listedGames.add(game);
-                    outStream.println(SET_TEXT_COLOR_WHITE + userFriendlyId + ". " + SET_TEXT_COLOR_BLUE + game.gameName());
+                    outStream.println(SET_TEXT_COLOR_WHITE + userFriendlyId + ". " +
+                            SET_TEXT_COLOR_BLUE + game.gameName() + SET_TEXT_COLOR_WHITE +
+                            "   white player: " + SET_TEXT_COLOR_MAGENTA + (game.whiteUsername()!=null?game.whiteUsername():"none")
+                            + SET_TEXT_COLOR_WHITE +
+                            "   black player: " + SET_TEXT_COLOR_MAGENTA + (game.blackUsername()!=null?game.blackUsername():"none")
+                    );
+                    resetColors(outStream);
+
                     userFriendlyId++;
                 }
             }
