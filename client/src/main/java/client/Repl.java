@@ -16,6 +16,35 @@ public class Repl {
         this.scanner = new Scanner(System.in);
     }
 
+    public boolean checkForBadGameplayInput(String[] words, PrintStream outStream) {
+        if ((words.length == 2) && (
+                (words[0].equals("move") && !words[1].matches("[a-g][1-8][a-g][1-8]")) ||
+                        (words[0].equals("highlight") && !words[1].matches("[a-g][1-8]")) ||
+                        !(words[0].equals("move")) && !(words[0].equals("highlight"))
+        ) || (words.length > 2)
+                || ((words[0].equals("move")||words[0].equals("highlight")) && (words.length < 2))
+        ) {
+            outStream.println(SET_TEXT_COLOR_RED + String.join(" ", words) + " is not a valid command."); client.help(outStream);
+            return true;
+        }
+        return false;
+    }
+
+    public void handleGameplayState(String input, PrintStream outStream) {
+        String[] words = input.trim().split("\\s+");
+        if (checkForBadGameplayInput( words, outStream)) {return;}
+        String command = words[0];
+        switch (command) {
+            case "redraw": outStream.println("Imagine a beautiful new chessboard is printed before your eyes."); break;
+            case "highlight": outStream.println("Show moves for: " + words[1]); break;
+            case "move": outStream.println("make move: " + words[1]); break;
+            case "leave": outStream.println("You are trying to leave the game."); break;
+            case "resign": outStream.println("You have now lost the game."); break;
+            case "help": client.help(outStream); break;
+            default: outStream.println(SET_TEXT_COLOR_RED + input + " is not a valid command."); client.help(outStream); break;
+        }
+    }
+
     public void handleLoggedOutState(String input, PrintStream outStream) {
         switch (input) {
             case "clear": client.clear(outStream, scanner); break;
@@ -54,11 +83,12 @@ public class Repl {
         while (!client.getState().equals(ChessClient.UserState.QUIT)) {
             outStream.print(SET_TEXT_COLOR_BLUE + ">> ");
             String input = scanner.nextLine().toLowerCase();
-            outStream.print(RESET_TEXT_ITALIC);
             if (client.getState().equals(ChessClient.UserState.LOGGED_OUT)) {
                 handleLoggedOutState(input, outStream);
-            } else {
+            } else if (client.getState().equals(ChessClient.UserState.LOGGED_IN)) {
                 handleLoggedInState(input, outStream);
+            } else if (client.getState().equals(ChessClient.UserState.GAMEPLAY)) {
+                handleGameplayState(input, outStream);
             }
         }
     }

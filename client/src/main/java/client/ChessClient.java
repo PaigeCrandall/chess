@@ -28,7 +28,8 @@ public class ChessClient {
     public enum UserState {
         QUIT,
         LOGGED_OUT,
-        LOGGED_IN
+        LOGGED_IN,
+        GAMEPLAY
     }
 
     public UserState getState() {
@@ -73,31 +74,60 @@ public class ChessClient {
         outStream.print(RESET_BG_COLOR + RESET_TEXT_COLOR + RESET_TEXT_BOLD_FAINT + RESET_TEXT_ITALIC);
     }
 
+    public void loggedOutHelp(PrintStream outStream) {
+        outStream.println(SET_TEXT_BOLD + SET_TEXT_COLOR_LIGHT_GREY +
+                "You are currently signed out. These are the commands you can run:" + SET_TEXT_FAINT);
+        outStream.println(SET_TEXT_COLOR_BLUE + "  login" +
+                SET_TEXT_COLOR_WHITE + SET_TEXT_ITALIC + " - sign in with a username and password");
+        outStream.println(SET_TEXT_COLOR_BLUE + "  register" +
+                SET_TEXT_COLOR_WHITE + SET_TEXT_ITALIC + " - create a new account");
+        outStream.println(SET_TEXT_COLOR_BLUE + "  quit" + SET_TEXT_COLOR_WHITE + SET_TEXT_ITALIC +" - exit the chess program");
+        resetColors(outStream);
+    }
+
+    public void loggedInHelp(PrintStream outStream) {
+        outStream.println(SET_TEXT_BOLD + SET_TEXT_COLOR_LIGHT_GREY + "You are currently signed in as " +
+                auth.username() + "! These are the commands you can run:" + SET_TEXT_FAINT);
+        outStream.println(SET_TEXT_COLOR_BLUE + "  logout" + SET_TEXT_COLOR_WHITE + SET_TEXT_ITALIC + " - sign out");
+        outStream.println(SET_TEXT_COLOR_BLUE + "  list games" +
+                SET_TEXT_COLOR_WHITE + SET_TEXT_ITALIC + " - view a list of all chess games");
+        outStream.println(SET_TEXT_COLOR_BLUE + "  create game" +
+                SET_TEXT_COLOR_WHITE + SET_TEXT_ITALIC + " - create a new chess game");
+        outStream.println(SET_TEXT_COLOR_BLUE + "  play game" +
+                SET_TEXT_COLOR_WHITE + SET_TEXT_ITALIC + " - create a new chess game");
+        outStream.println(SET_TEXT_COLOR_BLUE + "  observe game" + SET_TEXT_COLOR_WHITE +
+                SET_TEXT_ITALIC + " - create a new chess game");
+        outStream.println(SET_TEXT_COLOR_BLUE + "  quit" + SET_TEXT_COLOR_WHITE + SET_TEXT_ITALIC +" - exit the chess program");
+        resetColors(outStream);
+    }
+
+    public void gamePlayHelp(PrintStream outStream) {
+        outStream.println(SET_TEXT_BOLD + SET_TEXT_COLOR_LIGHT_GREY +
+                "You are playing a game. These are the commands you can run:" + SET_TEXT_FAINT);
+        outStream.println(SET_TEXT_COLOR_BLUE + "  redraw" +
+                SET_TEXT_COLOR_WHITE + SET_TEXT_ITALIC + " - refresh the board");
+        outStream.println(SET_TEXT_COLOR_BLUE + "  highlight {chess square}" +
+                SET_TEXT_COLOR_WHITE + SET_TEXT_ITALIC + " - show all possible moves that a piece could make (example: highlight e2)");
+        outStream.println(SET_TEXT_COLOR_BLUE + "  move {move}" +
+                SET_TEXT_COLOR_WHITE + SET_TEXT_ITALIC + " - move a chess piece (example: move e2e4)");
+        outStream.println(SET_TEXT_COLOR_BLUE + "  leave" +
+                SET_TEXT_COLOR_WHITE + SET_TEXT_ITALIC + " - exit the game");
+        outStream.println(SET_TEXT_COLOR_BLUE + "  resign" +
+                SET_TEXT_COLOR_WHITE + SET_TEXT_ITALIC + " - submit to the enemy player and admit defeat");
+    }
+
     public void help(PrintStream outStream) {
         if (state == UserState.LOGGED_OUT) {
-            outStream.println(SET_TEXT_BOLD + SET_TEXT_COLOR_LIGHT_GREY +
-                    "You are currently signed out. These are the commands you can run:" + SET_TEXT_FAINT);
-            outStream.println(SET_TEXT_COLOR_BLUE + "  login" +
-                    SET_TEXT_COLOR_WHITE + SET_TEXT_ITALIC + " - sign in with a username and password");
-            outStream.println(SET_TEXT_COLOR_BLUE + "  register" + SET_TEXT_COLOR_WHITE + SET_TEXT_ITALIC + " - create a new account");
+            loggedOutHelp(outStream);
         }
         else if (state == UserState.LOGGED_IN) {
-            outStream.println(SET_TEXT_BOLD + SET_TEXT_COLOR_LIGHT_GREY + "You are currently signed in as " +
-                    auth.username() + "! These are the commands you can run:" + SET_TEXT_FAINT);
-            outStream.println(SET_TEXT_COLOR_BLUE + "  logout" + SET_TEXT_COLOR_WHITE + SET_TEXT_ITALIC + " - sign out");
-            outStream.println(SET_TEXT_COLOR_BLUE + "  list games" +
-                    SET_TEXT_COLOR_WHITE + SET_TEXT_ITALIC + " - view a list of all chess games");
-            outStream.println(SET_TEXT_COLOR_BLUE + "  create game" +
-                    SET_TEXT_COLOR_WHITE + SET_TEXT_ITALIC + " - create a new chess game");
-            outStream.println(SET_TEXT_COLOR_BLUE + "  play game" +
-                    SET_TEXT_COLOR_WHITE + SET_TEXT_ITALIC + " - create a new chess game");
-            outStream.println(SET_TEXT_COLOR_BLUE + "  observe game" + SET_TEXT_COLOR_WHITE +
-                    SET_TEXT_ITALIC + " - create a new chess game");
+            loggedInHelp(outStream);
+        }
+        else if (state == UserState.GAMEPLAY) {
+            gamePlayHelp(outStream);
         }
         outStream.println(SET_TEXT_COLOR_BLUE + "  help" + SET_TEXT_COLOR_WHITE + SET_TEXT_ITALIC +
                 " - see a list of possible commands that you can run");
-        outStream.println(SET_TEXT_COLOR_BLUE + "  quit" + SET_TEXT_COLOR_WHITE + SET_TEXT_ITALIC +" - exit the chess program");
-        resetColors(outStream);
     }
 
     public void quit(PrintStream outStream) {
@@ -220,10 +250,13 @@ public class ChessClient {
             String color = getColorFromPlayer(outStream, scanner);
             if (color==null) {return;}
             try {
+
                 facade.joinGame(id, color, auth.authToken());
+                state = UserState.GAMEPLAY;
                 outStream.println(SET_TEXT_COLOR_LIGHT_GREY + "You have joined game " + id + " as " + color.toLowerCase() + "!");
                 outStream.println("You can't play a game yet, but here's a new board from the " + color.toLowerCase() + " perspective.");
                 printChessBoard(outStream, new ChessGame(), color);
+
             } catch(AlreadyTakenException e) {
                 outStream.println(SET_TEXT_COLOR_RED + color.toLowerCase() + " is already taken.");
             } catch(DataAccessException e) {
