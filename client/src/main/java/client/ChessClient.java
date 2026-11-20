@@ -14,13 +14,12 @@ import java.util.Scanner;
 
 import static ui.EscapeSequences.*;
 
-public class ChessClient {
+public class ChessClient implements NotificationHandler {
     public ServerFacade facade;
     public ChessClient.UserState state;
     public AuthData auth;
     public ArrayList<GameData> listedGames;
     PrintStream outStream;
-
 
     ChessClient(String serverUrl, PrintStream printLocation) {
         this.facade = new ServerFacade(serverUrl);
@@ -216,7 +215,7 @@ public class ChessClient {
         outStream.print(SET_TEXT_ITALIC + SET_TEXT_COLOR_BLUE + "Give your game a snazzy title: " + RESET_TEXT_ITALIC);
         String name = scanner.nextLine();
         try {
-            int gameID = facade.createGame(name, auth.authToken()).gameID();
+            facade.createGame(name, auth.authToken());
             outStream.println(SET_TEXT_COLOR_WHITE + "Created 1 new game.");
         } catch(Exception e) { handleErrors(e, "create game"); }
     }
@@ -253,7 +252,6 @@ public class ChessClient {
     }
 
     public void playGame() {
-        Scanner scanner = new Scanner(System.in);
         if (listedGames.isEmpty()) {
             outStream.println(SET_TEXT_COLOR_LIGHT_GREY + "Type list games first to see the available games");
         }
@@ -282,7 +280,6 @@ public class ChessClient {
     }
 
     public void observeGame() {
-        Scanner scanner = new Scanner(System.in);
         if (listedGames.isEmpty()) {
             outStream.println(SET_TEXT_COLOR_LIGHT_GREY + "Type list games first to see the available games");
         }
