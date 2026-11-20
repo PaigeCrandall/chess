@@ -10,9 +10,11 @@ import static ui.EscapeSequences.*;
 public class Repl {
     public ChessClient client;
     public Scanner scanner;
+    PrintStream outStream;
 
     public Repl(String serverUrl) {
-        this.client = new ChessClient(serverUrl);
+        this.outStream = System.out;
+        this.client = new ChessClient(serverUrl, outStream);
         this.scanner = new Scanner(System.in);
     }
 
@@ -24,13 +26,13 @@ public class Repl {
         ) || (words.length > 2)
                 || ((words[0].equals("move")||words[0].equals("highlight")) && (words.length < 2))
         ) {
-            outStream.println(SET_TEXT_COLOR_RED + String.join(" ", words) + " is not a valid command."); client.help(outStream);
+            outStream.println(SET_TEXT_COLOR_RED + String.join(" ", words) + " is not a valid command."); client.help();
             return true;
         }
         return false;
     }
 
-    public void handleGameplayState(String input, PrintStream outStream) {
+    public void handleGameplayState(String input) {
         String[] words = input.trim().split("\\s+");
         if (checkForBadGameplayInput( words, outStream)) {return;}
         String command = words[0];
@@ -40,33 +42,33 @@ public class Repl {
             case "move": outStream.println("make move: " + words[1]); break;
             case "leave": outStream.println("You are trying to leave the game."); break;
             case "resign": outStream.println("You have now lost the game."); break;
-            case "help": client.help(outStream); break;
-            default: outStream.println(SET_TEXT_COLOR_RED + input + " is not a valid command."); client.help(outStream); break;
+            case "help": client.help(); break;
+            default: outStream.println(SET_TEXT_COLOR_RED + input + " is not a valid command."); client.help(); break;
         }
     }
 
-    public void handleLoggedOutState(String input, PrintStream outStream) {
+    public void handleLoggedOutState(String input) {
         switch (input) {
-            case "clear": client.clear(outStream, scanner); break;
-            case "login": client.login(outStream, scanner); break;
-            case "register": client.register(outStream, scanner); break;
-            case "help": client.help(outStream); break;
-            case "quit": client.quit(outStream); break;
-            default: outStream.println(SET_TEXT_COLOR_RED + input + " is not a valid command."); client.help(outStream); break;
+            case "clear": client.clear(); break;
+            case "login": client.login(); break;
+            case "register": client.register(); break;
+            case "help": client.help(); break;
+            case "quit": client.quit(); break;
+            default: outStream.println(SET_TEXT_COLOR_RED + input + " is not a valid command."); client.help(); break;
         }
     }
 
-    public void handleLoggedInState(String input, PrintStream outStream) {
+    public void handleLoggedInState(String input) {
         switch (input) {
-            case "clear": client.clear(outStream, scanner); break;
-            case "logout": client.logout(outStream); break;
-            case "list games": client.listGames(outStream); break;
-            case "create game": client.createGame(outStream, scanner); break;
-            case "play game": client.playGame(outStream, scanner); break;
-            case "observe game": client.observeGame(outStream, scanner); break;
-            case "help": client.help(outStream); break;
-            case "quit": client.quit(outStream); break;
-            default: outStream.println(SET_TEXT_COLOR_RED + input + " is not a valid command."); client.help(outStream); break;
+            case "clear": client.clear(); break;
+            case "logout": client.logout(); break;
+            case "list games": client.listGames(); break;
+            case "create game": client.createGame(); break;
+            case "play game": client.playGame(); break;
+            case "observe game": client.observeGame(); break;
+            case "help": client.help(); break;
+            case "quit": client.quit(); break;
+            default: outStream.println(SET_TEXT_COLOR_RED + input + " is not a valid command."); client.help(); break;
         }
     }
 
@@ -84,11 +86,11 @@ public class Repl {
             outStream.print(SET_TEXT_COLOR_BLUE + ">> ");
             String input = scanner.nextLine().toLowerCase();
             if (client.getState().equals(ChessClient.UserState.LOGGED_OUT)) {
-                handleLoggedOutState(input, outStream);
+                handleLoggedOutState(input);
             } else if (client.getState().equals(ChessClient.UserState.LOGGED_IN)) {
-                handleLoggedInState(input, outStream);
+                handleLoggedInState(input);
             } else if (client.getState().equals(ChessClient.UserState.GAMEPLAY)) {
-                handleGameplayState(input, outStream);
+                handleGameplayState(input);
             }
         }
     }
