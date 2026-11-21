@@ -6,6 +6,7 @@ import io.javalin.*;
 import service.AdminService;
 import service.GameService;
 import service.UserService;
+import websocket.WebSocketHandler;
 
 public class Server {
 
@@ -15,6 +16,8 @@ public class Server {
         javalin = Javalin.create(config -> config.staticFiles.add("web"));
         try {
             DataAccess dataAccess = new SqlDataAccess();
+
+            WebSocketHandler webSocketHandler = new WebSocketHandler();
 
             AdminService adminService = new AdminService(dataAccess);
             AdminHandler adminHandler = new AdminHandler(adminService);
@@ -32,6 +35,11 @@ public class Server {
             javalin.get("/game", gameHandler::getAllGames); // list games
             javalin.put("/game", gameHandler::joinGame); // join games
 
+            javalin.ws("/ws", ws -> {
+                ws.onConnect(webSocketHandler);
+                ws.onMessage(webSocketHandler);
+                ws.onClose(webSocketHandler);
+            });
 
         } catch (Exception e) {
             System.out.println("There was a problem getting the server and dataAccess started.\n" + e);

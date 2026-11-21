@@ -26,12 +26,23 @@ public class WebSocketFacade extends Endpoint {
             this.session.addMessageHandler(new MessageHandler.Whole<String>() {
                 @Override
                 public void onMessage(String message) {
-                    ServerMessage notification = new Gson().fromJson(message, ServerMessage.class);
+//                  ServerMessage notification = new Gson().fromJson(message, ServerMessage.class);
+                    ServerMessage notification = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION, message);
                     notificationHandler.notify(notification);
                 }
             });
         } catch (DeploymentException | IOException | URISyntaxException ex) {
             throw new Exception(ex.getMessage());
+        }
+    }
+
+    // here would be methods for connect, resign, leave, move
+    public void sendHello(String greeting) {
+        try {
+            this.session.getBasicRemote().sendText(greeting);
+        }
+        catch (Exception e) {
+            System.out.println("error in sending greeting");
         }
     }
 

@@ -40,9 +40,14 @@ public class ServerFacade {
         return httpHandler.createGame(gameName, authToken);
     }
 
-    public void joinGame(Integer gameID, String color, String authToken, ServerMessageObserver notificationHandler) throws Exception {
+    public void joinGame(Integer gameID, String color, String authToken) throws Exception {
         httpHandler.joinGame(gameID, color, authToken);
+    }
+
+    public void sendHelloWS(Integer gameID, ServerMessageObserver notificationHandler) throws Exception {
         wsHandler = new WebSocketFacade(url, notificationHandler);
+        String hello = "hello! -Client"; // usually I would send a UseCommand
+        wsHandler.sendHello(hello);
     }
 
 }

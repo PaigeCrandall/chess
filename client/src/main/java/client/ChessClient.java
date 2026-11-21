@@ -19,6 +19,9 @@ public class ChessClient implements ServerMessageObserver {
     public ChessClient.UserState state;
     public AuthData auth;
     public ArrayList<GameData> listedGames;
+
+    public GameData currentGame;
+    public ChessGame.TeamColor color;
     PrintStream outStream;
 
     ChessClient(String serverUrl, PrintStream printLocation) {
@@ -27,7 +30,8 @@ public class ChessClient implements ServerMessageObserver {
         this.auth = null;
         this.listedGames = new ArrayList<>();
         this.outStream = printLocation;
-
+        this.currentGame = null;
+        this.color=null;
     }
 
     public enum UserState {
@@ -39,6 +43,10 @@ public class ChessClient implements ServerMessageObserver {
 
     public UserState getState() {
         return state;
+    }
+
+    public ChessGame.TeamColor getColor() {
+        return color;
     }
 
     public void handleErrors(Exception e, String command) {
@@ -262,11 +270,15 @@ public class ChessClient implements ServerMessageObserver {
             if (color==null) {return;}
             try {
 
-                facade.joinGame(id, color, auth.authToken(), this);
-                state = UserState.GAMEPLAY;
+                facade.joinGame(id, color, auth.authToken());
+                this.color = (color.equals("WHITE") ? ChessGame.TeamColor.WHITE : ChessGame.TeamColor.BLACK);
                 outStream.println(SET_TEXT_COLOR_LIGHT_GREY + "You have joined game " + id + " as " + color.toLowerCase() + "!");
+
                 outStream.println("You can't play a game yet, but here's a new board from the " + color.toLowerCase() + " perspective.");
                 printChessBoard(new ChessGame(), color);
+
+                facade.sendHelloWS(id, this);
+                state = UserState.GAMEPLAY;
 
             } catch(AlreadyTakenException e) {
                 outStream.println(SET_TEXT_COLOR_RED + color.toLowerCase() + " is already taken.");
@@ -296,18 +308,21 @@ public class ChessClient implements ServerMessageObserver {
     }
 
     public void notify(ServerMessage message) {
-        if (message.getServerMessageType()==ServerMessage.ServerMessageType.NOTIFICATION) {
-            outStream.println(SET_TEXT_COLOR_BLUE + SET_TEXT_ITALIC);
-            outStream.println(message.getMessage());
+        synchronized (System.out) {
+            outStream.print("\r");
+            if (message.getServerMessageType() == ServerMessage.ServerMessageType.NOTIFICATION) {
+                outStream.println(SET_TEXT_COLOR_BLUE + SET_TEXT_ITALIC);
+                outStream.println(message.getServerMessage());
+            } else if (message.getServerMessageType() == ServerMessage.ServerMessageType.ERROR) {
+                outStream.println(SET_TEXT_COLOR_RED + SET_TEXT_ITALIC);
+                outStream.println(message.getServerMessage());
+            } else if (message.getServerMessageType() == ServerMessage.ServerMessageType.LOAD_GAME) {
+                outStream.println(SET_TEXT_COLOR_RED + SET_TEXT_ITALIC + "now we should print the game:" + SET_TEXT_COLOR_WHITE);
+                outStream.println(message.getServerMessage());
+            }
+            resetColors();
+            outStream.print(SET_TEXT_COLOR_RED + WHITE_KING + SET_TEXT_COLOR_WHITE + ">> ");
+            outStream.flush();
         }
-        else if (message.getServerMessageType()==ServerMessage.ServerMessageType.ERROR) {
-            outStream.println(SET_TEXT_COLOR_RED + SET_TEXT_ITALIC);
-            outStream.println(message.getMessage());
-        }
-        else if (message.getServerMessageType()==ServerMessage.ServerMessageType.LOAD_GAME) {
-            outStream.println(SET_TEXT_COLOR_RED + SET_TEXT_ITALIC + "now we should print the game:");
-            outStream.println(message.getMessage());
-        }
-        resetColors();
     }
 }

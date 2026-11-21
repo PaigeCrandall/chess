@@ -1,6 +1,7 @@
 package client;
 
 import chess.ChessBoard;
+import chess.ChessGame;
 
 import java.io.PrintStream;
 import java.util.Scanner;
@@ -77,13 +78,24 @@ public class Repl {
         board.resetBoard();
         ChessBoardRender renderer = new ChessBoardRender(System.out, board, "BLACK", "Chess Board");
         renderer.printBoardFromBlackPerspective();
-        System.out.println(SET_TEXT_BOLD + SET_TEXT_COLOR_BLUE + "   " + WHITE_KING +
+        outStream.println(SET_TEXT_BOLD + SET_TEXT_COLOR_BLUE + "   " + WHITE_KING +
                 SET_TEXT_COLOR_WHITE + "Welcome to Chess!"
                 + SET_TEXT_COLOR_BLUE + WHITE_KING
                 + RESET_TEXT_BOLD_FAINT);
 
         while (!client.getState().equals(ChessClient.UserState.QUIT)) {
-            outStream.print(SET_TEXT_COLOR_BLUE + ">> ");
+            if (client.getState().equals(ChessClient.UserState.GAMEPLAY)) {
+                if (client.getColor()== ChessGame.TeamColor.WHITE) {
+                    outStream.print(SET_TEXT_COLOR_BLUE);
+                }
+                else if (client.getColor()== ChessGame.TeamColor.BLACK) {
+                    outStream.print(SET_TEXT_COLOR_RED);
+                }
+                outStream.println(WHITE_KING + SET_TEXT_COLOR_WHITE + " >> ");
+            }
+            else {
+                outStream.print(SET_TEXT_COLOR_BLUE + ">> ");
+            }
             String input = scanner.nextLine().toLowerCase();
             if (client.getState().equals(ChessClient.UserState.LOGGED_OUT)) {
                 handleLoggedOutState(input);
