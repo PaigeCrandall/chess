@@ -7,12 +7,15 @@ import model.results.*;
 public class ServerFacade {
     HttpFacade httpHandler;
     WebSocketFacade wsHandler;
+    String url;
 
     public ServerFacade(String serverUrl) {
-        this.httpHandler = new HttpFacade(serverUrl);
-        this.wsHandler = new WebSocketFacade(serverUrl);
+        this.url = serverUrl;
+        this.httpHandler = new HttpFacade(url);
+        this.wsHandler = null;
     }
 
+    // endpoints
     public void clear() throws Exception {
         httpHandler.clear();
     }
@@ -37,8 +40,9 @@ public class ServerFacade {
         return httpHandler.createGame(gameName, authToken);
     }
 
-    public void joinGame(Integer gameID, String color, String authToken) throws Exception {
+    public void joinGame(Integer gameID, String color, String authToken, ServerMessageObserver notificationHandler) throws Exception {
         httpHandler.joinGame(gameID, color, authToken);
+        wsHandler = new WebSocketFacade(url, notificationHandler);
     }
 
 }

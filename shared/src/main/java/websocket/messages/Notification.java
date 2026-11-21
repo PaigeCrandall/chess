@@ -5,6 +5,7 @@ import com.google.gson.Gson;
 public record Notification(Type type, String message) {
     public enum Type {
         MESSAGE,
-        ERROR
+        ERROR,
+        CHESSGAME_JSON
     }
 }

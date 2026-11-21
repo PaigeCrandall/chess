@@ -5,7 +5,7 @@ import exceptions.*;
 import model.AuthData;
 import model.GameData;
 import model.results.ListGamesResult;
-import websocket.messages.Notification;
+import websocket.messages.ServerMessage;
 
 import java.io.PrintStream;
 import java.net.ConnectException;
@@ -14,7 +14,7 @@ import java.util.Scanner;
 
 import static ui.EscapeSequences.*;
 
-public class ChessClient implements NotificationHandler {
+public class ChessClient implements ServerMessageObserver {
     public ServerFacade facade;
     public ChessClient.UserState state;
     public AuthData auth;
@@ -262,7 +262,7 @@ public class ChessClient implements NotificationHandler {
             if (color==null) {return;}
             try {
 
-                facade.joinGame(id, color, auth.authToken());
+                facade.joinGame(id, color, auth.authToken(), this);
                 state = UserState.GAMEPLAY;
                 outStream.println(SET_TEXT_COLOR_LIGHT_GREY + "You have joined game " + id + " as " + color.toLowerCase() + "!");
                 outStream.println("You can't play a game yet, but here's a new board from the " + color.toLowerCase() + " perspective.");
@@ -295,14 +295,19 @@ public class ChessClient implements NotificationHandler {
         resetColors();
     }
 
-    public void notify(Notification notification) {
-        if (notification.type()== Notification.Type.MESSAGE) {
+    public void notify(ServerMessage message) {
+        if (message.getServerMessageType()==ServerMessage.ServerMessageType.NOTIFICATION) {
             outStream.println(SET_TEXT_COLOR_BLUE + SET_TEXT_ITALIC);
+            outStream.println(message.getMessage());
         }
-        else if (notification.type()== Notification.Type.ERROR) {
+        else if (message.getServerMessageType()==ServerMessage.ServerMessageType.ERROR) {
             outStream.println(SET_TEXT_COLOR_RED + SET_TEXT_ITALIC);
+            outStream.println(message.getMessage());
         }
-        outStream.println(notification.message());
+        else if (message.getServerMessageType()==ServerMessage.ServerMessageType.LOAD_GAME) {
+            outStream.println(SET_TEXT_COLOR_RED + SET_TEXT_ITALIC + "now we should print the game:");
+            outStream.println(message.getMessage());
+        }
         resetColors();
     }
 }
