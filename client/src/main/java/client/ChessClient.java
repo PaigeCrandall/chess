@@ -294,7 +294,7 @@ public class ChessClient implements ServerMessageObserver {
             } catch(DataAccessException e) {
                 outStream.println(SET_TEXT_COLOR_RED + "The game does not exist.");
             } catch(Exception e) {
-                handleErrors(e, "create game");
+                handleErrors(e, "play game");
             }
         }
         resetColors();
@@ -305,12 +305,19 @@ public class ChessClient implements ServerMessageObserver {
             outStream.println(SET_TEXT_COLOR_LIGHT_GREY + "Type list games first to see the available games");
         }
         else {
-            Integer id = getGameIdFromPlayer();
-            if (id == null) {
-                return;
+            try {
+                Integer id = getGameIdFromPlayer();
+                if (id == null) { return; }
+                this.color = ChessGame.TeamColor.WHITE;
+                facade.wsConnect(id, this, auth.authToken());
+                state = UserState.GAMEPLAY;
+                outStream.println(SET_TEXT_COLOR_LIGHT_GREY + "You have joined game " + id + " as an observer.");
+
+            } catch(DataAccessException e) {
+                outStream.println(SET_TEXT_COLOR_RED + "The game does not exist.");
+            } catch(Exception e) {
+                handleErrors(e, "play game");
             }
-            outStream.println(SET_TEXT_COLOR_LIGHT_GREY + "You have joined game " + id + " as an observer.");
-            outStream.println("You can't observe a game yet.");
         }
         resetColors();
     }
