@@ -17,7 +17,7 @@ public class Server {
         try {
             DataAccess dataAccess = new SqlDataAccess();
 
-            WebSocketHandler webSocketHandler = new WebSocketHandler();
+            WebSocketHandler webSocketHandler = new WebSocketHandler(dataAccess);
 
             AdminService adminService = new AdminService(dataAccess);
             AdminHandler adminHandler = new AdminHandler(adminService);

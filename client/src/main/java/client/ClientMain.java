@@ -7,7 +7,7 @@ public class ClientMain {
 
         String serverUrl = (args.length > 0) ? args[0] : "http://localhost:8080";
 
-        Repl repl = new Repl(serverUrl);
-        repl.runInteractions(System.out);
+        Repl repl = new Repl(serverUrl, System.out);
+        repl.runInteractions();
     }
 }

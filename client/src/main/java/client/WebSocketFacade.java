@@ -2,6 +2,7 @@ package client;
 
 import com.google.gson.Gson;
 import jakarta.websocket.*;
+import websocket.commands.UserGameCommand;
 import websocket.messages.Notification;
 import websocket.messages.ServerMessage;
 
@@ -36,6 +37,10 @@ public class WebSocketFacade extends Endpoint {
         }
     }
 
+    @Override
+    public void onOpen(Session session, EndpointConfig endpointConfig) {
+    }
+
     // here would be methods for connect, resign, leave, move
     public void sendHello(String greeting) {
         try {
@@ -46,8 +51,16 @@ public class WebSocketFacade extends Endpoint {
         }
     }
 
-    @Override
-    public void onOpen(Session session, EndpointConfig endpointConfig) {
+    public void sendConnectRequest(int gameId, String authToken) {
+        try {
+            UserGameCommand connectCommand = new UserGameCommand(UserGameCommand.CommandType.CONNECT, authToken, gameId);
+            String jsonCommand = new Gson().toJson(connectCommand);
+            this.session.getBasicRemote().sendText(jsonCommand);
+        }
+        catch (Exception e) {
+            System.out.println("error in sending greeting");
+        }
     }
+
 
 }

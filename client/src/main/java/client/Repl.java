@@ -13,8 +13,8 @@ public class Repl {
     public Scanner scanner;
     PrintStream outStream;
 
-    public Repl(String serverUrl) {
-        this.outStream = System.out;
+    public Repl(String serverUrl, PrintStream out) {
+        this.outStream = out;
         this.client = new ChessClient(serverUrl, outStream);
         this.scanner = new Scanner(System.in);
     }
@@ -73,7 +73,7 @@ public class Repl {
         }
     }
 
-    public void runInteractions(PrintStream outStream) {
+    public void printTitle() {
         ChessBoard board = new ChessBoard();
         board.resetBoard();
         ChessBoardRender renderer = new ChessBoardRender(System.out, board, "BLACK", "Chess Board");
@@ -82,21 +82,15 @@ public class Repl {
                 SET_TEXT_COLOR_WHITE + "Welcome to Chess!"
                 + SET_TEXT_COLOR_BLUE + WHITE_KING
                 + RESET_TEXT_BOLD_FAINT);
+    }
 
+    public void runInteractions() {
+        printTitle();
         while (!client.getState().equals(ChessClient.UserState.QUIT)) {
-            if (client.getState().equals(ChessClient.UserState.GAMEPLAY)) {
-                if (client.getColor()== ChessGame.TeamColor.WHITE) {
-                    outStream.print(SET_TEXT_COLOR_BLUE);
-                }
-                else if (client.getColor()== ChessGame.TeamColor.BLACK) {
-                    outStream.print(SET_TEXT_COLOR_RED);
-                }
-                outStream.println(WHITE_KING + SET_TEXT_COLOR_WHITE + " >> ");
-            }
-            else {
-                outStream.print(SET_TEXT_COLOR_BLUE + ">> ");
-            }
+
+            client.printUserPromptBasedOnStateAndColor();
             String input = scanner.nextLine().toLowerCase();
+
             if (client.getState().equals(ChessClient.UserState.LOGGED_OUT)) {
                 handleLoggedOutState(input);
             } else if (client.getState().equals(ChessClient.UserState.LOGGED_IN)) {
@@ -104,6 +98,7 @@ public class Repl {
             } else if (client.getState().equals(ChessClient.UserState.GAMEPLAY)) {
                 handleGameplayState(input);
             }
+
         }
     }
 

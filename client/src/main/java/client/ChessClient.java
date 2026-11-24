@@ -88,6 +88,16 @@ public class ChessClient implements ServerMessageObserver {
         outStream.print(RESET_BG_COLOR + RESET_TEXT_COLOR + RESET_TEXT_BOLD_FAINT + RESET_TEXT_ITALIC);
     }
 
+    public String getIcon() {
+        if (color.equals(ChessGame.TeamColor.BLACK)) {
+            return (SET_TEXT_COLOR_RED + BLACK_KING);
+        }
+        else if (color.equals(ChessGame.TeamColor.WHITE)) {
+            return (SET_TEXT_COLOR_BLUE + WHITE_KING);
+        }
+        return (SET_TEXT_COLOR_WHITE + BLACK_KNIGHT);
+    }
+
     public void loggedOutHelp() {
         outStream.println(SET_TEXT_BOLD + SET_TEXT_COLOR_LIGHT_GREY +
                 "You are currently signed out. These are the commands you can run:" + SET_TEXT_FAINT);
@@ -278,6 +288,7 @@ public class ChessClient implements ServerMessageObserver {
                 printChessBoard(new ChessGame(), color);
 
                 facade.sendHelloWS(id, this);
+                facade.wsConnect(id, this, auth.authToken());
                 state = UserState.GAMEPLAY;
 
             } catch(AlreadyTakenException e) {
@@ -307,9 +318,18 @@ public class ChessClient implements ServerMessageObserver {
         resetColors();
     }
 
+    public void printUserPromptBasedOnStateAndColor() {
+        if (state.equals(ChessClient.UserState.GAMEPLAY)) {
+            outStream.print(getIcon() + SET_TEXT_COLOR_WHITE + " >> ");
+        }
+        else {
+            outStream.print(SET_TEXT_COLOR_BLUE + ">> ");
+        }
+    }
+
     public void notify(ServerMessage message) {
         synchronized (System.out) {
-            outStream.print("\r");
+            outStream.print("\n");
             if (message.getServerMessageType() == ServerMessage.ServerMessageType.NOTIFICATION) {
                 outStream.println(SET_TEXT_COLOR_BLUE + SET_TEXT_ITALIC);
                 outStream.println(message.getServerMessage());
@@ -321,8 +341,8 @@ public class ChessClient implements ServerMessageObserver {
                 outStream.println(message.getServerMessage());
             }
             resetColors();
-            outStream.print(SET_TEXT_COLOR_RED + WHITE_KING + SET_TEXT_COLOR_WHITE + ">> ");
             outStream.flush();
+            printUserPromptBasedOnStateAndColor();
         }
     }
 }

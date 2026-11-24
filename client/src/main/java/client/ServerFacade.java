@@ -50,4 +50,9 @@ public class ServerFacade {
         wsHandler.sendHello(hello);
     }
 
+    public void wsConnect(Integer gameID, ServerMessageObserver notificationHandler, String authToken) throws Exception {
+        wsHandler = new WebSocketFacade(url, notificationHandler);
+        wsHandler.sendConnectRequest(gameID, authToken);
+    }
+
 }
