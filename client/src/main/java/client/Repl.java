@@ -21,8 +21,8 @@ public class Repl {
 
     public boolean checkForBadGameplayInput(String[] words, PrintStream outStream) {
         if ((words.length == 2) && (
-                (words[0].equals("move") && !words[1].matches("[a-g][1-8][a-g][1-8]")) ||
-                        (words[0].equals("highlight") && !words[1].matches("[a-g][1-8]")) ||
+                (words[0].equals("move") && !words[1].matches("[a-h][1-8][a-h][1-8]")) ||
+                        (words[0].equals("highlight") && !words[1].matches("[a-h][1-8]")) ||
                         !(words[0].equals("move")) && !(words[0].equals("highlight"))
         ) || (words.length > 2)
                 || ((words[0].equals("move")||words[0].equals("highlight")) && (words.length < 2))
@@ -41,7 +41,7 @@ public class Repl {
             case "redraw": client.printChessBoard();; break;
             case "highlight": client.printChessBoardHighlighted(words[1]); break;
             case "move": outStream.println("make move: " + words[1]); break;
-            case "leave": outStream.println("You are trying to leave the game."); break;
+            case "leave": client.leave(); break;
             case "resign": client.resign(); break;
             case "help": client.help(); break;
             default: outStream.println(SET_TEXT_COLOR_RED + input + " is not a valid command."); client.help(); break;

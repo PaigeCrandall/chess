@@ -9,6 +9,7 @@ import model.GameData;
 import model.results.ListGamesResult;
 import websocket.messages.ServerMessage;
 
+import java.io.OutputStream;
 import java.io.PrintStream;
 import java.lang.reflect.Array;
 import java.net.ConnectException;
@@ -23,11 +24,11 @@ public class ChessClient implements ServerMessageObserver {
     public ChessClient.UserState state;
     public AuthData auth;
     public String username;
+    PrintStream outStream;
     public ArrayList<GameData> listedGames;
 
     public GameData currentGame;
     public ChessGame.TeamColor color;
-    PrintStream outStream;
 
     ChessClient(String serverUrl, PrintStream printLocation) {
         this.facade = new ServerFacade(serverUrl);
@@ -311,7 +312,7 @@ public class ChessClient implements ServerMessageObserver {
 
     public void playGame() {
         if (listedGames.isEmpty()) {
-            outStream.println(SET_TEXT_COLOR_LIGHT_GREY + "Type list games first to see the available games");
+            outStream.println(SET_TEXT_COLOR_LIGHT_GREY + "Type 'list games' first to see the available games");
         }
         else {
             Integer id = getGameIdFromPlayer();
@@ -340,7 +341,7 @@ public class ChessClient implements ServerMessageObserver {
 
     public void observeGame() {
         if (listedGames.isEmpty()) {
-            outStream.println(SET_TEXT_COLOR_LIGHT_GREY + "Type list games first to see the available games");
+            outStream.println(SET_TEXT_COLOR_LIGHT_GREY + "Type 'list games' first to see the available games");
         }
         else {
             try {
@@ -374,7 +375,7 @@ public class ChessClient implements ServerMessageObserver {
         Scanner scanner = new Scanner(System.in);
         if (currentGame.whiteUsername()==null ||
                 (color==ChessGame.TeamColor.WHITE&&!currentGame.whiteUsername().equals(username))) {
-            outStream.println(SET_TEXT_COLOR_LIGHT_GREY + "Observers cannot resign. Type leave to exit the game.");
+            outStream.println(SET_TEXT_COLOR_LIGHT_GREY + "Observers cannot resign. Type 'leave' to exit the game.");
             return;
         }
         if (currentGame.winner()!=null) {
@@ -392,6 +393,20 @@ public class ChessClient implements ServerMessageObserver {
                 winner = currentGame.whiteUsername();
             }
             markGameDone(winner);
+        }
+    }
+
+    public void leave() {
+        try {
+            facade.leaveGame(auth.authToken(), currentGame.gameID());
+            currentGame = null;
+            color = null;
+
+            state = UserState.LOGGED_IN;
+            outStream.println(SET_TEXT_COLOR_LIGHT_GREY + "You have left the game.");
+        }
+        catch(UnauthorizedException e) {
+            outStream.println(SET_TEXT_COLOR_RED + "You cannot leave a game that you have not joined.");
         }
     }
 

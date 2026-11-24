@@ -55,4 +55,13 @@ public class ServerFacade {
         wsHandler.sendConnectRequest(gameID, authToken);
     }
 
+    public void leaveGame(String authToken, int gameId) throws UnauthorizedException {
+        if (wsHandler!= null) {
+            wsHandler.sendLeaveGameRequest(authToken, gameId);
+        }
+        else {
+            throw new UnauthorizedException("User tried to leave a game that they were not playing");
+        }
+    }
+
 }

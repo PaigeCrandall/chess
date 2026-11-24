@@ -24,7 +24,7 @@ public class WebSocketHandler  implements WsConnectHandler, WsMessageHandler, Ws
 
     @Override
     public void handleConnect(WsConnectContext ctx) {
-        System.out.println("Websocket connected");
+        System.out.print("Websocket connected :)\n");
         ctx.enableAutomaticPings();
     }
 
@@ -34,13 +34,14 @@ public class WebSocketHandler  implements WsConnectHandler, WsMessageHandler, Ws
         UserGameCommand userCommand = new Gson().fromJson(jsonCommand, UserGameCommand.class);
 //        System.out.println(ctx.message());
         try {
-            if (userCommand.getCommandType().equals(UserGameCommand.CommandType.CONNECT)) {
-                connectUser(userCommand, ctx.session);
+            switch(userCommand.getCommandType()) {
+                case UserGameCommand.CommandType.CONNECT: connectUser(userCommand, ctx.session); break;
+                case UserGameCommand.CommandType.LEAVE: removeUserFromGame(userCommand, ctx.session); break;
             }
-//          session.getRemote().sendString("Hell back -WS");
+        } catch (UnauthorizedException e) {
+            System.out.println("Error: Unauthorized " + e);
         } catch (Exception e) {
-            System.out.println("there was a problem sending hello back from server");
-            System.out.println(e);
+            System.out.println("Error sending message back from server " + e);
         }
     }
 
@@ -53,10 +54,12 @@ public class WebSocketHandler  implements WsConnectHandler, WsMessageHandler, Ws
         String username = dataAccess.getAuthData(command.getAuthToken()).username();
         UserConnection.Role role = UserConnection.Role.OBSERVER;
         if (((dataAccess.getGame(command.getGameID()).whiteUsername()!=null) &&
-                (dataAccess.getGame(command.getGameID()).whiteUsername().equals(dataAccess.getAuthData(command.getAuthToken()).username()))) ||
-                ((dataAccess.getGame(command.getGameID()).blackUsername()!=null) &&
-                (dataAccess.getGame(command.getGameID()).blackUsername().equals(dataAccess.getAuthData(command.getAuthToken()).username())))) {
-            role = UserConnection.Role.PLAYER;
+                (dataAccess.getGame(command.getGameID()).whiteUsername().equals(dataAccess.getAuthData(command.getAuthToken()).username())))) {
+            role = UserConnection.Role.WHITE_PLAYER;
+        }
+        if ((dataAccess.getGame(command.getGameID()).blackUsername()!=null) &&
+                (dataAccess.getGame(command.getGameID()).blackUsername().equals(dataAccess.getAuthData(command.getAuthToken()).username()))) {
+            role = UserConnection.Role.BLACK_PLAYER;
         }
         UserConnection userConnection = new UserConnection(username, command.getAuthToken(), role, session);
         userConnections.add(command.getGameID(), userConnection);
@@ -69,21 +72,77 @@ public class WebSocketHandler  implements WsConnectHandler, WsMessageHandler, Ws
         userToSendTo.send(loadGame);
     }
 
-
-    public void connectUser(UserGameCommand command, Session session) throws Exception {
+    public void checkUserPermissions(UserGameCommand command) throws Exception {
         if ((dataAccess.getAuthData(command.getAuthToken())==null)||(dataAccess.getGame(command.getGameID())==null)) {
             throw new UnauthorizedException("unauthorized");
         }
-        // add user to the game connections
+    }
+
+
+    public void connectUser(UserGameCommand command, Session session) throws Exception {
+        checkUserPermissions(command);
+
+        // add user to connections
         UserConnection userConnection = formatUserConnection(command, session);
 
         // send notification to all the other players and observers
         List<UserConnection> excludeSender = List.of(userConnection);
-        String message = userConnection.username() + " has joined the game as a " + userConnection.role().name().toLowerCase() + "!";
+        String message = userConnection.username() + " has joined the game as a " + userConnection.role().name().toLowerCase();
         ServerMessage notification = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION, message);
         userConnections.broadcast(command.getGameID(), excludeSender, notification);
 
-        // send a load game to the new player/observer
+        // send load game to the player
         sendLoadGame(userConnection, command.getGameID());
+    }
+
+    public void removeUserFromGame(UserGameCommand command, Session session) throws Exception {
+        checkUserPermissions(command);
+        if (!userConnections.contains(command.getGameID(), dataAccess.getAuthData(command.getAuthToken()).username())) {
+            throw new UnauthorizedException("the user is not in the game, so they cannot be removed from it.");
+        }
+
+        // get the user's connection
+        UserConnection userConnection = userConnections.getConnection(command.getGameID(), dataAccess.getAuthData(command.getAuthToken()).username());
+
+        // send notification to all the other players and observers
+        List<UserConnection> excludeSender = List.of(userConnection);
+        String message = userConnection.username() + " has left the game.";
+        ServerMessage notification = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION, message);
+        userConnections.broadcast(command.getGameID(), excludeSender, notification);
+
+        // remove player from the game
+        if (!userConnection.role().equals(UserConnection.Role.OBSERVER)) {
+            GameData gameToLeave = dataAccess.getGame(command.getGameID());
+            GameData updatedGame = getUpdatedGame(gameToLeave, userConnection);
+            dataAccess.updateGame(updatedGame);
+        }
+
+        // remove the user from the connections
+        userConnections.remove(command.getGameID(), userConnection);
+
+        if (session.isOpen()) {
+            session.close();
+        }
+    }
+
+
+    @NotNull
+    private static GameData getUpdatedGame(GameData gameToLeave, UserConnection userConnection) {
+        String newWhiteUsername = gameToLeave.whiteUsername();
+        String newBlackUsername = gameToLeave.blackUsername();
+        if (userConnection.role().equals(UserConnection.Role.BLACK_PLAYER)) {
+            newBlackUsername = null;
+        }
+        if (userConnection.role().equals(UserConnection.Role.WHITE_PLAYER)) {
+            newWhiteUsername = null;
+        }
+        return new GameData(
+                gameToLeave.gameID(),
+                newWhiteUsername,
+                newBlackUsername,
+                gameToLeave.gameName(),
+                gameToLeave.game(),
+                gameToLeave.winner()
+        );
     }
 }

@@ -21,6 +21,24 @@ public class InterestedPartiesManager {
         connections.get(gameID).remove(connection);
     }
 
+    public boolean contains(int gameId, String username) {
+        for(UserConnection connection : connections.get(gameId)) {
+            if (connection.username().equals(username)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public UserConnection getConnection(int gameId, String username) {
+        for(UserConnection connection : connections.get(gameId)) {
+            if (connection.username().equals(username)) {
+                return connection;
+            }
+        }
+        return null;
+    }
+
     public void broadcast(Integer gameID, List<UserConnection> excludeConnections, ServerMessage notification) throws IOException {
         List<UserConnection> interestedParties = connections.get(gameID);
         for (UserConnection userConnection : interestedParties) {

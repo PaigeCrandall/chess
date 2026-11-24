@@ -50,15 +50,24 @@ public class WebSocketFacade extends Endpoint {
         }
     }
 
-    public void sendConnectRequest(int gameId, String authToken) {
+    public void sendRequest(UserGameCommand command) {
         try {
-            UserGameCommand connectCommand = new UserGameCommand(UserGameCommand.CommandType.CONNECT, authToken, gameId);
-            String jsonCommand = new Gson().toJson(connectCommand);
+            String jsonCommand = new Gson().toJson(command);
             this.session.getBasicRemote().sendText(jsonCommand);
         }
         catch (Exception e) {
             System.out.println("Error in sending connect request from client\n" + e);
         }
+    }
+
+    public void sendConnectRequest(int gameId, String authToken) {
+        UserGameCommand connectCommand = new UserGameCommand(UserGameCommand.CommandType.CONNECT, authToken, gameId);
+        sendRequest(connectCommand);
+    }
+
+    public void sendLeaveGameRequest(String authToken, int gameId) {
+        UserGameCommand leaveCommand = new UserGameCommand(UserGameCommand.CommandType.LEAVE, authToken, gameId);
+        sendRequest(leaveCommand);
     }
 
 

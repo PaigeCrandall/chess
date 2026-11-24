@@ -8,7 +8,8 @@ import java.io.IOException;
 
 public record UserConnection(String username, String authToken, Role role, Session session) {
     public enum Role {
-        PLAYER,
+        WHITE_PLAYER,
+        BLACK_PLAYER,
         OBSERVER
     }
 
