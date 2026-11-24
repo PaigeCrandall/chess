@@ -118,18 +118,18 @@ public class ChessBoardRender {
     public String getHighLightedSquareColor(ChessPosition position) {
         if (position.getRow() % 2 != 0) {
             if (position.getColumn()%2 != 0) {
-                return "\u001B[48;2;20;60;40m";
+                return "\u001B[48;2;130;220;170m"; // white
             }
             else {
-                return "\u001B[48;2;200;230;210m";
+                return "\u001B[48;2;45;140;90m"; //black
             }
         }
         else {
             if (position.getColumn()%2 != 0) {
-                return "\u001B[48;2;200;230;210m";
+                return "\u001B[48;2;45;140;90m"; // black
             }
             else {
-                return "\u001B[48;2;20;60;40m";
+                return "\u001B[48;2;130;220;170m"; // white
             }
         }
     }
@@ -143,18 +143,7 @@ public class ChessBoardRender {
         }
     }
 
-    public void printSquare(ChessPosition position) {
-        String squareColor = getSquareColor(position);
-        if(board.getPiece(position)==null) {
-            printEmptySpace(squareColor);
-        }
-        else {
-            printPiece(board.getPiece(position), squareColor);
-        }
-    }
-
-    public void printHighlightedSquare(ChessPosition position) {
-        String squareColor = getHighLightedSquareColor(position);
+    public void printSquare(ChessPosition position, String squareColor) {
         if(board.getPiece(position)==null) {
             printEmptySpace(squareColor);
         }
@@ -180,12 +169,12 @@ public class ChessBoardRender {
             outstream.print(SET_BG_COLOR_RED + SET_TEXT_COLOR_DARK_GREY  + SET_TEXT_BOLD + " " + y + " ");
             for (int x=1; x<9; x++) {
                 ChessPosition pos = new ChessPosition(y, x);
+                String squareColor = getSquareColor(pos);
                 if (squaresToHighlight!=null &&
                         (squaresToHighlight.contains(pos))) {
-                    printHighlightedSquare(pos);
-                } else {
-                    printSquare(pos);
+                    squareColor = getHighLightedSquareColor(pos);
                 }
+                printSquare(pos, squareColor);
             }
             outstream.print(SET_BG_COLOR_RED + SET_TEXT_COLOR_DARK_GREY  + SET_TEXT_BOLD + " " + y + " ");
             resetColors();
@@ -200,13 +189,12 @@ public class ChessBoardRender {
             outstream.print(SET_BG_COLOR_BLUE + SET_TEXT_COLOR_DARK_GREY  + SET_TEXT_BOLD + " " + y + " ");
             for (int x=8; x>0; x--) {
                 ChessPosition pos = (new ChessPosition(y, x));
+                String squareColor = getSquareColor(pos);
                 if (squaresToHighlight!=null &&
                         (squaresToHighlight.contains(pos))) {
-                    printHighlightedSquare(pos);
+                    squareColor = getHighLightedSquareColor(pos);
                 }
-                else {
-                    printSquare(pos);
-                }
+                printSquare(pos, squareColor);
             }
             outstream.print(SET_BG_COLOR_BLUE + SET_TEXT_COLOR_DARK_GREY  + SET_TEXT_BOLD + " " + y + " ");
             resetColors();

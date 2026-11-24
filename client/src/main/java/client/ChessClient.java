@@ -142,6 +142,7 @@ public class ChessClient implements ServerMessageObserver {
                 SET_TEXT_COLOR_WHITE + SET_TEXT_ITALIC + " - exit the game");
         outStream.println(SET_TEXT_COLOR_BLUE + "  resign" +
                 SET_TEXT_COLOR_WHITE + SET_TEXT_ITALIC + " - submit to the enemy player and admit defeat");
+        resetColors();
     }
 
     public void help() {
@@ -243,11 +244,13 @@ public class ChessClient implements ServerMessageObserver {
     }
 
     public void printChessBoard() {
+        resetColors();
         ChessBoardRender renderer = new ChessBoardRender(outStream, currentGame.game().getBoard(), color.name(), "Chess Board");
         renderer.renderBoard();
     }
 
     public void printChessBoardHighlighted(String strPos) {
+        resetColors();
         ChessPosition position = parseTwoLetterStringCommands(strPos);
         if (currentGame.game().getBoard().getPiece(position)==null) {
             outStream.println(SET_TEXT_COLOR_LIGHT_GREY + "There is no piece to move at " + strPos);
@@ -256,16 +259,18 @@ public class ChessClient implements ServerMessageObserver {
             ChessBoardRender renderer = new ChessBoardRender(outStream, currentGame.game().getBoard(), color.name(), "Chess Board");
             Collection<ChessMove> movesToHighlight = currentGame.game().validMoves(position);
             Collection<ChessPosition> squaresToHighlight = new ArrayList<>();
+            squaresToHighlight.add(position);
             for (ChessMove move : movesToHighlight) {
                 squaresToHighlight.add(move.getEndPosition());
             }
+            squaresToHighlight.add(position);
             renderer.renderBoardWithHighlight(squaresToHighlight);
         }
     }
 
     public ChessPosition parseTwoLetterStringCommands(String positions) {
         int row = Character.getNumericValue(positions.charAt(1));
-        int column = positions.charAt(0) - 'a' + 1;
+        int column = 9-(positions.charAt(0) - 'a' + 1);
         return new ChessPosition(row, column);
     }
 
