@@ -27,8 +27,7 @@ public class WebSocketFacade extends Endpoint {
             this.session.addMessageHandler(new MessageHandler.Whole<String>() {
                 @Override
                 public void onMessage(String message) {
-//                  ServerMessage notification = new Gson().fromJson(message, ServerMessage.class);
-                    ServerMessage notification = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION, message);
+                    ServerMessage notification = new Gson().fromJson(message, ServerMessage.class);
                     notificationHandler.notify(notification);
                 }
             });
@@ -58,7 +57,7 @@ public class WebSocketFacade extends Endpoint {
             this.session.getBasicRemote().sendText(jsonCommand);
         }
         catch (Exception e) {
-            System.out.println("error in sending greeting");
+            System.out.println("Error in sending connect request from client\n" + e);
         }
     }
 

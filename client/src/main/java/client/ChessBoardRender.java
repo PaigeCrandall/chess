@@ -56,7 +56,6 @@ public class ChessBoardRender {
     }
 
     public void printHeading() {
-        outstream.print("\n");
         outstream.print(SET_TEXT_BOLD + SET_TEXT_COLOR_WHITE);
         outstream.print(gameName.toUpperCase());
         outstream.print(RESET_TEXT_BOLD_FAINT + "\n");

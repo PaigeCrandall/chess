@@ -40,6 +40,7 @@ public class WebSocketHandler  implements WsConnectHandler, WsMessageHandler, Ws
 //          session.getRemote().sendString("Hell back -WS");
         } catch (Exception e) {
             System.out.println("there was a problem sending hello back from server");
+            System.out.println(e);
         }
     }
 
@@ -51,8 +52,10 @@ public class WebSocketHandler  implements WsConnectHandler, WsMessageHandler, Ws
     public UserConnection formatUserConnection(UserGameCommand command, Session session) throws DataAccessException {
         String username = dataAccess.getAuthData(command.getAuthToken()).username();
         UserConnection.Role role = UserConnection.Role.OBSERVER;
-        if (dataAccess.getGame(command.getGameID()).whiteUsername().equals(dataAccess.getAuthData(command.getAuthToken()).username()) ||
-                dataAccess.getGame(command.getGameID()).blackUsername().equals(dataAccess.getAuthData(command.getAuthToken()).username())) {
+        if (((dataAccess.getGame(command.getGameID()).whiteUsername()!=null) &&
+                (dataAccess.getGame(command.getGameID()).whiteUsername().equals(dataAccess.getAuthData(command.getAuthToken()).username()))) ||
+                ((dataAccess.getGame(command.getGameID()).blackUsername()!=null) &&
+                (dataAccess.getGame(command.getGameID()).blackUsername().equals(dataAccess.getAuthData(command.getAuthToken()).username())))) {
             role = UserConnection.Role.PLAYER;
         }
         UserConnection userConnection = new UserConnection(username, command.getAuthToken(), role, session);
@@ -62,8 +65,7 @@ public class WebSocketHandler  implements WsConnectHandler, WsMessageHandler, Ws
 
     public void sendLoadGame(UserConnection userToSendTo, int gameID) throws DataAccessException, IOException {
         GameData game = dataAccess.getGame(gameID);
-        String gameJson = new Gson().toJson(game);
-        ServerMessage loadGame = new ServerMessage(ServerMessage.ServerMessageType.LOAD_GAME, gameJson);
+        ServerMessage loadGame = new ServerMessage(ServerMessage.ServerMessageType.LOAD_GAME, new Gson().toJson(game));
         userToSendTo.send(loadGame);
     }
 

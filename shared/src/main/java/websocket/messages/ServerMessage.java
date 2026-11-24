@@ -1,5 +1,10 @@
 package websocket.messages;
 
+import chess.GameSerializer;
+import com.google.gson.Gson;
+import model.GameData;
+
+import java.util.Locale;
 import java.util.Objects;
 
 /**
@@ -43,6 +48,18 @@ public class ServerMessage {
 
     public String getServerMessage() {
         return this.message;
+    }
+
+    public String getErrorMessageMessage() {
+        return this.errorMessage;
+    }
+
+    public GameData getGame() {
+        if (game!=null) {
+            Gson gson = new GameSerializer().createChessSerializer();
+            return gson.fromJson(game, GameData.class);
+        }
+        return null;
     }
 
     @Override

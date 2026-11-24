@@ -44,11 +44,11 @@ public class ServerFacade {
         httpHandler.joinGame(gameID, color, authToken);
     }
 
-    public void sendHelloWS(Integer gameID, ServerMessageObserver notificationHandler) throws Exception {
-        wsHandler = new WebSocketFacade(url, notificationHandler);
-        String hello = "hello! -Client"; // usually I would send a UseCommand
-        wsHandler.sendHello(hello);
-    }
+//    public void sendHelloWS(Integer gameID, ServerMessageObserver notificationHandler) throws Exception {
+//        wsHandler = new WebSocketFacade(url, notificationHandler);
+//        String hello = "hello! -Client"; // usually I would send a UseCommand
+//        wsHandler.sendHello(hello);
+//    }
 
     public void wsConnect(Integer gameID, ServerMessageObserver notificationHandler, String authToken) throws Exception {
         wsHandler = new WebSocketFacade(url, notificationHandler);

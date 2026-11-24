@@ -1,6 +1,8 @@
 package client;
 
 import chess.ChessGame;
+import chess.GameSerializer;
+import com.google.gson.Gson;
 import exceptions.*;
 import model.AuthData;
 import model.GameData;
@@ -238,8 +240,8 @@ public class ChessClient implements ServerMessageObserver {
         } catch(Exception e) { handleErrors(e, "create game"); }
     }
 
-    public void printChessBoard(ChessGame game, String colorPerspective) {
-        ChessBoardRender renderer = new ChessBoardRender(outStream, game.getBoard(), colorPerspective, "Chess Board");
+    public void printChessBoard() {
+        ChessBoardRender renderer = new ChessBoardRender(outStream, currentGame.game().getBoard(), color.name(), "Chess Board");
         renderer.renderBoard();
     }
 
@@ -284,10 +286,6 @@ public class ChessClient implements ServerMessageObserver {
                 this.color = (color.equals("WHITE") ? ChessGame.TeamColor.WHITE : ChessGame.TeamColor.BLACK);
                 outStream.println(SET_TEXT_COLOR_LIGHT_GREY + "You have joined game " + id + " as " + color.toLowerCase() + "!");
 
-                outStream.println("You can't play a game yet, but here's a new board from the " + color.toLowerCase() + " perspective.");
-                printChessBoard(new ChessGame(), color);
-
-                facade.sendHelloWS(id, this);
                 facade.wsConnect(id, this, auth.authToken());
                 state = UserState.GAMEPLAY;
 
@@ -312,8 +310,7 @@ public class ChessClient implements ServerMessageObserver {
                 return;
             }
             outStream.println(SET_TEXT_COLOR_LIGHT_GREY + "You have joined game " + id + " as an observer.");
-            outStream.println("You can't observe a game yet, but here's a new board from the white perspective.");
-            printChessBoard(new ChessGame(), "WHITE");
+            outStream.println("You can't observe a game yet.");
         }
         resetColors();
     }
@@ -337,8 +334,11 @@ public class ChessClient implements ServerMessageObserver {
                 outStream.println(SET_TEXT_COLOR_RED + SET_TEXT_ITALIC);
                 outStream.println(message.getServerMessage());
             } else if (message.getServerMessageType() == ServerMessage.ServerMessageType.LOAD_GAME) {
-                outStream.println(SET_TEXT_COLOR_RED + SET_TEXT_ITALIC + "now we should print the game:" + SET_TEXT_COLOR_WHITE);
-                outStream.println(message.getServerMessage());
+                currentGame = message.getGame();
+                printChessBoard();
+            }
+            else {
+                outStream.println(SET_TEXT_COLOR_LIGHT_GREY + "Received something else ????????????????");
             }
             resetColors();
             outStream.flush();
