@@ -47,6 +47,13 @@ public class ChessClient implements ServerMessageObserver {
         GAMEPLAY
     }
 
+    public boolean userIsPlayer() {
+        if (currentGame!=null&&username!=null) {
+            return currentGame.whiteUsername().equals(username) || currentGame.blackUsername().equals(username);
+        }
+        return false;
+    }
+
     public UserState getState() {
         return state;
     }
@@ -138,12 +145,14 @@ public class ChessClient implements ServerMessageObserver {
                 SET_TEXT_COLOR_WHITE + SET_TEXT_ITALIC + " - refresh the board");
         outStream.println(SET_TEXT_COLOR_BLUE + "  highlight {chess square}" +
                 SET_TEXT_COLOR_WHITE + SET_TEXT_ITALIC + " - show all possible moves that a piece could make (example: highlight e2)");
-        outStream.println(SET_TEXT_COLOR_BLUE + "  move {move}" +
-                SET_TEXT_COLOR_WHITE + SET_TEXT_ITALIC + " - move a chess piece (example: move e2e4)");
+        if (userIsPlayer()) {
+            outStream.println(SET_TEXT_COLOR_BLUE + "  move {move}" +
+                    SET_TEXT_COLOR_WHITE + SET_TEXT_ITALIC + " - move a chess piece (example: move e2e4)");
+            outStream.println(SET_TEXT_COLOR_BLUE + "  resign" +
+                    SET_TEXT_COLOR_WHITE + SET_TEXT_ITALIC + " - submit to the enemy player and admit defeat");
+        }
         outStream.println(SET_TEXT_COLOR_BLUE + "  leave" +
                 SET_TEXT_COLOR_WHITE + SET_TEXT_ITALIC + " - exit the game");
-        outStream.println(SET_TEXT_COLOR_BLUE + "  resign" +
-                SET_TEXT_COLOR_WHITE + SET_TEXT_ITALIC + " - submit to the enemy player and admit defeat");
         resetColors();
     }
 
@@ -373,13 +382,12 @@ public class ChessClient implements ServerMessageObserver {
 
     public void resign() {
         Scanner scanner = new Scanner(System.in);
-        if (currentGame.whiteUsername()==null ||
-                (color==ChessGame.TeamColor.WHITE&&!currentGame.whiteUsername().equals(username))) {
+        if (!userIsPlayer()) {
             outStream.println(SET_TEXT_COLOR_LIGHT_GREY + "Observers cannot resign. Type 'leave' to exit the game.");
             return;
         }
         if (currentGame.winner()!=null) {
-            outStream.println(SET_TEXT_COLOR_LIGHT_GREY + "This game is already over.");
+            outStream.println(SET_TEXT_COLOR_LIGHT_GREY + "This game is already over!");
             return;
         }
         outStream.print(SET_TEXT_FAINT + SET_TEXT_COLOR_WHITE +
@@ -388,11 +396,12 @@ public class ChessClient implements ServerMessageObserver {
         resetColors();
         String y_n = scanner.nextLine().toLowerCase();
         if (y_n.equals("y")) {
-            String winner = currentGame.blackUsername();
-            if (color== ChessGame.TeamColor.BLACK) {
-                winner = currentGame.whiteUsername();
+            try {
+                facade.resignGame(auth.authToken(), currentGame.gameID());
             }
-            markGameDone(winner);
+            catch (UnauthorizedException e) {
+                outStream.println(SET_TEXT_COLOR_RED + "Error: You cannot resign from this game.");
+            }
         }
     }
 
@@ -423,11 +432,9 @@ public class ChessClient implements ServerMessageObserver {
         synchronized (System.out) {
             outStream.print("\n");
             if (message.getServerMessageType() == ServerMessage.ServerMessageType.NOTIFICATION) {
-                outStream.println(SET_TEXT_COLOR_BLUE + SET_TEXT_ITALIC);
-                outStream.println(message.getServerMessage());
+                outStream.println(SET_TEXT_COLOR_BLUE + SET_TEXT_ITALIC + message.getServerMessage());
             } else if (message.getServerMessageType() == ServerMessage.ServerMessageType.ERROR) {
-                outStream.println(SET_TEXT_COLOR_RED + SET_TEXT_ITALIC);
-                outStream.println(message.getServerMessage());
+                outStream.println(SET_TEXT_COLOR_RED + SET_TEXT_ITALIC + message.getServerMessage());
             } else if (message.getServerMessageType() == ServerMessage.ServerMessageType.LOAD_GAME) {
                 currentGame = message.getGame();
                 printChessBoard();

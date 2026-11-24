@@ -64,4 +64,13 @@ public class ServerFacade {
         }
     }
 
+    public void resignGame(String authToken, int gameId) throws UnauthorizedException {
+        if (wsHandler!= null) {
+//            wsHandler.sendLeaveGameRequest(authToken, gameId);
+        }
+        else {
+            throw new UnauthorizedException("User tried to resign from a game that they were not playing");
+        }
+    }
+
 }
