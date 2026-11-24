@@ -22,6 +22,7 @@ public class ChessClient implements ServerMessageObserver {
     public ServerFacade facade;
     public ChessClient.UserState state;
     public AuthData auth;
+    public String username;
     public ArrayList<GameData> listedGames;
 
     public GameData currentGame;
@@ -171,6 +172,7 @@ public class ChessClient implements ServerMessageObserver {
         String password = scanner.nextLine();
         try {
             auth = facade.login(username, password);
+            this.username = username;
             state = UserState.LOGGED_IN;
             outStream.println(SET_TEXT_COLOR_WHITE + "You are signed in!");
         } catch(UnauthorizedException e) {
@@ -189,6 +191,7 @@ public class ChessClient implements ServerMessageObserver {
         String password = scanner.nextLine();
         try {
             auth = facade.register(username, email, password);
+            this.username = username;
             state = UserState.LOGGED_IN;
             outStream.println(SET_TEXT_COLOR_WHITE + "You are signed in!");
         } catch(AlreadyTakenException e) {
@@ -200,6 +203,7 @@ public class ChessClient implements ServerMessageObserver {
         try {
             facade.logout(auth.authToken());
             auth = null;
+            username = null;
             state = UserState.LOGGED_OUT;
             outStream.println(SET_TEXT_COLOR_WHITE + "You are signed out!");
         } catch(Exception e) { handleErrors(e, "logout"); }
@@ -244,6 +248,11 @@ public class ChessClient implements ServerMessageObserver {
     }
 
     public void printChessBoard() {
+        if (currentGame.winner()!=null) {
+            outStream.print(SET_TEXT_COLOR_BLUE + SET_TEXT_BOLD +
+                    "This game is over! The winner was "
+                    + SET_TEXT_COLOR_RED + currentGame.winner());
+        }
         resetColors();
         ChessBoardRender renderer = new ChessBoardRender(outStream, currentGame.game().getBoard(), color.name(), "Chess Board");
         renderer.renderBoard();
@@ -349,6 +358,41 @@ public class ChessClient implements ServerMessageObserver {
             }
         }
         resetColors();
+    }
+
+    public void markGameDone(String winner) {
+        currentGame = new GameData(
+                currentGame.gameID(),
+                currentGame.whiteUsername(),
+                currentGame.blackUsername(),
+                currentGame.gameName(),
+                currentGame.game()
+        );
+    }
+
+    public void resign() {
+        Scanner scanner = new Scanner(System.in);
+        if (currentGame.whiteUsername()==null ||
+                (color==ChessGame.TeamColor.WHITE&&!currentGame.whiteUsername().equals(username))) {
+            outStream.println(SET_TEXT_COLOR_LIGHT_GREY + "Observers cannot resign. Type leave to exit the game.");
+            return;
+        }
+        if (currentGame.winner()!=null) {
+            outStream.println(SET_TEXT_COLOR_LIGHT_GREY + "This game is already over.");
+            return;
+        }
+        outStream.print(SET_TEXT_FAINT + SET_TEXT_COLOR_WHITE +
+                "Are you sure you want to resign? " + SET_TEXT_FAINT +
+                SET_TEXT_COLOR_RED + "(y/n) ");
+        resetColors();
+        String y_n = scanner.nextLine().toLowerCase();
+        if (y_n.equals("y")) {
+            String winner = currentGame.blackUsername();
+            if (color== ChessGame.TeamColor.BLACK) {
+                winner = currentGame.whiteUsername();
+            }
+            markGameDone(winner);
+        }
     }
 
     public void printUserPromptBasedOnStateAndColor() {

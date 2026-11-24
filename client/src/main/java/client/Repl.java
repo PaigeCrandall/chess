@@ -42,7 +42,7 @@ public class Repl {
             case "highlight": client.printChessBoardHighlighted(words[1]); break;
             case "move": outStream.println("make move: " + words[1]); break;
             case "leave": outStream.println("You are trying to leave the game."); break;
-            case "resign": outStream.println("You have now lost the game."); break;
+            case "resign": client.resign(); break;
             case "help": client.help(); break;
             default: outStream.println(SET_TEXT_COLOR_RED + input + " is not a valid command."); client.help(); break;
         }
