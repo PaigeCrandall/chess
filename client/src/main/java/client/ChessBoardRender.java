@@ -4,6 +4,8 @@ import chess.ChessBoard;
 import chess.ChessGame;
 import chess.ChessPiece;
 import chess.ChessPosition;
+
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -47,10 +49,21 @@ public class ChessBoardRender {
     public void renderBoard() {
         printHeading();
         if (color.equals("WHITE")) {
-            printBoardFromWhitePerspective();
+            printBoardFromWhitePerspective(null);
         }
         else {
-            printBoardFromBlackPerspective();
+            printBoardFromBlackPerspective(null);
+        }
+        outstream.print("\n");
+    }
+
+    public void renderBoardWithHighlight(Collection<ChessPosition> squaresToHighlight) {
+        printHeading();
+        if (color.equals("WHITE")) {
+            printBoardFromWhitePerspective(squaresToHighlight);
+        }
+        else {
+            printBoardFromBlackPerspective(squaresToHighlight);
         }
         outstream.print("\n");
     }
@@ -102,6 +115,25 @@ public class ChessBoardRender {
         }
     }
 
+    public String getHighLightedSquareColor(ChessPosition position) {
+        if (position.getRow() % 2 != 0) {
+            if (position.getColumn()%2 != 0) {
+                return "\u001B[48;2;20;60;40m";
+            }
+            else {
+                return "\u001B[48;2;200;230;210m";
+            }
+        }
+        else {
+            if (position.getColumn()%2 != 0) {
+                return "\u001B[48;2;200;230;210m";
+            }
+            else {
+                return "\u001B[48;2;20;60;40m";
+            }
+        }
+    }
+
     public String getPieceColor(ChessPiece piece) {
         if (piece.getTeamColor()== ChessGame.TeamColor.WHITE) {
             return SET_TEXT_COLOR_BLUE;
@@ -121,6 +153,16 @@ public class ChessBoardRender {
         }
     }
 
+    public void printHighlightedSquare(ChessPosition position) {
+        String squareColor = getHighLightedSquareColor(position);
+        if(board.getPiece(position)==null) {
+            printEmptySpace(squareColor);
+        }
+        else {
+            printPiece(board.getPiece(position), squareColor);
+        }
+    }
+
     public void printColorRow(String colorRow) {
         printEmptySpace(colorRow);
         List<String> list = List.of("a", "b", "c", "d", "e", "f", "g", "h");
@@ -132,12 +174,18 @@ public class ChessBoardRender {
         outstream.print("\n");
     }
 
-    public void printBoardFromBlackPerspective() {
+    public void printBoardFromBlackPerspective(Collection<ChessPosition> squaresToHighlight) {
         printColorRow(SET_BG_COLOR_RED);
         for (int y = 1; y<9; y++) {
             outstream.print(SET_BG_COLOR_RED + SET_TEXT_COLOR_DARK_GREY  + SET_TEXT_BOLD + " " + y + " ");
             for (int x=1; x<9; x++) {
-                printSquare(new ChessPosition(y, x));
+                ChessPosition pos = new ChessPosition(y, x);
+                if (squaresToHighlight!=null &&
+                        (squaresToHighlight.contains(pos))) {
+                    printHighlightedSquare(pos);
+                } else {
+                    printSquare(pos);
+                }
             }
             outstream.print(SET_BG_COLOR_RED + SET_TEXT_COLOR_DARK_GREY  + SET_TEXT_BOLD + " " + y + " ");
             resetColors();
@@ -146,12 +194,19 @@ public class ChessBoardRender {
         printColorRow(SET_BG_COLOR_RED);
     }
 
-    public void printBoardFromWhitePerspective() {
+    public void printBoardFromWhitePerspective(Collection<ChessPosition> squaresToHighlight) {
         printColorRow(SET_BG_COLOR_BLUE);
         for (int y = 8; y>0; y--) {
             outstream.print(SET_BG_COLOR_BLUE + SET_TEXT_COLOR_DARK_GREY  + SET_TEXT_BOLD + " " + y + " ");
             for (int x=8; x>0; x--) {
-                printSquare(new ChessPosition(y, x));
+                ChessPosition pos = (new ChessPosition(y, x));
+                if (squaresToHighlight!=null &&
+                        (squaresToHighlight.contains(pos))) {
+                    printHighlightedSquare(pos);
+                }
+                else {
+                    printSquare(pos);
+                }
             }
             outstream.print(SET_BG_COLOR_BLUE + SET_TEXT_COLOR_DARK_GREY  + SET_TEXT_BOLD + " " + y + " ");
             resetColors();

@@ -1,8 +1,8 @@
 package client;
 
 import chess.ChessGame;
-import chess.GameSerializer;
-import com.google.gson.Gson;
+import chess.ChessMove;
+import chess.ChessPosition;
 import exceptions.*;
 import model.AuthData;
 import model.GameData;
@@ -10,8 +10,10 @@ import model.results.ListGamesResult;
 import websocket.messages.ServerMessage;
 
 import java.io.PrintStream;
+import java.lang.reflect.Array;
 import java.net.ConnectException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Scanner;
 
 import static ui.EscapeSequences.*;
@@ -243,6 +245,28 @@ public class ChessClient implements ServerMessageObserver {
     public void printChessBoard() {
         ChessBoardRender renderer = new ChessBoardRender(outStream, currentGame.game().getBoard(), color.name(), "Chess Board");
         renderer.renderBoard();
+    }
+
+    public void printChessBoardHighlighted(String strPos) {
+        ChessPosition position = parseTwoLetterStringCommands(strPos);
+        if (currentGame.game().getBoard().getPiece(position)==null) {
+            outStream.println(SET_TEXT_COLOR_LIGHT_GREY + "There is no piece to move at " + strPos);
+        }
+        else {
+            ChessBoardRender renderer = new ChessBoardRender(outStream, currentGame.game().getBoard(), color.name(), "Chess Board");
+            Collection<ChessMove> movesToHighlight = currentGame.game().validMoves(position);
+            Collection<ChessPosition> squaresToHighlight = new ArrayList<>();
+            for (ChessMove move : movesToHighlight) {
+                squaresToHighlight.add(move.getEndPosition());
+            }
+            renderer.renderBoardWithHighlight(squaresToHighlight);
+        }
+    }
+
+    public ChessPosition parseTwoLetterStringCommands(String positions) {
+        int row = Character.getNumericValue(positions.charAt(1));
+        int column = positions.charAt(0) - 'a' + 1;
+        return new ChessPosition(row, column);
     }
 
     public Integer getGameIdFromPlayer() {

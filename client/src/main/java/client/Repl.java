@@ -38,8 +38,8 @@ public class Repl {
         if (checkForBadGameplayInput( words, outStream)) {return;}
         String command = words[0];
         switch (command) {
-            case "redraw": outStream.println("Imagine a beautiful new chessboard is printed before your eyes."); break;
-            case "highlight": outStream.println("Show moves for: " + words[1]); break;
+            case "redraw": client.printChessBoard();; break;
+            case "highlight": client.printChessBoardHighlighted(words[1]); break;
             case "move": outStream.println("make move: " + words[1]); break;
             case "leave": outStream.println("You are trying to leave the game."); break;
             case "resign": outStream.println("You have now lost the game."); break;
@@ -77,7 +77,7 @@ public class Repl {
         ChessBoard board = new ChessBoard();
         board.resetBoard();
         ChessBoardRender renderer = new ChessBoardRender(System.out, board, "BLACK", "Chess Board");
-        renderer.printBoardFromBlackPerspective();
+        renderer.printBoardFromBlackPerspective(null);
         outStream.println(SET_TEXT_BOLD + SET_TEXT_COLOR_BLUE + "   " + WHITE_KING +
                 SET_TEXT_COLOR_WHITE + "Welcome to Chess!"
                 + SET_TEXT_COLOR_BLUE + WHITE_KING
